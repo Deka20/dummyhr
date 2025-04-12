@@ -6,6 +6,12 @@ use App\Http\Controllers\AuthController;
 Route::get('/dashboard', function () {
     return view('dashboard.index');
 });
+Route::get('/sidebar', function () {
+    return view('layouts.sidebar');
+});
+Route::get('/header-content', function () {
+    return view('layouts.header-content');
+});
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.attempt');

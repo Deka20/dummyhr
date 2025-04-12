@@ -1,153 +1,155 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- [Head] start -->
-
 <head>
-  <title>Login | Mantis Bootstrap 5 Admin Template</title>
-  <!-- [Meta] -->
+  <title>Login | YAYASAN DARUSSALAM</title>
+
+  <!-- Meta -->
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="description" content="Mantis is made using Bootstrap 5 design framework. Download the free admin template & use it for your project.">
-  <meta name="keywords" content="Mantis, Dashboard UI Kit, Bootstrap 5, Admin Template, Admin Dashboard, CRM, CMS, Bootstrap Admin Template">
-  <meta name="author" content="CodedThemes">
+  <meta name="description" content="Sistem Informasi Yayasan Darussalam">
+  <meta name="keywords" content="Laravel, HRM, Admin Template, Bootstrap 5">
+  <meta name="author" content="Tim PBL 221">
 
-  <!-- [Favicon] icon -->
-  <link rel="icon" href="../assets/images/favicon.svg" type="image/x-icon"> <!-- [Google Font] Family -->
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap" id="main-font-link">
-<!-- [Tabler Icons] https://tablericons.com -->
-<link rel="stylesheet" href="../assets/fonts/tabler-icons.min.css" >
-<!-- [Feather Icons] https://feathericons.com -->
-<link rel="stylesheet" href="../assets/fonts/feather.css" >
-<!-- [Font Awesome Icons] https://fontawesome.com/icons -->
-<link rel="stylesheet" href="../assets/fonts/fontawesome.css" >
-<!-- [Material Icons] https://fonts.google.com/icons -->
-<link rel="stylesheet" href="../assets/fonts/material.css" >
-<!-- [Template CSS Files] -->
-<link rel="stylesheet" href="../assets/css/style.css" id="main-style-link" >
-<link rel="stylesheet" href="../assets/css/style-preset.css" >
+  <!-- Favicon -->
+  <link rel="icon" href="{{ asset('assets/images/logo.png') }}" type="image/x-icon">
 
+  <!-- Fonts & Icons -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap" id="main-font-link">
+  <link rel="stylesheet" href="{{ asset('assets/fonts/tabler-icons.min.css') }}">
+  <link rel="stylesheet" href="{{ asset('assets/fonts/feather.css') }}">
+  <link rel="stylesheet" href="{{ asset('assets/fonts/fontawesome.css') }}">
+  <link rel="stylesheet" href="{{ asset('assets/fonts/material.css') }}">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}" id="main-style-link">
+  <link rel="stylesheet" href="{{ asset('assets/css/style-preset.css') }}">
 </head>
-<!-- [Head] end -->
-<!-- [Body] Start -->
 
+<style>
+    body {
+    background-color: #f8f9fa;
+    font-family: 'Public Sans', sans-serif;
+  }
+
+  .login-card {
+    max-width: 400px;
+    margin: 100px auto;
+    padding: 30px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .header-logo {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    display: flex;
+    align-items: center;
+  }
+
+  .header-logo img {
+    height: 50px;
+    margin-right: 10px;
+  }
+
+  .header-logo h5 {
+    margin: 0;
+    font-weight: bold;
+    text-transform: uppercase;
+    line-height: 1.1;
+  }
+
+
+
+  .btn-primary {
+    background-color: #0056b3;
+    border-color: #0056b3;
+  }
+
+  .btn-primary:hover {
+    background-color: #004799;
+    border-color: #004799;
+  }
+
+  .link-primary {
+    color: #ffcc00 !important;
+  }
+
+  .link-primary:hover {
+    color: #e6b800 !important;
+    text-decoration: underline;
+  }
+
+  .form-check-input:checked {
+    background-color: #0056b3;
+    border-color: #0056b3;
+  }
+
+  .form-check-input:focus {
+    box-shadow: 0 0 0 0.2rem rgba(0, 86, 179, 0.25);
+  }
+  </style>
+</head>
 <body>
-  <!-- [ Pre-loader ] start -->
-  <div class="loader-bg">
-    <div class="loader-track">
-      <div class="loader-fill"></div>
+
+  <!-- Logo di pojok kiri atas -->
+  <div class="header-logo">
+    <img src="assets/images/logo.png" alt="Logo">
+    <div class="vr me-3" style="height: 50px;"></div>
+    <div>
+      <h5>HR YAYASAN</h5>
+      <h5>DARUSSALAM</h5>
     </div>
   </div>
-  <!-- [ Pre-loader ] End -->
 
-  <div class="auth-main">
-    <div class="auth-wrapper v3">
-      <div class="auth-form">
-        <div class="auth-header">
-          <a href="#"><img src="../assets/images/logo-dark.svg" alt="img"></a>
-        </div>
-        <div class="card my-5">
-          <div class="card-body">
-            <div class="d-flex justify-content-between align-items-end mb-4">
-              <h3 class="mb-0"><b>Login</b></h3>
-              <a href="#" class="link-primary">Don't have an account?</a>
-            </div>
-            <div class="form-group mb-3">
-              <label class="form-label">Email Address</label>
-              <input type="email" class="form-control" placeholder="Email Address">
-            </div>
-            <div class="form-group mb-3">
-              <label class="form-label">Password</label>
-              <input type="password" class="form-control" placeholder="Password">
-            </div>
-            <div class="d-flex mt-1 justify-content-between">
-              <div class="form-check">
-                <input class="form-check-input input-primary" type="checkbox" id="customCheckc1" checked="">
-                <label class="form-check-label text-muted" for="customCheckc1">Keep me sign in</label>
-              </div>
-              <h5 class="text-secondary f-w-400">Forgot Password?</h5>
-            </div>
-            <div class="d-grid mt-4">
-              <button type="button" class="btn btn-primary">Login</button>
-            </div>
-            <div class="saprator mt-3">
-              <span>Login with</span>
-            </div>
-            <div class="row">
-              <div class="col-4">
-                <div class="d-grid">
-                  <button type="button" class="btn mt-2 btn-light-primary bg-light text-muted">
-                    <img src="../assets/images/authentication/google.svg" alt="img"> <span class="d-none d-sm-inline-block"> Google</span>
-                  </button>
-                </div>
-              </div>
-              <div class="col-4">
-                <div class="d-grid">
-                  <button type="button" class="btn mt-2 btn-light-primary bg-light text-muted">
-                    <img src="../assets/images/authentication/twitter.svg" alt="img"> <span class="d-none d-sm-inline-block"> Twitter</span>
-                  </button>
-                </div>
-              </div>
-              <div class="col-4">
-                <div class="d-grid">
-                  <button type="button" class="btn mt-2 btn-light-primary bg-light text-muted">
-                    <img src="../assets/images/authentication/facebook.svg" alt="img"> <span class="d-none d-sm-inline-block"> Facebook</span>
-                  </button>
-                </div>
-              </div>
-            </div>
+  <!-- Card login -->
+  <div class="login-card">
+  <div class="d-flex justify-content-between align-items-end mb-5">
+            <h4 class="mb-0 fw-bold">Login</h4>
+            <a href="#" class="link-primary small">Don't have an account?</a>
           </div>
-        </div>
-        <div class="auth-footer row">
-          <!-- <div class=""> -->
-            <div class="col my-1">
-              <p class="m-0">Copyright © <a href="#">Codedthemes</a></p>
-            </div>
-            <div class="col-auto my-1">
-              <ul class="list-inline footer-link mb-0">
-                <li class="list-inline-item"><a href="#">Home</a></li>
-                <li class="list-inline-item"><a href="#">Privacy Policy</a></li>
-                <li class="list-inline-item"><a href="#">Contact us</a></li>
-              </ul>
-            </div>
-          <!-- </div> -->
-        </div>
-      </div>
+    <div class="mb-3">
+      <label for="email" class="form-label">Email Address</label>
+      <input type="email" class="form-control" id="email" placeholder="Email Address" required>
     </div>
+
+    <div class="mb-3">
+      <label for="password" class="form-label">Password</label>
+      <input type="password" class="form-control" id="password" placeholder="Password" required>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="remember">
+        <label class="form-check-label" for="remember">Keep me signed in</label>
+      </div>
+      <a href="#" class="small text-decoration-none">Forgot Password?</a>
+    </div>
+
+    <button class="btn btn-primary w-100">Login</button>
+
+    <div class="text-center mt-3">
+      <a href="#" class="text-decoration-none small">Don't have an account?</a>
+    </div>
+
+    <p class="text-center mt-4 text-muted small mb-0">© 2025 PBL 221</p>
   </div>
-  <!-- [ Main Content ] end -->
-  <!-- Required Js -->
-  <script src="../assets/js/plugins/popper.min.js"></script>
-  <script src="../assets/js/plugins/simplebar.min.js"></script>
-  <script src="../assets/js/plugins/bootstrap.min.js"></script>
-  <script src="../assets/js/fonts/custom-font.js"></script>
-  <script src="../assets/js/pcoded.js"></script>
-  <script src="../assets/js/plugins/feather.min.js"></script>
 
-  
-  
-  
-  
+  <!-- Scripts -->
+  <script src="{{ asset('assets/js/plugins/popper.min.js') }}"></script>
+  <script src="{{ asset('assets/js/plugins/simplebar.min.js') }}"></script>
+  <script src="{{ asset('assets/js/plugins/bootstrap.min.js') }}"></script>
+  <script src="{{ asset('assets/js/fonts/custom-font.js') }}"></script>
+  <script src="{{ asset('assets/js/pcoded.js') }}"></script>
+  <script src="{{ asset('assets/js/plugins/feather.min.js') }}"></script>
+
+  <!-- Layout Scripts -->
   <script>layout_change('light');</script>
-  
-  
-  
-  
   <script>change_box_container('false');</script>
-  
-  
-  
   <script>layout_rtl_change('false');</script>
-  
-  
   <script>preset_change("preset-1");</script>
-  
-  
   <script>font_change("Public-Sans");</script>
-  
-    
- 
 </body>
-<!-- [Body] end -->
-
 </html>
