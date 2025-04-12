@@ -1,38 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
-<!-- [Head] start -->
-<head>
-  <title>Home | Dashboard</title>
-  <!-- [Meta] -->
-  <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
+@extends('dashboard.master') {{-- <== GANTI SESUAI NAMA FILE MASTER --}}
 
-@include('layouts.head-css')
-</head>
-<!-- [Body] Start -->
-
-<body data-pc-preset="preset-1" data-pc-direction="ltr" data-pc-theme="light">
-  <!-- [ Pre-loader ] start -->
-<div class="loader-bg">
-  <div class="loader-track">
-    <div class="loader-fill"></div>
-  </div>
-</div>
-
-@include('layouts.sidebar')
-@include('layouts.topbar')
-<!-- [ Header ] end -->
+@section('title', 'Home | Dashboard')
 
 
+@section('breadcrumb')
+    <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+@endsection
 
-  <!-- [ Main Content ] start -->
-  <div class="pc-container">
-    <div class="pc-content">
-      <!-- [ breadcrumb ] start -->
-      @include('layouts.breadcrumb')
-      <!-- [ breadcrumb ] end -->
-      <!-- [ Main Content ] start -->
+@section('content')
       <div class="row">
         <!-- [ sample-page ] start -->
         <div class="col-md-6 col-xl-3">
@@ -82,13 +57,4 @@
       </div>
     </div>
   </div>
-  <!-- [ Main Content ] end -->
-@include('layouts.footer')
-@include('layouts.footer-js')
-  
-    
-
-</body>
-<!-- [Body] end -->
-
-</html>
+  @endsection

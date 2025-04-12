@@ -12,6 +12,18 @@ Route::get('/sidebar', function () {
 Route::get('/header-content', function () {
     return view('layouts.header-content');
 });
+Route::get('/', function(){
+    return view('pages.login');
+});
+Route::get('/karyawan', function(){
+    return view('dashboard.karyawan');
+});
+Route::get('/absensi', function(){
+    return view('dashboard.absensi');
+});
+Route::get('/jabatan', function(){
+    return view('dashboard.struktur');
+});
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.attempt');

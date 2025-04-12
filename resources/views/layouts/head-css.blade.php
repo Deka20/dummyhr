@@ -19,3 +19,22 @@
 <!-- Template CSS -->
 <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}" id="main-style-link">
 <link rel="stylesheet" href="{{ asset('assets/css/style-preset.css') }}">
+<style>
+    /* Mengubah warna teks dan latar belakang pagination */
+    div.dataTables_wrapper div.dataTables_paginate ul.pagination {
+        background-color: #f8f9fa;  /* Mengatur latar belakang pagination */
+        color: #495057;  /* Mengatur warna teks */
+    }
+
+    /* Mengubah warna saat hover pada item pagination */
+    div.dataTables_wrapper div.dataTables_paginate ul.pagination li a:hover {
+        background-color: #0d6efd;  /* Mengubah warna latar belakang saat hover */
+        color: #fff;  /* Mengubah warna teks saat hover */
+    }
+
+    /* Mengubah warna pagination aktif */
+    div.dataTables_wrapper div.dataTables_paginate ul.pagination li.active a {
+        background-color: #0d6efd;  /* Latar belakang aktif */
+        color: #fff;  /* Warna teks aktif */
+    }
+</style>
