@@ -21,8 +21,17 @@ Route::get('/karyawan', function(){
 Route::get('/absensi', function(){
     return view('dashboard.absensi');
 });
+Route::get('/penilaian', function(){
+    return view('dashboard.penilaian');
+});
+Route::get('/penilaian-karyawan', function(){
+    return view('dashboard.penilaian-karyawan');
+});
 Route::get('/jabatan', function(){
     return view('dashboard.struktur');
+});
+Route::get('/pengaturan', function(){
+    return view('dashboard.edit-profil');
 });
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');

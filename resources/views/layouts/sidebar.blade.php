@@ -64,6 +64,17 @@
   </a>
 </li>
 
+<li class="pc-item pc-caption">
+  <label>Kinerja</label>
+  <i class="ti ti-hierarchy"></i>
+</li>
+<li class="pc-item">
+  <a href="{{url ('/penilaian') }}" class="pc-link">
+    <i class="ti ti-clipboard-check"></i>
+    <span class="pc-mtext">Penilaian Karyawan</span>
+  </a>
+</li>
+
 <!-- KEUANGAN -->
 <li class="pc-item pc-caption">
   <label>Keuangan</label>
@@ -75,30 +86,30 @@
     <span class="pc-mtext">Gaji & Slip Gaji</span>
   </a>
 </li>
-<li class="pc-item">
+<!-- <li class="pc-item">
   <a href="{{ url('/pinjaman') }}" class="pc-link">
     <span class="pc-micon"><i class="ti ti-cash-banknote"></i></span>
     <span class="pc-mtext">Pinjaman Karyawan</span>
   </a>
-</li>
+</li> -->
 
 <!-- SISTEM -->
 <li class="pc-item pc-caption">
   <label>Sistem</label>
   <i class="ti ti-settings"></i>
 </li>
-<li class="pc-item">
+<!-- <li class="pc-item">
   <a href="{{ url('/laporan') }}" class="pc-link">
     <span class="pc-micon"><i class="ti ti-report"></i></span>
     <span class="pc-mtext">Laporan</span>
   </a>
-</li>
-<li class="pc-item">
+</li> -->
+<!-- <li class="pc-item">
   <a href="{{ url('/users') }}" class="pc-link">
     <span class="pc-micon"><i class="ti ti-settings"></i></span>
     <span class="pc-mtext">Manajemen User</span>
   </a>
-</li>
+</li> -->
 <li class="pc-item">
   <a href="{{ url('/pengaturan') }}" class="pc-link">
     <span class="pc-micon"><i class="ti ti-tools"></i></span>
