@@ -1,4 +1,5 @@
-@extends('dashboard.master') {{-- <== GANTI SESUAI NAMA FILE MASTER --}}
+@extends('admin.master')
+
 
 @section('title', 'Home | Struktur Jabatan')
 

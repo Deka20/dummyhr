@@ -1,4 +1,4 @@
-@extends('dashboard.master')
+@extends('admin.master')
 
 @section('title', 'Edit Profil')
 

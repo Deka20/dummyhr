@@ -1,4 +1,5 @@
-@extends('dashboard.master')
+@extends('admin.master')
+
 
 @section('title', 'Home | Dashboard')
 
@@ -22,9 +23,6 @@
             </div>
             <h4 class="mb-1">John Doe</h4>
             <p class="text-muted">Administrator</p>
-            <div class="mb-2">
-              <span class="badge bg-primary">Active</span>
-            </div>
             <button class="btn btn-primary btn-sm">Edit Profile</button>
           </div>
           <div class="col-md-9">
@@ -45,19 +43,11 @@
                   </div>
                 </div>
               </div>
-              <div class="col-md-6">
+              <div class="col-md-12">
                 <div class="card border mb-3">
                   <div class="card-body">
                     <h6 class="mb-2 f-w-400 text-muted">Bergabung Sejak</h6>
                     <p class="mb-0">18 April 2023</p>
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-6">
-                <div class="card border mb-3">
-                  <div class="card-body">
-                    <h6 class="mb-2 f-w-400 text-muted">Status</h6>
-                    <p class="mb-0"><span class="badge bg-light-success border border-success"><i class="ti ti-check"></i> Online</span></p>
                   </div>
                 </div>
               </div>

@@ -1,5 +1,6 @@
 <!-- resources/views/data_karyawan.blade.php -->
-@extends('dashboard.master')
+@extends('admin.master')
+
 
 @section('title', 'Manajemen Karyawan')
 

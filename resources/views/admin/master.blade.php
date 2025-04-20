@@ -26,7 +26,7 @@
     </div>
   </div>
 
-  @include('layouts.sidebar')
+  @include('layouts.adminSidebar')
   @include('layouts.topbar')
 
   <div class="pc-container">

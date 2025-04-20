@@ -1,4 +1,5 @@
-@extends('dashboard.master')
+@extends('admin.master')
+
 
 @section('title', 'Form Penilaian Karyawan')
 
