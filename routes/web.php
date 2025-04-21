@@ -36,6 +36,9 @@ Route::get('/pengaturan', function(){
 Route::get('/cuti', function(){
     return view('admin.pengajuan_cuti');
 });
+Route::get('/dashboard-karyawan', function(){
+    return view('karyawan.index');
+});
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.attempt');
