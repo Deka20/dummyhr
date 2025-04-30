@@ -5,7 +5,7 @@
 @section('title', 'Manajemen Karyawan')
 
 @section('breadcrumb')
-  <li class="breadcrumb-item"><a href="{{ url('/karyawan') }}">Karyawan</a></li>
+  <li class="breadcrumb-item"><a href="{{ url('/karyawan') }}">pegawai</a></li>
 @endsection
 
 @section('content')
@@ -13,9 +13,9 @@
     <div class="col-sm-12">
       <div class="card">
         <div class="card-header">
-          <h5>Manajemen Karyawan</h5>
+          <h5>Manajemen pegawai</h5>
           <small>
-            Sistem ini memudahkan pengelolaan data karyawan secara cepat dan interaktif menggunakan fitur DataTables.
+            Sistem ini memudahkan pengelolaan data pegawai secara cepat dan interaktif menggunakan fitur DataTables.
           </small>
         </div>
         <div class="card-body">

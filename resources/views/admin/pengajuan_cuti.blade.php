@@ -56,7 +56,7 @@
                     @csrf
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <label class="form-label">Nama Karyawan</label>
+                            <label class="form-label">Nama pegawai</label>
                             <input type="text" class="form-control" value="Ahmad Firdaus" readonly>
                             <input type="hidden" name="employee_id" value="123">
                         </div>
@@ -112,7 +112,7 @@
                         <div class="col-md-6">
                             <label class="form-label">Delegasi Tugas Kepada <span class="text-danger">*</span></label>
                             <select class="form-select" name="delegate_to" required>
-                                <option value="">-- Pilih Karyawan --</option>
+                                <option value="">-- Pilih pegawai --</option>
                                 <option value="2">Andi - Supervisor</option>
                                 <option value="3">Sari - Admin</option>
                             </select>

@@ -79,7 +79,7 @@
   <div class="col-md-4">
     <div class="card h-100">
       <div class="card-header">
-        <h5>Golongan Karyawan</h5>
+        <h5>Golongan pegawai</h5>
       </div>
       <div class="card-body d-flex flex-column justify-content-center">
         <div id="golongan-chart" style="height: 300px;"></div>

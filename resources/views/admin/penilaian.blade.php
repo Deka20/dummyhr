@@ -10,7 +10,7 @@
 @section('content')
 <div class="card">
     <div class="card-header">
-        <h5>Daftar Karyawan</h5>
+        <h5>Daftar pegawai</h5>
     </div>
     <div class="card-body">
         <table class="table table-bordered text-center">
@@ -42,7 +42,7 @@
                         <a href="{{ url('/penilaian-karyawan') }}" class="btn btn-sm btn-primary">Beri Penilaian</a>
                     </td>
                 </tr>
-                <!-- Tambahkan baris karyawan lainnya sesuai kebutuhan -->
+                <!-- Tambahkan baris pegawai lainnya sesuai kebutuhan -->
             </tbody>
         </table>
     </div>

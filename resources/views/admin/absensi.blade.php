@@ -12,8 +12,8 @@
     <div class="col-sm-12">
       <div class="card">
         <div class="card-header">
-          <h5>Data Absensi Karyawan</h5>
-          <small>Sistem ini memudahkan pengelolaan data absensi karyawan.</small>
+          <h5>Data Absensi pegawai</h5>
+          <small>Sistem ini memudahkan pengelolaan data absensi pegawai.</small>
         </div>
 
         <div class="card-body">

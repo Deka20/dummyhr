@@ -104,39 +104,44 @@
     </div>
   </div>
 
-  <!-- Card login -->
-  <div class="login-card">
+<!-- Card login -->
+<div class="login-card">
   <div class="d-flex justify-content-between align-items-end mb-5">
-            <h4 class="mb-0 fw-bold">Login</h4>
-            <a href="#" class="link-primary small">Don't have an account?</a>
-          </div>
-    <div class="mb-3">
-      <label for="email" class="form-label">Email Address</label>
-      <input type="email" class="form-control" id="email" placeholder="Email Address" required>
-    </div>
-
-    <div class="mb-3">
-      <label for="password" class="form-label">Password</label>
-      <input type="password" class="form-control" id="password" placeholder="Password" required>
-    </div>
-
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <div class="form-check">
-        <input class="form-check-input" type="checkbox" id="remember">
-        <label class="form-check-label" for="remember">Keep me signed in</label>
-      </div>
-      <a href="#" class="small text-decoration-none">Forgot Password?</a>
-    </div>
-
-    <button class="btn btn-primary w-100">Login</button>
-
-    <div class="text-center mt-3">
-      <a href="#" class="text-decoration-none small">Don't have an account?</a>
-    </div>
-
-    <p class="text-center mt-4 text-muted small mb-0">© 2025 PBL 221</p>
+    <h4 class="mb-0 fw-bold">Login</h4>
   </div>
 
+  <!-- Select Role -->
+  <div class="mb-3">
+    <label for="role" class="form-label">Login Sebagai</label>
+    <select class="form-select" id="role" required>
+      <option value="" selected disabled>Pilih Role</option>
+      <option value="hrd">HRD</option>
+      <option value="kepala_yayasan">Kepala Yayasan</option>
+      <option value="pegawai">Pegawai</option>
+    </select>
+  </div>
+
+  <!-- Email -->
+  <div class="mb-3">
+    <label for="email" class="form-label">Email Address</label>
+    <input type="email" class="form-control" id="email" placeholder="Email Address" required>
+  </div>
+
+  <!-- Password -->
+  <div class="mb-3">
+    <label for="password" class="form-label">Password</label>
+    <input type="password" class="form-control" id="password" placeholder="Password" required>
+  </div>
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <a href="#" class="small text-decoration-none">Forgot Password?</a>
+  </div>
+
+  <button class="btn btn-primary w-100">Login</button>
+
+
+  <p class="text-center mt-4 text-muted small mb-0">© 2025 PBL 221</p>
+</div>
   <!-- Scripts -->
   <script src="{{ asset('assets/js/plugins/popper.min.js') }}"></script>
   <script src="{{ asset('assets/js/plugins/simplebar.min.js') }}"></script>
