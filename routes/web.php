@@ -1,45 +1,56 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
+use App\Http\Controllers\authController;
 
-Route::get('/dashboard', function () {
-    return view('admin.index');
-});
-Route::get('/sidebar', function () {
-    return view('layouts.sidebar');
-});
-Route::get('/header-content', function () {
-    return view('layouts.header-content');
-});
-Route::get('/', function(){
-    return view('auth.login');
-});
-Route::get('/karyawan', function(){
-    return view('admin.karyawan');
-});
-Route::get('/absensi', function(){
-    return view('admin.absensi');
-});
-Route::get('/penilaian', function(){
-    return view('admin.penilaian');
-});
-Route::get('/penilaian-karyawan', function(){
-    return view('admin.penilaian-karyawan');
-});
-Route::get('/jabatan', function(){
-    return view('admin.struktur');
-});
-Route::get('/pengaturan', function(){
-    return view('admin.edit-profil');
-});
-Route::get('/cuti', function(){
-    return view('admin.pengajuan_cuti');
-});
-Route::get('/dashboard-karyawan', function(){
-    return view('karyawan.index');
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider and all of them will
+| be assigned to the "web" middleware group. Make something great!
+|
+*/
+
+// Redirect root to login page
+Route::redirect('/', '/login');
+
+// Authentication Routes
+Route::controller(authController::class)->group(function () {
+    Route::get('/login', 'showLoginForm')->name('login');
+    Route::post('/login', 'login');
+    Route::post('/logout', 'logout')->name('logout');
 });
 
-Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [AuthController::class, 'login'])->name('login.attempt');
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+// Role-based Routes with Role Middleware Check
+Route::middleware(['auth'])->group(function () {
+    
+    // HRD Routes
+    Route::prefix('hrd')->middleware(['check.role:hrd'])->group(function () {
+        Route::get('/dashboard', function () {
+            return view('admin.index');
+        })->name('admin.index');
+        
+        // Add other HRD routes here
+    });
+    
+    // // Kepala Yayasan Routes
+    // Route::prefix('kepala')->middleware(['check.role:kepala'])->group(function () {
+    //     Route::get('/dashboard', function () {
+    //         return view('kepala.dashboard');
+    //     })->name('kepala.dashboard');
+        
+    //     // Add other Kepala routes here
+    // });
+    
+    // Pegawai Routes
+    Route::prefix('pegawai')->middleware(['check.role:pegawai'])->group(function () {
+        Route::get('/dashboard', function () {
+            return view('karyawan.index');
+        })->name('karyawan.index');
+        
+        // Add other Pegawai routes here
+    });
+});

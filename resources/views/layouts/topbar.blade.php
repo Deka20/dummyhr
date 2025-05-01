@@ -77,10 +77,13 @@
               <i class="ti ti-user"></i>
               <span>Account Settings</span>
             </a>
-            <a href="#!" class="dropdown-item">
-              <i class="ti ti-power"></i>
-              <span>Logout</span>
-            </a>
+            <form action="{{ route('logout') }}" method="POST" class="d-inline">
+    @csrf
+    <a href="javascript:void(0)" onclick="this.closest('form').submit()" class="dropdown-item">
+        <i class="ti ti-power"></i>
+        <span>Logout</span>
+    </a>
+</form>
           </div>
         </div>
       </div>

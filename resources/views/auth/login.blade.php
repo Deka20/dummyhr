@@ -1,160 +1,348 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Login | YAYASAN DARUSSALAM</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="Sistem Informasi Yayasan Darussalam">
+    <meta name="keywords" content="Laravel 12, HRM, Admin Template, Bootstrap 5">
+    <meta name="author" content="Tim PBL 221">
+    <title>Login | YAYASAN DARUSSALAM</title>
 
-  <!-- Meta -->
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="description" content="Sistem Informasi Yayasan Darussalam">
-  <meta name="keywords" content="Laravel, HRM, Admin Template, Bootstrap 5">
-  <meta name="author" content="Tim PBL 221">
+    <!-- Favicon -->
+    <link rel="icon" href="{{ asset('assets/images/logo.png') }}" type="image/x-icon">
 
-  <!-- Favicon -->
-  <link rel="icon" href="{{ asset('assets/images/logo.png') }}" type="image/x-icon">
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="{{ asset('assets/fonts/tabler-icons.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/fonts/feather.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/fonts/fontawesome.css') }}">
 
-  <!-- Fonts & Icons -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap" id="main-font-link">
-  <link rel="stylesheet" href="{{ asset('assets/fonts/tabler-icons.min.css') }}">
-  <link rel="stylesheet" href="{{ asset('assets/fonts/feather.css') }}">
-  <link rel="stylesheet" href="{{ asset('assets/fonts/fontawesome.css') }}">
-  <link rel="stylesheet" href="{{ asset('assets/fonts/material.css') }}">
-
-  <!-- CSS -->
-  <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}" id="main-style-link">
-  <link rel="stylesheet" href="{{ asset('assets/css/style-preset.css') }}">
-</head>
-
-<style>
-    body {
-    background-color: #f8f9fa;
-    font-family: 'Public Sans', sans-serif;
-  }
-
-  .login-card {
-    max-width: 400px;
-    margin: 100px auto;
-    padding: 30px;
-    background: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-  }
-
-  .header-logo {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    display: flex;
-    align-items: center;
-  }
-
-  .header-logo img {
-    height: 50px;
-    margin-right: 10px;
-  }
-
-  .header-logo h5 {
-    margin: 0;
-    font-weight: bold;
-    text-transform: uppercase;
-    line-height: 1.1;
-  }
-
-
-
-  .btn-primary {
-    background-color: #0056b3;
-    border-color: #0056b3;
-  }
-
-  .btn-primary:hover {
-    background-color: #004799;
-    border-color: #004799;
-  }
-
-  .link-primary {
-    color: #ffcc00 !important;
-  }
-
-  .link-primary:hover {
-    color: #e6b800 !important;
-    text-decoration: underline;
-  }
-
-  .form-check-input:checked {
-    background-color: #0056b3;
-    border-color: #0056b3;
-  }
-
-  .form-check-input:focus {
-    box-shadow: 0 0 0 0.2rem rgba(0, 86, 179, 0.25);
-  }
-  </style>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary-color: #0056b3;
+            --primary-hover: #004799;
+            --secondary-color: #ffcc00;
+            --secondary-hover: #e6b800;
+            --text-color: #333;
+            --light-bg: #f8f9fa;
+            --border-radius: 10px;
+            --box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--light-bg);
+            color: var(--text-color);
+            overflow-x: hidden;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .login-wrapper {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            box-shadow: var(--box-shadow);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            height: 600px;
+        }
+        
+        .login-banner {
+            flex: 1;
+            background: linear-gradient(135deg, #0056b3 0%, #004080 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .login-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(rgba(255,255,255,0.1), transparent);
+            opacity: 0.3;
+        }
+        
+        .login-banner h2 {
+            font-weight: 700;
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .login-banner p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .banner-logo {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .banner-logo img {
+            height: 60px;
+            margin-right: 15px;
+        }
+        
+        .banner-logo .vr {
+            background-color: rgba(255,255,255,0.3);
+            margin: 0 15px;
+        }
+        
+        .banner-logo h4 {
+            margin: 0;
+            font-weight: 700;
+            line-height: 1.3;
+            text-transform: uppercase;
+        }
+        
+        .login-form {
+            flex: 1;
+            background: white;
+            padding: 3rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .login-form h3 {
+            font-weight: 600;
+            margin-bottom: 2rem;
+            color: var(--primary-color);
+        }
+        
+        .form-floating {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-floating > label {
+            color: #6c757d;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(0, 86, 179, 0.25);
+        }
+        
+        .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(0, 86, 179, 0.25);
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            padding: 0.8rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+            border-color: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+        
+        .forgot-password {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        
+        .forgot-password:hover {
+            color: var(--primary-hover);
+            text-decoration: underline;
+        }
+        
+        .alert {
+            border-radius: var(--border-radius);
+        }
+        
+        /* Animation for form elements */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .form-animate {
+            animation: fadeIn 0.5s ease forwards;
+        }
+        
+        .form-animate:nth-child(1) { animation-delay: 0.1s; }
+        .form-animate:nth-child(2) { animation-delay: 0.2s; }
+        .form-animate:nth-child(3) { animation-delay: 0.3s; }
+        .form-animate:nth-child(4) { animation-delay: 0.4s; }
+        
+        /* Responsive adjustments */
+        @media (max-width: 992px) {
+            .login-wrapper {
+                flex-direction: column;
+                height: auto;
+                max-width: 500px;
+            }
+            
+            .login-banner, .login-form {
+                width: 100%;
+                padding: 2rem;
+            }
+            
+            .login-banner {
+                display: none;
+            }
+            
+            body {
+                padding: 1rem;
+            }
+        }
+        
+        /* Mobile logo for small screens */
+        .mobile-logo {
+            display: none;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        @media (max-width: 992px) {
+            .mobile-logo {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            
+            .mobile-logo img {
+                height: 40px;
+                margin-right: 10px;
+            }
+            
+            .mobile-logo h5 {
+                margin: 0;
+                font-weight: 700;
+                color: var(--primary-color);
+                line-height: 1.2;
+                text-transform: uppercase;
+            }
+        }
+    </style>
 </head>
 <body>
-
-  <!-- Logo di pojok kiri atas -->
-  <div class="header-logo">
-    <img src="assets/images/logo.png" alt="Logo">
-    <div class="vr me-3" style="height: 50px;"></div>
-    <div>
-      <h5>HR YAYASAN</h5>
-      <h5>DARUSSALAM</h5>
+    <div class="login-wrapper">
+        <!-- Banner Section (Left Side) -->
+        <div class="login-banner">
+            <div class="banner-logo">
+                <img src="{{ asset('assets/images/logo.png') }}" alt="Logo Darussalam">
+                <div class="vr"></div>
+                <div>
+                    <h4>HR YAYASAN</h4>
+                    <h4>DARUSSALAM</h4>
+                </div>
+            </div>
+            <h2>Selamat Datang</h2>
+            <p>Sistem Informasi Manajemen SDM Yayasan Darussalam - Kelola data pegawai, absensi, dan kinerja dengan lebih efisien.</p>
+        </div>
+        
+        <!-- Login Form Section (Right Side) -->
+        <div class="login-form">
+            <!-- Mobile Logo - Only visible on small screens -->
+            <div class="mobile-logo">
+                <img src="{{ asset('assets/images/logo.png') }}" alt="Logo Darussalam">
+                <div>
+                    <h5>HR YAYASAN</h5>
+                    <h5>DARUSSALAM</h5>
+                </div>
+            </div>
+            
+            <h3>Login Akun</h3>
+            
+            <!-- Display validation errors -->
+            @if ($errors->any())
+            <div class="alert alert-danger mb-4">
+                <ul class="mb-0">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+            @endif
+            
+            <!-- Form login -->
+            <form action="{{ route('login') }}" method="POST">
+                @csrf
+                
+                <!-- Select Role -->
+                <div class="form-floating mb-3 form-animate">
+                    <select class="form-select @error('role') is-invalid @enderror" id="role" name="role" required>
+                        <option value="" selected disabled>Pilih Role</option>
+                        <option value="hrd" {{ old('role') == 'hrd' ? 'selected' : '' }}>HRD</option>
+                        <option value="kepala" {{ old('role') == 'kepala' ? 'selected' : '' }}>Kepala Yayasan</option>
+                        <option value="pegawai" {{ old('role') == 'pegawai' ? 'selected' : '' }}>Pegawai</option>
+                    </select>
+                    <label for="role">Login Sebagai</label>
+                    @error('role')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+                
+                <!-- Username -->
+                <div class="form-floating mb-3 form-animate">
+                    <input type="text" class="form-control @error('username') is-invalid @enderror" id="username" name="username" placeholder="Username" value="{{ old('username') }}" required>
+                    <label for="username">Username</label>
+                    @error('username')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+                
+                <!-- Password -->
+                <div class="form-floating mb-3 form-animate">
+                    <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password" placeholder="Password" required>
+                    <label for="password">Password</label>
+                    @error('password')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+                
+                <div class="d-flex justify-content-between align-items-center mb-4 form-animate">
+                    <a href="#" class="forgot-password">Lupa Password?</a>
+                </div>
+                
+                <button type="submit" class="btn btn-primary w-100 form-animate">
+                    <i class="feather icon-log-in me-2"></i>Login
+                </button>
+            </form>
+            
+            <p class="text-center mt-4 text-muted small">© 2025 PBL 221 - Yayasan Darussalam</p>
+        </div>
     </div>
-  </div>
-
-<!-- Card login -->
-<div class="login-card">
-  <div class="d-flex justify-content-between align-items-end mb-5">
-    <h4 class="mb-0 fw-bold">Login</h4>
-  </div>
-
-  <!-- Select Role -->
-  <div class="mb-3">
-    <label for="role" class="form-label">Login Sebagai</label>
-    <select class="form-select" id="role" required>
-      <option value="" selected disabled>Pilih Role</option>
-      <option value="hrd">HRD</option>
-      <option value="kepala_yayasan">Kepala Yayasan</option>
-      <option value="pegawai">Pegawai</option>
-    </select>
-  </div>
-
-  <!-- Email -->
-  <div class="mb-3">
-    <label for="email" class="form-label">Email Address</label>
-    <input type="email" class="form-control" id="email" placeholder="Email Address" required>
-  </div>
-
-  <!-- Password -->
-  <div class="mb-3">
-    <label for="password" class="form-label">Password</label>
-    <input type="password" class="form-control" id="password" placeholder="Password" required>
-  </div>
-
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <a href="#" class="small text-decoration-none">Forgot Password?</a>
-  </div>
-
-  <button class="btn btn-primary w-100">Login</button>
-
-
-  <p class="text-center mt-4 text-muted small mb-0">© 2025 PBL 221</p>
-</div>
-  <!-- Scripts -->
-  <script src="{{ asset('assets/js/plugins/popper.min.js') }}"></script>
-  <script src="{{ asset('assets/js/plugins/simplebar.min.js') }}"></script>
-  <script src="{{ asset('assets/js/plugins/bootstrap.min.js') }}"></script>
-  <script src="{{ asset('assets/js/fonts/custom-font.js') }}"></script>
-  <script src="{{ asset('assets/js/pcoded.js') }}"></script>
-  <script src="{{ asset('assets/js/plugins/feather.min.js') }}"></script>
-
-  <!-- Layout Scripts -->
-  <script>layout_change('light');</script>
-  <script>change_box_container('false');</script>
-  <script>layout_rtl_change('false');</script>
-  <script>preset_change("preset-1");</script>
-  <script>font_change("Public-Sans");</script>
+    
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
