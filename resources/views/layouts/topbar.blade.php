@@ -56,7 +56,7 @@
         aria-expanded="false"
       >
         <img src="../assets/images/user/avatar-2.jpg" alt="user-image" class="user-avtar">
-        <span>Stebin Ben</span>
+        <span>{{$pegawai->nama}}</span>
       </a>
       <div class="dropdown-menu dropdown-user-profile dropdown-menu-end pc-h-dropdown">
         <div class="dropdown-header">
@@ -65,8 +65,8 @@
               <img src="../assets/images/user/avatar-2.jpg" alt="user-image" class="user-avtar wid-35">
             </div>
             <div class="flex-grow-1 ms-3">
-              <h6 class="mb-1">Stebin Ben</h6>
-              <span>UI/UX Designer</span>
+              <h6 class="mb-1">{{$pegawai->nama}}</h6>
+              <span>{{$nama_departemen}}</span>
             </div>
             <a href="#!" class="pc-head-link bg-transparent"><i class="ti ti-power text-danger"></i></a>
           </div>
@@ -77,13 +77,13 @@
               <i class="ti ti-user"></i>
               <span>Account Settings</span>
             </a>
-            <form action="{{ route('logout') }}" method="POST" class="d-inline">
-    @csrf
-    <a href="javascript:void(0)" onclick="this.closest('form').submit()" class="dropdown-item">
-        <i class="ti ti-power"></i>
-        <span>Logout</span>
-    </a>
-</form>
+            <form action="{{ route('logout') }}" method="POST" class="d-inline" id="logoutForm">
+              @csrf
+              <a href="javascript:void(0)" onclick="confirmLogout()" class="dropdown-item">
+                  <i class="ti ti-power"></i>
+                  <span>Logout</span>
+              </a>
+          </form>
           </div>
         </div>
       </div>
@@ -93,3 +93,33 @@
 </div>
 </header>
 <!-- [ Header ] end -->
+<script src="{{ asset('assets/js/plugins/sweetalert2.all.min.js') }}"></script>
+<script>
+
+function confirmLogout() {
+    const swalWithBootstrapButtons = Swal.mixin({
+        customClass: {
+            confirmButton: 'btn btn-success ms-3',
+            cancelButton: 'btn btn-danger ms-3 '
+        },
+        buttonsStyling: false
+    });
+    
+    swalWithBootstrapButtons
+        .fire({
+            title: 'Keluar dari sistem?',
+            text: "Anda akan keluar dari sistem Yayasan Darussalam",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, Keluar!',
+            cancelButtonText: 'Batal',
+            reverseButtons: true
+        })
+        .then((result) => {
+            if (result.isConfirmed) {
+                // Submit the logout form
+                document.getElementById('logoutForm').submit();
+            }
+        });
+}
+</script>

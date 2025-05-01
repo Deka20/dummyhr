@@ -1,40 +1,27 @@
-<?php
+<?php 
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\authController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\KaryawanController;
+use App\Http\Controllers\DashboardController;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
-
-// Redirect root to login page
+// ✅ Redirect root ke halaman login
 Route::redirect('/', '/login');
 
-// Authentication Routes
-Route::controller(authController::class)->group(function () {
+// ✅ Autentikasi
+Route::controller(AuthController::class)->group(function () {
     Route::get('/login', 'showLoginForm')->name('login');
     Route::post('/login', 'login');
     Route::post('/logout', 'logout')->name('logout');
 });
 
-// Role-based Routes with Role Middleware Check
-Route::middleware(['auth'])->group(function () {
-    
-    // HRD Routes
-    Route::prefix('hrd')->middleware(['check.role:hrd'])->group(function () {
-        Route::get('/dashboard', function () {
-            return view('admin.index');
-        })->name('admin.index');
-        
-        // Add other HRD routes here
-    });
+// ✅ HRD/Admin Routes (hanya sampai Kelola Pegawai)
+Route::middleware(['auth', 'check.role:hrd'])->prefix('hrd')->group(function () {
+    Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.index');
+    Route::get('/kelola-karyawan', [KaryawanController::class, 'karyawan'])->name('admin.karyawan');
+});
+
     
     // // Kepala Yayasan Routes
     // Route::prefix('kepala')->middleware(['check.role:kepala'])->group(function () {
@@ -46,11 +33,15 @@ Route::middleware(['auth'])->group(function () {
     // });
     
     // Pegawai Routes
+  
+
     Route::prefix('pegawai')->middleware(['check.role:pegawai'])->group(function () {
-        Route::get('/dashboard', function () {
-            return view('karyawan.index');
-        })->name('karyawan.index');
-        
-        // Add other Pegawai routes here
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('karyawan.index');
     });
-});
+    
+
+
+
+
+
+

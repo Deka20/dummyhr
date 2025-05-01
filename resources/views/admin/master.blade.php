@@ -1,4 +1,5 @@
 <!-- resources/views/layouts/master.blade.php -->
+ 
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -27,7 +28,8 @@
   </div>
 
   @include('layouts.adminSidebar')
-  @include('layouts.topbar')
+  @include('layouts.topbar', ['pegawai' => $pegawai])
+
 
   <div class="pc-container">
     <div class="pc-content">

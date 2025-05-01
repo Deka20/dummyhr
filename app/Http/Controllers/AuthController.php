@@ -9,81 +9,78 @@ use Illuminate\Validation\ValidationException;
 
 class authController extends Controller
 {
-    /**
-     * Show the login form
-     *
-     * @return \Illuminate\View\View
-     */
+
     public function showLoginForm()
     {
+        // Periksa apakah ada pengalihan tertunda (untuk SweetAlert)
+
+        if (session('login_success') && session('redirect_to')) {
+            $redirectTo = session('redirect_to');
+            return view('auth.login', [
+                'login_success' => true,
+                'redirect_to' => $redirectTo
+            ]);
+        }
+        
         return view('auth.login');
     }
 
-    /**
-     * Handle a login request to the application.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse
-     *
-     * @throws \Illuminate\Validation\ValidationException
-     */
     public function login(Request $request)
     {
-        // Validate login data
+        // Validasi data nya
         $request->validate([
             'role' => ['required', 'string', 'in:hrd,kepala,pegawai'],
             'username' => ['required', 'string'],
             'password' => ['required', 'string'],
         ]);
 
-        // Attempt to authenticate with additional condition on role
+       // Coba autentikasi dengan kondisi tambahan pada peran
+
         $credentials = $request->only('username', 'password');
         
         if (Auth::attempt(array_merge($credentials, ['role' => $request->role]))) {
-            // Authentication was successful
+            // Autentikasi berhasil
+            $user = Auth::user();
+            $pegawai = $user->pegawai; // Ambil data pegawai
             $request->session()->regenerate();
             
-            // Redirect to appropriate dashboard based on role
-            return $this->redirectTo($request->role);
+            // Dapatkan rute dashboard target berdasarkan peran
+
+            $redirectTo = $this->getRedirectRoute($request->role);
+            
+          // Kembali ke halaman login dengan sukses flag dan rute target untuk pengalihan
+
+            return redirect()->route('login')
+                ->with('login_success', true)
+                ->with('redirect_to', $redirectTo);
         }
 
-        // Authentication failed
+        // Authentication Gagal
         throw ValidationException::withMessages([
             'username' => [trans('auth.failed')],
         ]);
     }
 
-    /**
-     * Redirect based on role after successful login.
-     *
-     * @param  string  $role
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    protected function redirectTo($role)
+    protected function getRedirectRoute($role)
     {
         return match ($role) {
-            'hrd' => redirect()->route('hrd.dashboard'),
-            'kepala' => redirect()->route('kepala.dashboard'),
-            'pegawai' => redirect()->route('karyawan.index'),
-            default => redirect()->route('home'),
+            'hrd' => route('admin.index'),
+            'kepala' => route('kepala.dashboard'),
+            'pegawai' => route('karyawan.index'),
+            default => route('home'),
         };
     }
-
-    /**
-     * Log the user out of the application.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
+    
     public function logout(Request $request)
     {
         Auth::logout();
         
-        // Invalidate the session and regenerate CSRF token
+       // Batalkan sesi dan buat ulang token CSRF
+
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         
-        // Redirect to login page
+        // Balik Ke login page
         return redirect()->route('login');
     }
 }

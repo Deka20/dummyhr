@@ -21,9 +21,9 @@
             <div class="avatar avatar-xl mb-3">
               <img src="{{ asset('assets/images/user/avatar-1.jpg') }}" alt="User Profile" class="img-fluid rounded-circle">
             </div>
-            <h4 class="mb-1">John Doe</h4>
-            <p class="text-muted">Administrator</p>
-            <button class="btn btn-primary btn-sm">Edit Profile</button>
+            <h4 class="mb-1">{{ $pegawai->nama }}</h4>
+            <p class="text-muted">{{ ucfirst(Auth::user()->role) }}</p>
+            <a href="#" class="btn btn-sm text-white" style="background-color: #0056b3;">Edit Profile</a>
           </div>
           <div class="col-md-9">
             <div class="row">
@@ -31,7 +31,7 @@
                 <div class="card border mb-3">
                   <div class="card-body">
                     <h6 class="mb-2 f-w-400 text-muted">Email</h6>
-                    <p class="mb-0">johndoe@example.com</p>
+                    <p class="mb-0">{{$pegawai->email}}</p>
                   </div>
                 </div>
               </div>
@@ -39,7 +39,7 @@
                 <div class="card border mb-3">
                   <div class="card-body">
                     <h6 class="mb-2 f-w-400 text-muted">No. Telepon</h6>
-                    <p class="mb-0">+62 812 3456 7890</p>
+                    <p class="mb-0">{{$pegawai->no_hp}}</p>
                   </div>
                 </div>
               </div>
@@ -47,7 +47,7 @@
                 <div class="card border mb-3">
                   <div class="card-body">
                     <h6 class="mb-2 f-w-400 text-muted">Bergabung Sejak</h6>
-                    <p class="mb-0">18 April 2023</p>
+                    <p class="mb-0">{{ $pegawai->tanggal_masuk->format('d-m-Y') ?? 'Belum diatur' }}</p>
                   </div>
                 </div>
               </div>
@@ -67,8 +67,13 @@
         <form method="POST" action="">
           @csrf
           <div class="d-flex justify-content-center gap-3">
-            <button type="submit" name="action" value="masuk" class="btn btn-success">Absen Masuk</button>
-            <button type="submit" name="action" value="pulang" class="btn btn-danger">Absen Pulang</button>
+          <button type="submit" name="action" value="masuk" 
+            class="btn btn-sm text-white" 
+            style="background-color: #0056b3;">Absen Masuk</button>
+
+          <button type="submit" name="action" value="pulang" 
+            class="btn btn-sm text-primary border" 
+            style="border-color: #0056b3; background-color: white;">Absen Pulang</button>
           </div>
         </form>
       </div>

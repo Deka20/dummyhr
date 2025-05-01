@@ -11,7 +11,7 @@ class PegawaiSeeder extends Seeder
     public function run()
     {
         DB::table('pegawai')->insert([
-            'nama' => 'Danu Pratama',
+            'nama' => 'Danu Yudistia',
             'tempat_lahir' => 'Batam',
             'tanggal_lahir' => '2000-01-01',
             'jenis_kelamin' => 'L',

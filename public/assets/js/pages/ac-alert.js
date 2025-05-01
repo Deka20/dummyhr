@@ -120,8 +120,9 @@ document.querySelector('.bs-cust-img').addEventListener('click', function () {
 document.querySelector('.bs-auto-close').addEventListener('click', function () {
   let timerInterval;
   Swal.fire({
-    title: 'Auto close alert!',
-    html: 'I will close in <b></b> milliseconds.',
+    title: 'Anda berhasil login', // Judul alert
+    html: 'Sebentar lagi Anda akan diarahkan ke dashboard dalam <b></b> milliseconds.', // Isi pesan
+    icon: 'success',
     timer: 2000,
     timerProgressBar: true,
     willOpen: () => {

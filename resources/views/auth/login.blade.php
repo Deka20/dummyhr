@@ -266,7 +266,7 @@
                 </div>
             </div>
             <h2>Selamat Datang</h2>
-            <p>Sistem Informasi Manajemen SDM Yayasan Darussalam - Kelola data pegawai, absensi, dan kinerja dengan lebih efisien.</p>
+            <p>Sistem Informasi Manajemen SDM Yayasan Darussalam .</p>
         </div>
         
         <!-- Login Form Section (Right Side) -->
@@ -294,7 +294,7 @@
             @endif
             
             <!-- Form login -->
-            <form action="{{ route('login') }}" method="POST">
+            <form action="{{ route('login') }}" method="POST" autocomplete="off">
                 @csrf
                 
                 <!-- Select Role -->
@@ -346,3 +346,44 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
+<!-- Menyertakan SweetAlert2 -->
+<script src="{{ asset('assets/js/plugins/sweetalert2.all.min.js') }}"></script>
+<!-- Menyertakan script custom untuk menangani alert -->
+<script src="{{ asset('assets/js/pages/ac-alert.js') }}"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check if login was successful and we have a redirect URL
+        @if(session('login_success') && session('redirect_to'))
+        let timerInterval;
+        Swal.fire({
+            title: 'Anda berhasil login',
+            html: 'Sebentar lagi Anda akan diarahkan ke dashboard dalam <b></b> milliseconds.',
+            icon: 'success',
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: () => {
+                Swal.showLoading();
+                timerInterval = setInterval(() => {
+                    const content = Swal.getHtmlContainer();
+                    if (content) {
+                        const b = content.querySelector('b');
+                        if (b) {
+                            b.textContent = Swal.getTimerLeft();
+                        }
+                    }
+                }, 100);
+            },
+            willClose: () => {
+                clearInterval(timerInterval);
+            }
+        }).then((result) => {
+            if (result.dismiss === Swal.DismissReason.timer) {
+                // Redirect to the specified dashboard after alert closes
+                window.location.href = "{{ session('redirect_to') }}";
+            }
+        });
+        @endif
+    });
+</script>

@@ -25,66 +25,22 @@
                 <tr>
                   <th>Nama</th>
                   <th>Jabatan</th>
-                  <th>Kantor</th>
-                  <th>Usia</th>
+                  <th>Tempat Lahir</th>
+                  <th>Jenis Kelamin</th>
                   <th>Tanggal Mulai</th>
                   <th>Aksi</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td>Quinn Flynn</td>
-                  <td>Arsitek Sistem</td>
-                  <td>Jakarta</td>
-                  <td>32</td>
-                  <td>2021/04/25</td>
+                  <td>{{$pegawai->nama}}</td>
+                  <td>{{$pegawai->nama}}</td>
+                  <td>{{$pegawai->tempat_lahir}}</td>
+                  <td>{{$pegawai->jenis_kelamin}}</td>
+                  <td>{{$pegawai->tanggal_masuk}}</td>
                   <td>
-                    <a href="#" class="btn btn-sm btn-primary">Edit</a>
-                    <a href="#" class="btn btn-sm btn-danger">Hapus</a>
-                  </td>
-                </tr>
-                <tr>
-                  <td>Garrett Winters</td>
-                  <td>Akuntan</td>
-                  <td>Surabaya</td>
-                  <td>28</td>
-                  <td>2020/07/25</td>
-                  <td>
-                    <a href="#" class="btn btn-sm btn-primary">Edit</a>
-                    <a href="#" class="btn btn-sm btn-danger">Hapus</a>
-                  </td>
-                </tr>
-                <tr>
-                  <td>Ashton Cox</td>
-                  <td>Staf Administrasi</td>
-                  <td>Bandung</td>
-                  <td>25</td>
-                  <td>2022/01/12</td>
-                  <td>
-                    <a href="#" class="btn btn-sm btn-primary">Edit</a>
-                    <a href="#" class="btn btn-sm btn-danger">Hapus</a>
-                  </td>
-                </tr>
-                <tr>
-                  <td>Cedric Kelly</td>
-                  <td>Web Developer</td>
-                  <td>Batam</td>
-                  <td>26</td>
-                  <td>2021/03/29</td>
-                  <td>
-                    <a href="#" class="btn btn-sm btn-primary">Edit</a>
-                    <a href="#" class="btn btn-sm btn-danger">Hapus</a>
-                  </td>
-                </tr>
-                <tr>
-                  <td>Airi Satou</td>
-                  <td>HRD</td>
-                  <td>Yogyakarta</td>
-                  <td>30</td>
-                  <td>2019/11/28</td>
-                  <td>
-                    <a href="#" class="btn btn-sm btn-primary">Edit</a>
-                    <a href="#" class="btn btn-sm btn-danger">Hapus</a>
+                    <a href="#" class="btn btn-sm text-primary border" style="border-color: #0056b3; background-color: white;" >Edit</a>
+                    <a href="#"  class="btn btn-sm text-white" style="background-color: #0056b3;">Hapus</a>
                   </td>
                 </tr>
               </tbody>
@@ -92,8 +48,8 @@
                 <tr>
                   <th>Nama</th>
                   <th>Jabatan</th>
-                  <th>Kantor</th>
-                  <th>Usia</th>
+                  <th>Tempat Lahir</th>
+                  <th>Jenis Kelamin</th>
                   <th>Tanggal Mulai</th>
                   <th>Aksi</th>
                 </tr>

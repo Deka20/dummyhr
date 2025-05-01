@@ -7,18 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Pegawai extends Model
 {
-    /**
-     * The primary key for the model.
-     *
-     * @var string
-     */
+
+    protected $table = 'pegawai';
     protected $primaryKey = 'id_pegawai';
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'nama',
         'tempat_lahir',
@@ -34,21 +26,19 @@ class Pegawai extends Model
         'jatahtahunan',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
+
     protected $casts = [
         'tanggal_lahir' => 'date',
         'tanggal_masuk' => 'date',
     ];
 
-    /**
-     * Get the user that belongs to this pegawai.
-     */
     public function user()
     {
         return $this->hasOne(User::class, 'id_pegawai', 'id_pegawai');
     }
+    public function departemen()
+    {
+        return $this->belongsTo(Departemen::class, 'id_departemen', 'id_departemen');
+    }
+    
 }

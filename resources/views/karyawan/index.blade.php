@@ -1,6 +1,5 @@
 @extends('karyawan.master')
 
-
 @section('title', 'Home | Dashboard')
 
 @section('breadcrumb')
@@ -10,7 +9,7 @@
 @section('content')
 <div class="row">
   <!-- Profil Pengguna -->
-  <div class="col-md-8">
+  <div class="col-md-8 col-12">
     <div class="card mb-4">
       <div class="card-header">
         <h5>Profil Pengguna</h5>
@@ -19,35 +18,48 @@
         <div class="row align-items-center">
           <div class="col-md-3 text-center">
             <div class="avatar avatar-xl mb-3">
-              <img src="{{ asset('assets/images/user/avatar-1.jpg') }}" alt="User Profile" class="img-fluid rounded-circle">
+              @if(Auth::user()->foto)
+                <img src="{{ asset('storage/'.Auth::user()->foto) }}" alt="User Profile" class="img-fluid rounded-circle">
+              @else
+                <img src="{{ asset('assets/images/user/avatar-1.jpg') }}" alt="User Profile" class="img-fluid rounded-circle">
+              @endif
             </div>
-            <h4 class="mb-1">John Doe</h4>
-            <p class="text-muted">Administrator</p>
-            <button class="btn btn-primary btn-sm">Edit Profile</button>
+            <h4 class="mb-1">{{ $pegawai->nama }}</h4>
+            <p class="text-muted">{{ ucfirst(Auth::user()->role) }}</p>
+            <a href="#" class="btn btn-sm text-white" style="background-color: #0056b3;">Edit Profile</a>
+
           </div>
           <div class="col-md-9">
             <div class="row">
-              <div class="col-md-6">
+              <div class="col-md-6 col-12">
                 <div class="card border mb-3">
                   <div class="card-body">
                     <h6 class="mb-2 f-w-400 text-muted">Email</h6>
-                    <p class="mb-0">johndoe@example.com</p>
+                    <p class="mb-0">{{ $pegawai->email ?? 'Belum diatur' }}</p>
                   </div>
                 </div>
               </div>
-              <div class="col-md-6">
+              <div class="col-md-6 col-12">
                 <div class="card border mb-3">
                   <div class="card-body">
                     <h6 class="mb-2 f-w-400 text-muted">No. Telepon</h6>
-                    <p class="mb-0">+62 812 3456 7890</p>
+                    <p class="mb-0">{{ $pegawai->no_telp ?? 'Belum diatur' }}</p>
                   </div>
                 </div>
               </div>
-              <div class="col-md-12">
+              <div class="col-md-6 col-12">
                 <div class="card border mb-3">
                   <div class="card-body">
                     <h6 class="mb-2 f-w-400 text-muted">Bergabung Sejak</h6>
-                    <p class="mb-0">18 April 2023</p>
+                    <p class="mb-0">{{ $pegawai->tanggal_masuk->format('d-m-Y') ?? 'Belum diatur' }}</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6 col-12">
+                <div class="card border mb-3">
+                  <div class="card-body">
+                    <h6 class="mb-2 f-w-400 text-muted">NIP</h6>
+                    <p class="mb-0">{{ Auth::user()->nip ?? 'Belum diatur' }}</p>
                   </div>
                 </div>
               </div>
@@ -56,8 +68,8 @@
         </div>
       </div>
     </div>
-
-    <!-- Form Absen -->
+    
+    <!-- Form Absen - Dipindahkan ke bawah profil -->
     <div class="card">
       <div class="card-header">
         <h5>Absensi Hari Ini</h5>
@@ -67,16 +79,22 @@
         <form method="POST" action="">
           @csrf
           <div class="d-flex justify-content-center gap-3">
-            <button type="submit" name="action" value="masuk" class="btn btn-success">Absen Masuk</button>
-            <button type="submit" name="action" value="pulang" class="btn btn-danger">Absen Pulang</button>
+          <button type="submit" name="action" value="masuk" 
+            class="btn btn-sm text-white" 
+            style="background-color: #0056b3;">Absen Masuk</button>
+
+          <button type="submit" name="action" value="pulang" 
+            class="btn btn-sm text-primary border" 
+            style="border-color: #0056b3; background-color: white;">Absen Pulang</button>
           </div>
         </form>
       </div>
     </div>
   </div>
 
-  <!-- Donut Chart Golongan -->
-  <div class="col-md-4">
+  <!-- Kolom Golongan Karyawan -->
+  <div class="col-md-4 col-12">
+    <!-- Donut Chart Golongan -->
     <div class="card h-100">
       <div class="card-header">
         <h5>Golongan Karyawan</h5>
