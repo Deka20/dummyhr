@@ -22,7 +22,7 @@
       <ul class="pc-navbar">
        <!-- DASHBOARD -->
 <li class="pc-item">
-  <a href="{{ url('/dashboard') }}" class="pc-link">
+  <a href="{{ route('admin.index') }}" class="pc-link">
     <span class="pc-micon"><i class="ti ti-dashboard"></i></span>
     <span class="pc-mtext">Dashboard</span>
   </a>
@@ -40,13 +40,13 @@
   </a>
 </li>
 <li class="pc-item">
-  <a href="{{ url('/absensi') }}" class="pc-link">
+  <a href="{{ route('admin.absensi') }}" class="pc-link">
     <span class="pc-micon"><i class="ti ti-clock"></i></span>
     <span class="pc-mtext">Absensi</span>
   </a>
 </li>
 <li class="pc-item">
-  <a href="{{ url('/cuti') }}" class="pc-link">
+  <a href="{{ route('admin.pengajuan_cuti') }}" class="pc-link">
     <span class="pc-micon"><i class="ti ti-calendar-time"></i></span>
     <span class="pc-mtext">Pengajuan Cuti</span>
   </a>

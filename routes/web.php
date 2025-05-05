@@ -2,7 +2,9 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\cutiController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AbsensiController;
 use App\Http\Controllers\KaryawanController;
 use App\Http\Controllers\DashboardController;
 
@@ -19,7 +21,9 @@ Route::controller(AuthController::class)->group(function () {
 // ✅ HRD/Admin Routes (hanya sampai Kelola Pegawai)
 Route::middleware(['auth', 'check.role:hrd'])->prefix('hrd')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.index');
-    Route::get('/kelola-karyawan', [KaryawanController::class, 'karyawan'])->name('admin.karyawan');
+    Route::get('/kelola-karyawan', [KaryawanController::class, 'index'])->name('admin.karyawan');
+    Route::get('/absensi', [AbsensiController::class, 'index'])->name('admin.absensi');
+    Route::get('/cuti', [cutiController::class, 'index'])->name('admin.pengajuan_cuti');
 });
 
     
