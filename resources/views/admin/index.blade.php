@@ -9,54 +9,6 @@
 
 @section('content')
 <div class="row">
-  <!-- Profil Pengguna -->
-  <div class="col-md-8">
-    <div class="card mb-4">
-      <div class="card-header">
-        <h5>Profil Pengguna</h5>
-      </div>
-      <div class="card-body">
-        <div class="row align-items-center">
-          <div class="col-md-3 text-center">
-            <div class="avatar avatar-xl mb-3">
-              <img src="{{ asset('assets/images/user/avatar-1.jpg') }}" alt="User Profile" class="img-fluid rounded-circle">
-            </div>
-            <h4 class="mb-1">{{ $pegawai->nama }}</h4>
-            <p class="text-muted">{{ ucfirst(Auth::user()->role) }}</p>
-            <a href="#" class="btn btn-sm text-white" style="background-color: #0056b3;">Edit Profile</a>
-          </div>
-          <div class="col-md-9">
-            <div class="row">
-              <div class="col-md-6">
-                <div class="card border mb-3">
-                  <div class="card-body">
-                    <h6 class="mb-2 f-w-400 text-muted">Email</h6>
-                    <p class="mb-0">{{$pegawai->email}}</p>
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-6">
-                <div class="card border mb-3">
-                  <div class="card-body">
-                    <h6 class="mb-2 f-w-400 text-muted">No. Telepon</h6>
-                    <p class="mb-0">{{$pegawai->no_hp}}</p>
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-12">
-                <div class="card border mb-3">
-                  <div class="card-body">
-                    <h6 class="mb-2 f-w-400 text-muted">Bergabung Sejak</h6>
-                    <p class="mb-0">{{ $pegawai->tanggal_masuk->format('d-m-Y') ?? 'Belum diatur' }}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <!-- Form Absen -->
     <div class="card">
       <div class="card-header">

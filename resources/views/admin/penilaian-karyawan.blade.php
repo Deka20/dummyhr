@@ -4,7 +4,7 @@
 @section('title', 'Form Penilaian Karyawan')
 
 @section('breadcrumb')
-    <li class="breadcrumb-item"><a href="{{ url('/penilaian') }}">Penilaian</a></li>
+    <li class="breadcrumb-item"><a href="{{ route('admin.penilaian') }}">Penilaian</a></li>
     <li class="breadcrumb-item active" aria-current="page">Form</li>
 @endsection
 

@@ -30,7 +30,7 @@
                     <td>Staff HRD</td>
                     <td>SDM</td>
                     <td>
-                        <a href="{{ url('/penilaian-karyawan') }}" class="btn btn-sm btn-primary">Beri Penilaian</a>
+                        <a href="{{ route('admin.penilaian-karyawan') }}" class="btn btn-sm btn-primary">Beri Penilaian</a>
                     </td>
                 </tr>
                 <tr>
@@ -39,7 +39,7 @@
                     <td>Admin Keuangan</td>
                     <td>Keuangan</td>
                     <td>
-                        <a href="{{ url('/penilaian-karyawan') }}" class="btn btn-sm btn-primary">Beri Penilaian</a>
+                        <a href="{{ route('admin.penilaian-karyawan') }}" class="btn btn-sm btn-primary">Beri Penilaian</a>
                     </td>
                 </tr>
                 <!-- Tambahkan baris pegawai lainnya sesuai kebutuhan -->

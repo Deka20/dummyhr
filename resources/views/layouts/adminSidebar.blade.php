@@ -36,7 +36,7 @@
 <li class="pc-item">
   <a href="{{ route('admin.karyawan') }}" class="pc-link">
     <span class="pc-micon"><i class="ti ti-users"></i></span>
-    <span class="pc-mtext">Data Karyawan</span>
+    <span class="pc-mtext">Data Pegawai</span>
   </a>
 </li>
 <li class="pc-item">
@@ -69,23 +69,23 @@
   <i class="ti ti-hierarchy"></i>
 </li>
 <li class="pc-item">
-  <a href="{{url ('/penilaian') }}" class="pc-link">
+  <a href="{{ route('admin.penilaian') }}" class="pc-link">
     <i class="ti ti-clipboard-check"></i>
-    <span class="pc-mtext">Penilaian Karyawan</span>
+    <span class="pc-mtext">Penilaian Pegawai</span>
   </a>
 </li>
 
-<!-- KEUANGAN -->
+{{-- <!-- KEUANGAN -->
 <li class="pc-item pc-caption">
   <label>Keuangan</label>
   <i class="ti ti-currency-dollar"></i>
-</li>
-<li class="pc-item">
+</li> --}}
+{{-- <li class="pc-item">
   <a href="{{ url('/gaji') }}" class="pc-link">
     <span class="pc-micon"><i class="ti ti-currency-dollar"></i></span>
     <span class="pc-mtext">Gaji & Slip Gaji</span>
   </a>
-</li>
+</li> --}}
 <!-- <li class="pc-item">
   <a href="{{ url('/pinjaman') }}" class="pc-link">
     <span class="pc-micon"><i class="ti ti-cash-banknote"></i></span>
@@ -111,28 +111,11 @@
   </a>
 </li> -->
 <li class="pc-item">
-  <a href="{{ url('/pengaturan') }}" class="pc-link">
+  <a href="{{ route('admin.edit-profile') }}" class="pc-link">
     <span class="pc-micon"><i class="ti ti-tools"></i></span>
-    <span class="pc-mtext">Pengaturan</span>
+    <span class="pc-mtext">Profile</span>
   </a>
 </li>
 
-<!-- 
-        <li class="pc-item pc-caption">
-          <label>Pages</label>
-          <i class="ti ti-news"></i>
-        </li>
-        <li class="pc-item">
-        <a href="{{ route('login') }}" class="pc-link">
-            <span class="pc-micon"><i class="ti ti-lock"></i></span>
-            <span class="pc-mtext">Login</span>
-          </a>
-        </li>
-        <li class="pc-item">
-          <a href="{{ url('/pages') }}" class="pc-link">
-            <span class="pc-micon"><i class="ti ti-user-plus"></i></span>
-            <span class="pc-mtext">Register</span>
-          </a>
-        </li> -->
 </nav>
 <!-- [ Sidebar Menu ] end -->

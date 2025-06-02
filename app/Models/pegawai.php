@@ -7,9 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Pegawai extends Model
 {
-
     protected $table = 'pegawai';
     protected $primaryKey = 'id_pegawai';
+    public $timestamps = false; // kalau memang tidak pakai created_at dan updated_at
 
     protected $fillable = [
         'nama',
@@ -23,9 +23,8 @@ class Pegawai extends Model
         'id_departemen',
         'tanggal_masuk',
         'foto',
-        'jatahtahunan',
+        'jatahtahunan'
     ];
-
 
     protected $casts = [
         'tanggal_lahir' => 'date',
@@ -36,9 +35,14 @@ class Pegawai extends Model
     {
         return $this->hasOne(User::class, 'id_pegawai', 'id_pegawai');
     }
+
     public function departemen()
     {
         return $this->belongsTo(Departemen::class, 'id_departemen', 'id_departemen');
     }
-    
+
+    public function jabatan()
+    {
+        return $this->belongsTo(Jabatan::class, 'id_jabatan');
+    }
 }

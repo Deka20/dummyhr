@@ -201,8 +201,6 @@
         .form-animate:nth-child(2) { animation-delay: 0.2s; }
         .form-animate:nth-child(3) { animation-delay: 0.3s; }
         .form-animate:nth-child(4) { animation-delay: 0.4s; }
-        
-        /* Responsive adjustments */
         @media (max-width: 992px) {
             .login-wrapper {
                 flex-direction: column;
@@ -223,8 +221,6 @@
                 padding: 1rem;
             }
         }
-        
-        /* Mobile logo for small screens */
         .mobile-logo {
             display: none;
             text-align: center;
@@ -255,7 +251,6 @@
 </head>
 <body>
     <div class="login-wrapper">
-        <!-- Banner Section (Left Side) -->
         <div class="login-banner">
             <div class="banner-logo">
                 <img src="{{ asset('assets/images/logo.png') }}" alt="Logo Darussalam">
@@ -269,9 +264,7 @@
             <p>Sistem Informasi Manajemen SDM Yayasan Darussalam .</p>
         </div>
         
-        <!-- Login Form Section (Right Side) -->
         <div class="login-form">
-            <!-- Mobile Logo - Only visible on small screens -->
             <div class="mobile-logo">
                 <img src="{{ asset('assets/images/logo.png') }}" alt="Logo Darussalam">
                 <div>
@@ -302,7 +295,7 @@
                     <select class="form-select @error('role') is-invalid @enderror" id="role" name="role" required>
                         <option value="" selected disabled>Pilih Role</option>
                         <option value="hrd" {{ old('role') == 'hrd' ? 'selected' : '' }}>HRD</option>
-                        <option value="kepala" {{ old('role') == 'kepala' ? 'selected' : '' }}>Kepala Yayasan</option>
+                        <option value="kepala" {{ old('role') == 'kepala' ? 'selected' : '' }}>Kepala Yayasan/Departemen/Sekolah</option>
                         <option value="pegawai" {{ old('role') == 'pegawai' ? 'selected' : '' }}>Pegawai</option>
                     </select>
                     <label for="role">Login Sebagai</label>
@@ -347,40 +340,24 @@
 </body>
 </html>
 
-<!-- Menyertakan SweetAlert2 -->
 <script src="{{ asset('assets/js/plugins/sweetalert2.all.min.js') }}"></script>
-<!-- Menyertakan script custom untuk menangani alert -->
 <script src="{{ asset('assets/js/pages/ac-alert.js') }}"></script>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Check if login was successful and we have a redirect URL
+    document.addEventListener('DOMContentLoaded', function () {
         @if(session('login_success') && session('redirect_to'))
-        let timerInterval;
         Swal.fire({
-            title: 'Anda berhasil login',
-            html: 'Sebentar lagi Anda akan diarahkan ke dashboard dalam <b></b> milliseconds.',
+            title: 'Login Berhasil',
+            text: 'Anda akan diarahkan ke dashboard dalam 3 detik.',
             icon: 'success',
             timer: 3000,
+            showConfirmButton: false,
             timerProgressBar: true,
             didOpen: () => {
                 Swal.showLoading();
-                timerInterval = setInterval(() => {
-                    const content = Swal.getHtmlContainer();
-                    if (content) {
-                        const b = content.querySelector('b');
-                        if (b) {
-                            b.textContent = Swal.getTimerLeft();
-                        }
-                    }
-                }, 100);
             },
-            willClose: () => {
-                clearInterval(timerInterval);
-            }
         }).then((result) => {
             if (result.dismiss === Swal.DismissReason.timer) {
-                // Redirect to the specified dashboard after alert closes
                 window.location.href = "{{ session('redirect_to') }}";
             }
         });

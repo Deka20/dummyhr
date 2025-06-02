@@ -7,7 +7,7 @@
           <h5 class="m-b-10">@yield('page-title', 'Halaman')</h5>
         </div>
         <ul class="breadcrumb">
-          <li class="breadcrumb-item"><a href="{{ url('/dashboard') }}">Home</a></li>
+          <li class="breadcrumb-item"><a href="{{ route('admin.index') }}">Home</a></li>
           @hasSection('breadcrumb')
             @yield('breadcrumb')
           @endif

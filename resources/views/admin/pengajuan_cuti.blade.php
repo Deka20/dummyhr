@@ -233,6 +233,7 @@
         </div>
     </div>
 </div>
+
 <!-- Modal Detail Cuti -->
 <div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -257,247 +258,252 @@
 @endsection
 
 @push('scripts')
-<!-- Make sure Flatpickr is properly loaded -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
 <script>
-    // Initialize Flatpickr datepickers - Modified for better debugging
-    document.addEventListener('DOMContentLoaded', function () {
-        console.log("DOM fully loaded");
+document.addEventListener('DOMContentLoaded', function () {
+    // Initialize Flatpickr datepickers
+    const startDatePicker = flatpickr("#tanggal_mulai", {
+        dateFormat: "Y-m-d",
+        minDate: "today",
+        onChange: calculateDays
+    });
+    
+    const endDatePicker = flatpickr("#tanggal_selesai", {
+        dateFormat: "Y-m-d",
+        minDate: "today",
+        onChange: calculateDays
+    });
+    
+    // Handle leave type selection to update max days
+    document.getElementById('jenisCuti').addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const maxDays = selectedOption.getAttribute('data-max');
         
-        // Make sure the datepicker elements exist
-        const startDateInput = document.getElementById('tanggal_mulai');
-        const endDateInput = document.getElementById('tanggal_selesai');
-        
-        if (!startDateInput || !endDateInput) {
-            console.error("Date input elements not found!");
-            return;
+        if (maxDays) {
+            document.getElementById('maxHari').value = maxDays + ' hari';
+        } else {
+            document.getElementById('maxHari').value = '';
         }
         
-        console.log("Date inputs found, initializing flatpickr");
+        // Reset dates when changing leave type
+        startDatePicker.clear();
+        endDatePicker.clear();
+        document.getElementById('jumlahHari').value = '';
+    });
+    
+    // Calculate days between dates
+    function calculateDays() {
+        const startDate = document.getElementById('tanggal_mulai').value;
+        const endDate = document.getElementById('tanggal_selesai').value;
         
-        // Configure datepickers with explicit selectors instead of class
-        try {
-            const dateConfig = {
-                dateFormat: "Y-m-d",
-                minDate: "today",
-                allowInput: true
-            };
-            
-            const startPicker = flatpickr("#tanggal_mulai", {
-                ...dateConfig,
-                onChange: function(selectedDates, dateStr) {
-                    console.log("Start date changed:", dateStr);
-                    calculateDays();
-                }
-            });
-            
-            const endPicker = flatpickr("#tanggal_selesai", {
-                ...dateConfig,
-                onChange: function(selectedDates, dateStr) {
-                    console.log("End date changed:", dateStr);
-                    calculateDays();
-                }
-            });
-            
-            console.log("Flatpickr initialized successfully");
-        } catch (err) {
-            console.error("Error initializing flatpickr:", err);
-        }
-        
-        // Handle leave type selection
-        const jenisCutiSelect = document.getElementById('jenisCuti');
-        if (jenisCutiSelect) {
-            jenisCutiSelect.addEventListener('change', function() {
-                const maxDays = this.options[this.selectedIndex].getAttribute('data-max');
-                document.getElementById('maxHari').value = maxDays ? maxDays + ' hari' : '';
-            });
-        }
-        
-        // Calculate days between selected dates
-        window.calculateDays = function() {
-            console.log("Calculating days...");
-            const startDate = document.getElementById('tanggal_mulai').value;
-            const endDate = document.getElementById('tanggal_selesai').value;
-            
-            if (!startDate || !endDate) {
-                console.log("Missing date values");
-                return;
-            }
-            
-            console.log(`Start: ${startDate}, End: ${endDate}`);
-            
+        if (startDate && endDate) {
             const start = new Date(startDate);
             const end = new Date(endDate);
             
+            // Check if end date is before start date
             if (end < start) {
                 alert('Tanggal selesai tidak boleh sebelum tanggal mulai!');
+                endDatePicker.clear();
                 document.getElementById('jumlahHari').value = '';
                 return;
             }
             
-            // Count working days (excluding weekends)
+            // Calculate working days (excluding weekends)
             let count = 0;
             let current = new Date(start);
             
             while (current <= end) {
+                // Check if current day is not weekend (0 = Sunday, 6 = Saturday)
                 const dayOfWeek = current.getDay();
-                if (dayOfWeek !== 0 && dayOfWeek !== 6) count++;
+                if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+                    count++;
+                }
+                
+                // Move to next day
                 current.setDate(current.getDate() + 1);
             }
             
-            console.log(`Total days: ${count}`);
             document.getElementById('jumlahHari').value = count;
             
             // Check if exceeds max days
             const jenisCuti = document.getElementById('jenisCuti');
-            if (!jenisCuti || jenisCuti.selectedIndex <= 0) return;
-            
             const maxDays = jenisCuti.options[jenisCuti.selectedIndex].getAttribute('data-max');
             
             if (maxDays && count > parseInt(maxDays)) {
-                alert(`Jumlah hari cuti (${count} hari) melebihi batas maksimal (${maxDays} hari)`);
+                alert(`Jumlah hari cuti (${count} hari) melebihi batas maksimal (${maxDays} hari) untuk jenis cuti ini.`);
+                endDatePicker.clear();
                 document.getElementById('jumlahHari').value = '';
             }
         }
+    }
+    
+    // Form validation and submission
+    document.getElementById('submitCutiBtn').addEventListener('click', function() {
+        const form = document.getElementById('cutiForm');
         
-        // Form submission
-        const submitBtn = document.getElementById('submitCutiBtn');
-        if (submitBtn) {
-            submitBtn.addEventListener('click', function() {
-                const form = document.getElementById('cutiForm');
-                
-                if (!form.checkValidity()) {
-                    // Simple validation
-                    Array.from(form.elements).forEach((input) => {
-                        if (input.required && !input.value) {
-                            input.classList.add('is-invalid');
-                        }
-                    });
-                    return;
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            // Add validation classes to all form elements
+            Array.from(form.elements).forEach((input) => {
+                if (input.required && !input.value) {
+                    input.classList.add('is-invalid');
+                } else {
+                    input.classList.remove('is-invalid');
                 }
-                
-                // Add hidden fields
-                const today = new Date().toISOString().split('T')[0];
-                
-                // Add application date
-                let hiddenInput = document.createElement('input');
-                hiddenInput.type = 'hidden';
-                hiddenInput.name = 'tanggal_pengajuan';
-                hiddenInput.value = today;
-                form.appendChild(hiddenInput);
-                
-                // Set status to Pending
-                hiddenInput = document.createElement('input');
-                hiddenInput.type = 'hidden';
-                hiddenInput.name = 'status_cuti';
-                hiddenInput.value = 'Menunggu';
-                form.appendChild(hiddenInput);
-                
-                // Submit form
-                form.submit();
             });
+            
+            // Check confirmation checkbox
+            const konfirmasi = document.getElementById('konfirmasi');
+            if (!konfirmasi.checked) {
+                konfirmasi.classList.add('is-invalid');
+            }
+            
+            return false;
         }
         
-        // Clear validation styling on input
-        document.querySelectorAll('#cutiForm input, #cutiForm select, #cutiForm textarea').forEach(input => {
-            input.addEventListener('input', function() {
-                this.classList.remove('is-invalid');
-            });
+        // Add current date as tanggal_pengajuan
+        const todayDate = new Date().toISOString().split('T')[0];
+        const hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.name = 'tanggal_pengajuan';
+        hiddenInput.value = todayDate;
+        form.appendChild(hiddenInput);
+        
+        // Set status to Menunggu
+        const statusInput = document.createElement('input');
+        statusInput.type = 'hidden';
+        statusInput.name = 'status_cuti';
+        statusInput.value = 'Menunggu';
+        form.appendChild(statusInput);
+        
+        // Submit the form
+        form.submit();
+    });
+    
+    // Remove validation styling on input
+    const formInputs = document.querySelectorAll('#cutiForm input, #cutiForm select, #cutiForm textarea');
+    formInputs.forEach(input => {
+        input.addEventListener('input', function() {
+            this.classList.remove('is-invalid');
         });
     });
+    
+    // Initialize DataTables if available
+    if (typeof $.fn.DataTable !== 'undefined') {
+        $('#cuti-table').DataTable({
+            responsive: true,
+            language: {
+                search: "Cari:",
+                lengthMenu: "Tampilkan _MENU_ entri",
+                info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ entri",
+                paginate: {
+                    first: "Pertama",
+                    last: "Terakhir",
+                    next: "Selanjutnya",
+                    previous: "Sebelumnya"
+                }
+            }
+        });
+    }
+});
 
-    // Make function available in global scope
-    function showDetail(id) {
-        const detailModal = new bootstrap.Modal(document.getElementById('detailModal'));
-        const detailContent = document.getElementById('detailContent');
-        
-        // Show loading indicator
-        detailContent.innerHTML = `
-            <div class="text-center">
-                <div class="spinner-border" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
+// Function to show detail modal
+function showDetail(id) {
+    const detailModal = new bootstrap.Modal(document.getElementById('detailModal'));
+    const detailContent = document.getElementById('detailContent');
+    
+    // Show loading
+    detailContent.innerHTML = `
+        <div class="text-center">
+            <div class="spinner-border" style="color: #0056b3;" role="status">
+                <span class="visually-hidden">Loading...</span>
             </div>
-        `;
-        
-        detailModal.show();
-        
-        // Fetch leave details
-        fetch(`/admin/cuti/${id}`)
-            .then(response => response.json())
-            .then(data => {
-                const statusClass = {
-                    'Disetujui': 'success',
-                    'Ditolak': 'danger',
-                    'Menunggu': 'warning'
-                };
-                
-                // Display leave details
-                detailContent.innerHTML = `
-                    <div class="card border-0">
-                        <div class="card-body p-0">
-                            <table class="table table-borderless">
-                                <tr>
-                                    <td width="40%"><strong>Jenis Cuti</strong></td>
-                                    <td>${data.jenis_cuti.nama_jenis_cuti}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Pegawai</strong></td>
-                                    <td>${data.pegawai.nama_pegawai}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Tanggal Pengajuan</strong></td>
-                                    <td>${new Date(data.tanggal_pengajuan).toLocaleDateString('id-ID')}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Periode Cuti</strong></td>
-                                    <td>${new Date(data.tanggal_mulai).toLocaleDateString('id-ID')} - 
-                                        ${new Date(data.tanggal_selesai).toLocaleDateString('id-ID')}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Status</strong></td>
-                                    <td><span class="badge bg-${statusClass[data.status_cuti]}">${data.status_cuti}</span></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Keterangan</strong></td>
-                                    <td>${data.keterangan || '-'}</td>
-                                </tr>
-                            </table>
-                        </div>
-                    </div>
-                `;
-            })
-            .catch(error => {
-                detailContent.innerHTML = `
-                    <div class="alert alert-danger">
-                        Terjadi kesalahan saat mengambil data.
-                    </div>
-                `;
-            });
-    }
-
-    // Cancel leave request
-    function cancelLeave(id) {
-        if (confirm('Apakah Anda yakin ingin membatalkan pengajuan cuti ini?')) {
-            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        </div>
+    `;
+    
+    detailModal.show();
+    
+    // Fetch cuti details
+    fetch(`/admin/cuti/${id}`)
+        .then(response => response.json())
+        .then(data => {
+            const statusClass = {
+                'Disetujui': 'success',
+                'Ditolak': 'danger',
+                'Menunggu': 'warning'
+            };
             
-            fetch(`/admin/cuti/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Pengajuan cuti berhasil dibatalkan');
-                    window.location.reload();
-                } else {
-                    alert('Gagal membatalkan pengajuan cuti');
-                }
-            });
-        }
+            detailContent.innerHTML = `
+                <div class="card border-0">
+                    <div class="card-body p-0">
+                        <table class="table table-borderless">
+                            <tr>
+                                <td width="40%"><strong>Jenis Cuti</strong></td>
+                                <td>${data.jenis_cuti.nama_jenis_cuti}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Pegawai</strong></td>
+                                <td>${data.pegawai.nama_pegawai}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Tanggal Pengajuan</strong></td>
+                                <td>${new Date(data.tanggal_pengajuan).toLocaleDateString('id-ID')}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Periode Cuti</strong></td>
+                                <td>${new Date(data.tanggal_mulai).toLocaleDateString('id-ID')} - ${new Date(data.tanggal_selesai).toLocaleDateString('id-ID')}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Status</strong></td>
+                                <td><span class="badge bg-${statusClass[data.status_cuti]}">${data.status_cuti}</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Keterangan</strong></td>
+                                <td>${data.keterangan || '-'}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            `;
+        })
+        .catch(error => {
+            detailContent.innerHTML = `
+                <div class="alert alert-danger">
+                    Terjadi kesalahan saat mengambil data. Silakan coba lagi.
+                </div>
+            `;
+            console.error('Error:', error);
+        });
+}
+
+// Function to cancel leave request
+function cancelLeave(id) {
+    if (confirm('Apakah Anda yakin ingin membatalkan pengajuan cuti ini?')) {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        
+        fetch(`/admin/cuti/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Pengajuan cuti berhasil dibatalkan');
+                window.location.reload();
+            } else {
+                alert('Gagal membatalkan pengajuan cuti');
+            }
+        })
+        .catch(error => {
+            alert('Terjadi kesalahan saat membatalkan pengajuan');
+            console.error('Error:', error);
+        });
     }
+}
 </script>
 @endpush

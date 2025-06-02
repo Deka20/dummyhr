@@ -9,10 +9,11 @@ class AdminController extends Controller
 {
     public function index()
     {
-        $user = Auth::user(); // Dapatkan user yang sedang login
-        $pegawai = $user->pegawai; // Ambil data pegawai terkait
+        $user = Auth::user();
+        $pegawai = $user->pegawai; 
+        $nama_jabatan = $pegawai->jabatan->nama_jabatan;
         $nama_departemen = $pegawai->departemen->nama_departemen;
-        return view('admin.index', compact('pegawai','nama_departemen'));
+        return view('admin.index', compact('pegawai','nama_departemen','nama_jabatan'));
     }
     
 }
