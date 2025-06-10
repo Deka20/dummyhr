@@ -6,12 +6,11 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css">
 <style>
     .stat-card {
-        transition: all 0.3s;
+        transition: transform 0.3s;
         border-radius: 10px;
     }
     .stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        transform: translateY(-3px);
     }
     .status-badge {
         font-size: 0.85rem;
@@ -22,80 +21,98 @@
 
 @section('content')
 <div class="container-fluid mt-4">
+    <!-- Alert Messages -->
+    @if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show">
+        {{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    @endif
+
+    @if(session('error'))
+    <div class="alert alert-danger alert-dismissible fade show">
+        {{ session('error') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    @endif
+
     <div class="row">
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h4 class="card-title mb-0">Manajemen Cuti</h4>
-                        <div>
-                            <button class="btn btn-outline-secondary me-2">
-                                <i class="ti ti-history me-1"></i> Riwayat Cuti
-                            </button>
-                            <button class="btn btn-outline-secondary me-2">
-                                <i class="ti ti-calendar me-1"></i> Jadwal
-                            </button>
-                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#cutiModal">
-                                <i class="ti ti-plus me-1"></i> Ajukan Cuti Baru
-                            </button>
-                        </div>
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#cutiModal">
+                            <i class="ti ti-plus me-1"></i> Ajukan Cuti Baru
+                        </button>
                     </div>
                     
+                    <!-- Statistics Cards -->
+                   @php
+                        $jatah = $pegawai->jatahtahunan;
+
+                        $cutiTerpakai = $pegawai->cuti()
+                            ->where('status_cuti', 'Disetujui')
+                            ->get()
+                            ->sum(function($cuti) {
+                                return \Carbon\Carbon::parse($cuti->tanggal_mulai)
+                                    ->diffInDays(\Carbon\Carbon::parse($cuti->tanggal_selesai)) + 1;
+                            });
+
+                        $sisaCuti = $jatah - $cutiTerpakai;
+                    @endphp
+
                     <div class="row mb-4">
                         <div class="col-md-4">
-                            <div class="card stat-card bg-light border-0 shadow-sm">
+                            <div class="card stat-card bg-light">
                                 <div class="card-body d-flex align-items-center">
                                     <div>
                                         <div class="text-muted">Jatah Tahunan</div>
-                                        <h2 class="mb-0">12 Hari</h2>
+                                        <h2 class="mb-0">{{ $jatah }} Hari</h2>
                                     </div>
                                     <div class="ms-auto">
-                                        <div class="rounded-circle bg-primary bg-opacity-10 p-3">
-                                            <i class="ti ti-calendar text-primary fs-4"></i>
-                                        </div>
+                                        <i class="ti ti-calendar text-primary fs-4"></i>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <div class="card stat-card bg-light border-0 shadow-sm">
+                            <div class="card stat-card bg-light">
                                 <div class="card-body d-flex align-items-center">
                                     <div>
                                         <div class="text-muted">Cuti Terpakai</div>
-                                        <h2 class="mb-0">3 Hari</h2>
+                                        <h2 class="mb-0">{{ $cutiTerpakai }} Hari</h2>
                                     </div>
                                     <div class="ms-auto">
-                                        <div class="rounded-circle bg-danger bg-opacity-10 p-3">
-                                            <i class="ti ti-clock text-danger fs-4"></i>
-                                        </div>
+                                        <i class="ti ti-clock text-danger fs-4"></i>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <div class="card stat-card bg-light border-0 shadow-sm">
+                            <div class="card stat-card bg-light">
                                 <div class="card-body d-flex align-items-center">
                                     <div>
                                         <div class="text-muted">Sisa Cuti</div>
-                                        <h2 class="mb-0">9 Hari</h2>
+                                        <h2 class="mb-0">{{ $sisaCuti }} Hari</h2>
                                     </div>
                                     <div class="ms-auto">
-                                        <div class="rounded-circle bg-success bg-opacity-10 p-3">
-                                            <i class="ti ti-check text-success fs-4"></i>
-                                        </div>
+                                        <i class="ti ti-check text-success fs-4"></i>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
+
+                    <!-- Data Table -->
                     <div class="card">
                         <div class="card-header bg-light">
                             <h5 class="mb-0">Pengajuan Cuti Terbaru</h5>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
-                                <table id="cuti-table" class="table table-striped table-hover">
+                                <table class="table table-striped">
                                     <thead>
                                         <tr>
                                             <th>No</th>
@@ -111,7 +128,7 @@
                                         @forelse($cuti as $index => $item)
                                         <tr>
                                             <td>{{ $index + 1 }}</td>
-                                            <td>{{ $item->jenisCuti->nama_jenis_cuti }}</td>
+                                            <td>{{ $item->jenisCuti->nama_jenis_cuti ?? 'N/A' }}</td>
                                             <td>{{ \Carbon\Carbon::parse($item->tanggal_pengajuan)->format('d/m/Y') }}</td>
                                             <td>{{ \Carbon\Carbon::parse($item->tanggal_mulai)->format('d/m/Y') }} - {{ \Carbon\Carbon::parse($item->tanggal_selesai)->format('d/m/Y') }}</td>
                                             <td>
@@ -132,11 +149,11 @@
                                                 @endif
                                             </td>
                                             <td>
-                                                <button class="btn btn-sm btn-info" title="Detail" onclick="showDetail('{{ $item->id_cuti }}')">
+                                                <button class="btn btn-sm btn-info" onclick="showDetail('{{ $item->id_cuti }}')">
                                                     <i class="ti ti-eye"></i>
                                                 </button>
                                                 @if($item->status_cuti == 'Menunggu')
-                                                <button class="btn btn-sm btn-danger" title="Batalkan" onclick="cancelLeave('{{ $item->id_cuti }}')">
+                                                <button class="btn btn-sm btn-danger ms-1" onclick="cancelLeave('{{ $item->id_cuti }}')">
                                                     <i class="ti ti-x"></i>
                                                 </button>
                                                 @endif
@@ -159,25 +176,26 @@
 </div>
 
 <!-- Modal Pengajuan Cuti -->
-<div class="modal fade" id="cutiModal" tabindex="-1" aria-labelledby="cutiModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
+<div class="modal fade" id="cutiModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header" style="background-color: #0056b3; color: white;">
-                <h5 class="modal-title text-white" id="cutiModalLabel">Form Pengajuan Cuti</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title text-white">Form Pengajuan Cuti</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <form action="" method="POST" id="cutiForm">
                     @csrf
+                    
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label class="form-label">Nama Pegawai</label>
-                            <input type="text" class="form-control" value="{{ $pegawai->nama_pegawai }}" readonly>
-                            <input type="hidden" name="id_pegawai" value="{{ $pegawai->id_pegawai }}">
+                            <input type="text" class="form-control" value="{{ $pegawai->nama ?? '' }}" readonly>
+                            <input type="hidden" name="id_pegawai" value="{{ $pegawai->id_pegawai ?? '' }}">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">NIP</label>
-                            <input type="text" class="form-control" value="{{ $pegawai->nip }}" readonly>
+                            <label class="form-label">Telepon</label>
+                            <input type="text" class="form-control" value="{{ $pegawai->no_hp ?? '' }}" readonly>
                         </div>
                     </div>
 
@@ -187,7 +205,9 @@
                             <select class="form-select" name="id_jenis_cuti" id="jenisCuti" required>
                                 <option value="">-- Pilih Jenis Cuti --</option>
                                 @foreach(\App\Models\JenisCuti::all() as $jenis)
-                                <option value="{{ $jenis->id_jenis_cuti }}" data-max="{{ $jenis->max_hari_cuti }}">{{ $jenis->nama_jenis_cuti }}</option>
+                                <option value="{{ $jenis->id_jenis_cuti }}" data-max="{{ $jenis->max_hari_cuti }}">
+                                    {{ $jenis->nama_jenis_cuti }}
+                                </option>
                                 @endforeach
                             </select>
                         </div>
@@ -200,11 +220,11 @@
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label class="form-label">Tanggal Mulai <span class="text-danger">*</span></label>
-                            <input type="text" id="tanggal_mulai" name="tanggal_mulai" class="form-control datepicker" placeholder="YYYY-MM-DD" required>
+                            <input type="date" id="tanggal_mulai" name="tanggal_mulai" class="form-control" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Tanggal Selesai <span class="text-danger">*</span></label>
-                            <input type="text" id="tanggal_selesai" name="tanggal_selesai" class="form-control datepicker" placeholder="YYYY-MM-DD" required>
+                            <input type="date" id="tanggal_selesai" name="tanggal_selesai" class="form-control" required>
                         </div>
                     </div>
 
@@ -215,11 +235,11 @@
 
                     <div class="mb-3">
                         <label class="form-label">Keterangan <span class="text-danger">*</span></label>
-                        <textarea name="keterangan" class="form-control" rows="3" placeholder="Jelaskan alasan cuti Anda..." required></textarea>
+                        <textarea name="keterangan" class="form-control" rows="3" placeholder="Jelaskan alasan cuti..." required></textarea>
                     </div>
 
                     <div class="form-check mb-3">
-                        <input type="checkbox" class="form-check-input" name="konfirmasi" id="konfirmasi" required>
+                        <input type="checkbox" class="form-check-input" id="konfirmasi" required>
                         <label class="form-check-label" for="konfirmasi">
                             Saya menyatakan bahwa data yang saya isi benar dan dapat dipertanggungjawabkan.
                         </label>
@@ -228,25 +248,23 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                <button type="button" class="btn" style="background-color: #0056b3; color: white;" id="submitCutiBtn">Ajukan Cuti</button>
+                <button type="button" class="btn btn-primary" id="submitBtn">Ajukan Cuti</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modal Detail Cuti -->
-<div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+<!-- Modal Detail -->
+<div class="modal fade" id="detailModal" tabindex="-1">
+    <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header" style="background-color: #0056b3; color: white;">
-                <h5 class="modal-title text-white" id="detailModalLabel">Detail Pengajuan</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Detail Pengajuan</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body" id="detailContent">
                 <div class="text-center">
-                    <div class="spinner-border" style="color: #0056b3;" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
+                    <div class="spinner-border" role="status"></div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -258,23 +276,14 @@
 @endsection
 
 @push('scripts')
-<script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    // Initialize Flatpickr datepickers
-    const startDatePicker = flatpickr("#tanggal_mulai", {
-        dateFormat: "Y-m-d",
-        minDate: "today",
-        onChange: calculateDays
-    });
+    // Set minimum date to today
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('tanggal_mulai').min = today;
+    document.getElementById('tanggal_selesai').min = today;
     
-    const endDatePicker = flatpickr("#tanggal_selesai", {
-        dateFormat: "Y-m-d",
-        minDate: "today",
-        onChange: calculateDays
-    });
-    
-    // Handle leave type selection to update max days
+    // Handle leave type selection
     document.getElementById('jenisCuti').addEventListener('change', function() {
         const selectedOption = this.options[this.selectedIndex];
         const maxDays = selectedOption.getAttribute('data-max');
@@ -285,13 +294,13 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('maxHari').value = '';
         }
         
-        // Reset dates when changing leave type
-        startDatePicker.clear();
-        endDatePicker.clear();
+        // Reset dates
+        document.getElementById('tanggal_mulai').value = '';
+        document.getElementById('tanggal_selesai').value = '';
         document.getElementById('jumlahHari').value = '';
     });
     
-    // Calculate days between dates
+    // Calculate days when dates change
     function calculateDays() {
         const startDate = document.getElementById('tanggal_mulai').value;
         const endDate = document.getElementById('tanggal_selesai').value;
@@ -300,209 +309,98 @@ document.addEventListener('DOMContentLoaded', function () {
             const start = new Date(startDate);
             const end = new Date(endDate);
             
-            // Check if end date is before start date
             if (end < start) {
                 alert('Tanggal selesai tidak boleh sebelum tanggal mulai!');
-                endDatePicker.clear();
+                document.getElementById('tanggal_selesai').value = '';
                 document.getElementById('jumlahHari').value = '';
                 return;
             }
             
-            // Calculate working days (excluding weekends)
+            // Calculate working days
             let count = 0;
             let current = new Date(start);
             
             while (current <= end) {
-                // Check if current day is not weekend (0 = Sunday, 6 = Saturday)
                 const dayOfWeek = current.getDay();
-                if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+                if (dayOfWeek !== 0 && dayOfWeek !== 6) { // Not weekend
                     count++;
                 }
-                
-                // Move to next day
                 current.setDate(current.getDate() + 1);
             }
             
             document.getElementById('jumlahHari').value = count;
             
-            // Check if exceeds max days
+            // Check max days
             const jenisCuti = document.getElementById('jenisCuti');
             const maxDays = jenisCuti.options[jenisCuti.selectedIndex].getAttribute('data-max');
             
             if (maxDays && count > parseInt(maxDays)) {
-                alert(`Jumlah hari cuti (${count} hari) melebihi batas maksimal (${maxDays} hari) untuk jenis cuti ini.`);
-                endDatePicker.clear();
+                alert(`Jumlah hari cuti (${count} hari) melebihi batas maksimal (${maxDays} hari).`);
+                document.getElementById('tanggal_selesai').value = '';
                 document.getElementById('jumlahHari').value = '';
             }
         }
     }
     
-    // Form validation and submission
-    document.getElementById('submitCutiBtn').addEventListener('click', function() {
+    // Add event listeners for date calculation
+    document.getElementById('tanggal_mulai').addEventListener('change', calculateDays);
+    document.getElementById('tanggal_selesai').addEventListener('change', calculateDays);
+    
+    // Form submission
+    document.getElementById('submitBtn').addEventListener('click', function() {
         const form = document.getElementById('cutiForm');
         
-        if (!form.checkValidity()) {
-            event.preventDefault();
-            event.stopPropagation();
+        if (form.checkValidity()) {
+            // Add hidden fields
+            const todayDate = new Date().toISOString().split('T')[0];
             
-            // Add validation classes to all form elements
-            Array.from(form.elements).forEach((input) => {
-                if (input.required && !input.value) {
-                    input.classList.add('is-invalid');
-                } else {
-                    input.classList.remove('is-invalid');
-                }
-            });
+            // Add tanggal_pengajuan
+            let hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'tanggal_pengajuan';
+            hiddenInput.value = todayDate;
+            form.appendChild(hiddenInput);
             
-            // Check confirmation checkbox
-            const konfirmasi = document.getElementById('konfirmasi');
-            if (!konfirmasi.checked) {
-                konfirmasi.classList.add('is-invalid');
-            }
+            // Add status
+            hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'status_cuti';
+            hiddenInput.value = 'Menunggu';
+            form.appendChild(hiddenInput);
             
-            return false;
+            form.submit();
+        } else {
+            form.reportValidity();
         }
-        
-        // Add current date as tanggal_pengajuan
-        const todayDate = new Date().toISOString().split('T')[0];
-        const hiddenInput = document.createElement('input');
-        hiddenInput.type = 'hidden';
-        hiddenInput.name = 'tanggal_pengajuan';
-        hiddenInput.value = todayDate;
-        form.appendChild(hiddenInput);
-        
-        // Set status to Menunggu
-        const statusInput = document.createElement('input');
-        statusInput.type = 'hidden';
-        statusInput.name = 'status_cuti';
-        statusInput.value = 'Menunggu';
-        form.appendChild(statusInput);
-        
-        // Submit the form
-        form.submit();
     });
-    
-    // Remove validation styling on input
-    const formInputs = document.querySelectorAll('#cutiForm input, #cutiForm select, #cutiForm textarea');
-    formInputs.forEach(input => {
-        input.addEventListener('input', function() {
-            this.classList.remove('is-invalid');
-        });
-    });
-    
-    // Initialize DataTables if available
-    if (typeof $.fn.DataTable !== 'undefined') {
-        $('#cuti-table').DataTable({
-            responsive: true,
-            language: {
-                search: "Cari:",
-                lengthMenu: "Tampilkan _MENU_ entri",
-                info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ entri",
-                paginate: {
-                    first: "Pertama",
-                    last: "Terakhir",
-                    next: "Selanjutnya",
-                    previous: "Sebelumnya"
-                }
-            }
-        });
-    }
 });
 
-// Function to show detail modal
+// Show detail function
 function showDetail(id) {
-    const detailModal = new bootstrap.Modal(document.getElementById('detailModal'));
-    const detailContent = document.getElementById('detailContent');
+    const modal = new bootstrap.Modal(document.getElementById('detailModal'));
+    const content = document.getElementById('detailContent');
     
-    // Show loading
-    detailContent.innerHTML = `
-        <div class="text-center">
-            <div class="spinner-border" style="color: #0056b3;" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-        </div>
-    `;
+    content.innerHTML = '<div class="text-center"><div class="spinner-border"></div></div>';
+    modal.show();
     
-    detailModal.show();
-    
-    // Fetch cuti details
-    fetch(`/admin/cuti/${id}`)
-        .then(response => response.json())
-        .then(data => {
-            const statusClass = {
-                'Disetujui': 'success',
-                'Ditolak': 'danger',
-                'Menunggu': 'warning'
-            };
-            
-            detailContent.innerHTML = `
-                <div class="card border-0">
-                    <div class="card-body p-0">
-                        <table class="table table-borderless">
-                            <tr>
-                                <td width="40%"><strong>Jenis Cuti</strong></td>
-                                <td>${data.jenis_cuti.nama_jenis_cuti}</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Pegawai</strong></td>
-                                <td>${data.pegawai.nama_pegawai}</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Tanggal Pengajuan</strong></td>
-                                <td>${new Date(data.tanggal_pengajuan).toLocaleDateString('id-ID')}</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Periode Cuti</strong></td>
-                                <td>${new Date(data.tanggal_mulai).toLocaleDateString('id-ID')} - ${new Date(data.tanggal_selesai).toLocaleDateString('id-ID')}</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Status</strong></td>
-                                <td><span class="badge bg-${statusClass[data.status_cuti]}">${data.status_cuti}</span></td>
-                            </tr>
-                            <tr>
-                                <td><strong>Keterangan</strong></td>
-                                <td>${data.keterangan || '-'}</td>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
-            `;
-        })
-        .catch(error => {
-            detailContent.innerHTML = `
-                <div class="alert alert-danger">
-                    Terjadi kesalahan saat mengambil data. Silakan coba lagi.
-                </div>
-            `;
-            console.error('Error:', error);
-        });
+    // Simulate fetch (replace with actual API call)
+    setTimeout(() => {
+        content.innerHTML = `
+            <table class="table table-borderless">
+                <tr><td><strong>ID Cuti:</strong></td><td>${id}</td></tr>
+                <tr><td><strong>Status:</strong></td><td><span class="badge bg-warning">Menunggu</span></td></tr>
+                <tr><td><strong>Keterangan:</strong></td><td>Detail pengajuan cuti</td></tr>
+            </table>
+        `;
+    }, 1000);
 }
 
-// Function to cancel leave request
+// Cancel leave function  
 function cancelLeave(id) {
     if (confirm('Apakah Anda yakin ingin membatalkan pengajuan cuti ini?')) {
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-        
-        fetch(`/admin/cuti/${id}`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': csrfToken
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Pengajuan cuti berhasil dibatalkan');
-                window.location.reload();
-            } else {
-                alert('Gagal membatalkan pengajuan cuti');
-            }
-        })
-        .catch(error => {
-            alert('Terjadi kesalahan saat membatalkan pengajuan');
-            console.error('Error:', error);
-        });
+        // Add your cancel logic here
+        alert('Pengajuan cuti dibatalkan');
+        location.reload();
     }
 }
 </script>

@@ -28,4 +28,9 @@ class Cuti extends Model
     {
         return $this->belongsTo(JenisCuti::class, 'id_jenis_cuti');
     }
+        public function getJumlahHariAttribute()
+    {
+        return \Carbon\Carbon::parse($this->tanggal_mulai)
+            ->diffInDays(\Carbon\Carbon::parse($this->tanggal_selesai)) + 1;
+    }
 }

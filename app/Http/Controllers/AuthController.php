@@ -2,18 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
 class authController extends Controller
 {
-
     public function showLoginForm()
     {
         // Periksa apakah ada pengalihan tertunda (untuk SweetAlert)
-
         if (session('login_success') && session('redirect_to')) {
             $redirectTo = session('redirect_to');
             return view('auth.login', [
@@ -21,43 +18,55 @@ class authController extends Controller
                 'redirect_to' => $redirectTo
             ]);
         }
-        
+
         return view('auth.login');
     }
 
     public function login(Request $request)
     {
-        // Validasi data nya
+        // Validasi data dengan pesan bahasa Indonesia
         $request->validate([
             'role' => ['required', 'string', 'in:hrd,kepala,pegawai'],
             'username' => ['required', 'string'],
             'password' => ['required', 'string'],
+        ], [
+            // Pesan validasi bahasa Indonesia
+            'role.required' => 'Peran harus dipilih.',
+            'role.in' => 'Peran yang dipilih tidak valid.',
+            'username.required' => 'Username harus diisi.',
+            'username.string' => 'Username harus berupa teks.',
+            'password.required' => 'Password harus diisi.',
+            'password.string' => 'Password harus berupa teks.',
         ]);
 
-       // Coba autentikasi dengan kondisi tambahan pada peran
-
         $credentials = $request->only('username', 'password');
-        
+
+        // Tambahkan role ke dalam credential
         if (Auth::attempt(array_merge($credentials, ['role' => $request->role]))) {
             // Autentikasi berhasil
             $user = Auth::user();
-            $pegawai = $user->pegawai; // Ambil data pegawai
-            $request->session()->regenerate();
-            
-            // Dapatkan rute dashboard target berdasarkan peran
 
+            // Periksa apakah data pegawai tersedia
+            if (!$user->pegawai) {
+                Auth::logout();
+                throw ValidationException::withMessages([
+                    'username' => ['Data pegawai tidak ditemukan untuk akun ini.'],
+                ]);
+            }
+
+            $request->session()->regenerate();
+
+            // Redirect sesuai peran
             $redirectTo = $this->getRedirectRoute($request->role);
-            
-          // Kembali ke halaman login dengan sukses flag dan rute target untuk pengalihan
 
             return redirect()->route('login')
                 ->with('login_success', true)
                 ->with('redirect_to', $redirectTo);
         }
 
-        // Authentication Gagal
+        // Gagal login - pesan error bahasa Indonesia
         throw ValidationException::withMessages([
-            'username' => [trans('auth.failed')],
+            'username' => ['Username atau password yang Anda masukkan salah.'],
         ]);
     }
 
@@ -70,17 +79,13 @@ class authController extends Controller
             default => route('home'),
         };
     }
-    
+
     public function logout(Request $request)
     {
         Auth::logout();
-        
-       // Batalkan sesi dan buat ulang token CSRF
-
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        
-        // Balik Ke login page
-        return redirect()->route('login');
+
+        return redirect()->route('login')->with('success', 'Anda telah berhasil logout.');
     }
 }

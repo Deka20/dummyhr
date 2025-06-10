@@ -45,4 +45,19 @@ class Pegawai extends Model
     {
         return $this->belongsTo(Jabatan::class, 'id_jabatan');
     }
+    public function cuti()
+    {
+        return $this ->hasMany(Cuti::class,'id_pegawai');
+    }
+    public function getCutiTerpakaiAttribute()
+    {
+        return $this->cuti()
+        ->where('status_cuti','Disetujui')
+        ->get()
+        ->sum('jumlah_hari');
+    }
+    public function getSisaCutiAttribute()
+    {
+        return $this->jatahtahunan - $this->cuti_terpakai;
+    }
 }

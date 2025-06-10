@@ -10,6 +10,7 @@ use App\Http\Controllers\profileController;
 use App\Http\Controllers\KaryawanController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\penilaianController;
+use App\Http\Controllers\ListPengajuanController;
 
 // ✅ Redirect root ke halaman login
 Route::redirect('/', '/login');
@@ -41,6 +42,9 @@ Route::middleware(['auth', 'check.role:hrd'])->prefix('hrd')->group(function () 
 
     // Cuti
     Route::get('/cuti', [CutiController::class, 'index'])->name('admin.pengajuan_cuti');
+
+    //List Pengajuan Cuti
+    Route::get('/List-Pengajuan',[ListPengajuanController::class, 'index'])->name('admin.listPengajuan');
 
     // Penilaian
     Route::get('/penilaian', [PenilaianController::class, 'index'])->name('admin.penilaian');

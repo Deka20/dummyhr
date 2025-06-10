@@ -194,6 +194,7 @@
 @endsection
 
 @push('scripts')
+
   <script>
     // Script untuk menangani tampilan field jabatan berdasarkan departemen yang dipilih
     document.addEventListener('DOMContentLoaded', function () {

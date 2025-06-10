@@ -30,6 +30,7 @@
               <thead>
                 <tr>
                   <th>Nama</th>
+                  <th>Departemen</th>
                   <th>Jabatan</th>
                   <th>Tempat Lahir</th>
                   <th>Jenis Kelamin</th>
@@ -41,6 +42,7 @@
               @foreach($karyawan as $p)
               <tr>
                   <td>{{ $p->nama }}</td>
+                  <td>{{$p->departemen->nama_departemen}}</td>
                   <td>{{ $p->jabatan->nama_jabatan ?? 'Tidak ada jabatan' }}</td>
                   <td>{{ $p->tempat_lahir }}</td>
                   <td>{{ $p->jenis_kelamin == 'L' ? 'Laki-laki' : 'Perempuan' }}</td>
@@ -81,6 +83,7 @@
               <tfoot>
                 <tr>
                   <th>Nama</th>
+                  <th>Departemen</th>
                   <th>Jabatan</th>
                   <th>Tempat Lahir</th>
                   <th>Jenis Kelamin</th>
@@ -196,12 +199,46 @@
       </div>
     </div>
   </div>
+  
 @endsection
 
 @push('scripts')
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   <script src="{{ asset('assets/js/plugins/jquery.dataTables.min.js') }}"></script>
   <script src="{{ asset('assets/js/plugins/dataTables.bootstrap5.min.js') }}"></script>
+
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      @if(session('success'))
+        Swal.fire({
+          icon: 'success',
+          title: 'Berhasil!',
+          text: '{{ session('success') }}',
+          confirmButtonColor: '#3085d6',
+          confirmButtonText: 'OK'
+        });
+      @endif
+
+      // Script untuk tampil/sembunyi field jabatan
+      const departemenSelect = document.getElementById('id_departemen');
+      const jabatanContainer = document.getElementById('jabatan-container');
+      const jabatanSelect = document.getElementById('id_jabatan');
+
+      function toggleJabatanField() {
+        if (departemenSelect.value !== "") {
+          jabatanContainer.style.display = 'block';
+        } else {
+          jabatanContainer.style.display = 'none';
+          jabatanSelect.value = "";
+        }
+      }
+
+      toggleJabatanField();
+      departemenSelect.addEventListener('change', toggleJabatanField);
+    });
+  </script>
 
   <script>
     $(document).ready(function() {
@@ -228,5 +265,75 @@
       }
     });
   });
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    @if(session('alert'))
+        const alertData = @json(session('alert'));
+        
+        if (alertData.type === 'success') {
+            Swal.fire({
+                icon: 'success',
+                title: alertData.title,
+                text: alertData.message,
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#28a745',
+                timer: 3000,
+                timerProgressBar: true
+            });
+        } else if (alertData.type === 'error') {
+            let htmlContent = alertData.message;
+            
+            // Jika ada error validasi, tampilkan dalam list
+            if (alertData.errors && alertData.errors.length > 0) {
+                htmlContent += '<br><br><ul style="text-align: left; margin-top: 10px;">';
+                alertData.errors.forEach(function(error) {
+                    htmlContent += '<li>' + error + '</li>';
+                });
+                htmlContent += '</ul>';
+            }
+            
+            // Jika ada technical error dan dalam mode debug
+            if (alertData.technical_error) {
+                htmlContent += '<br><br><small style="color: #6c757d;">Technical Error: ' + alertData.technical_error + '</small>';
+            }
+            
+            Swal.fire({
+                icon: 'error',
+                title: alertData.title,
+                html: htmlContent,
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#dc3545',
+                width: '500px'
+            });
+        }
+    @endif
+    
+    // Untuk notifikasi lama (backward compatibility)
+    @if(session('notifikasi'))
+        const type = '{{ session("type") }}' || 'info';
+        const message = '{{ session("notifikasi") }}';
+        
+        if (type === 'success') {
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: message,
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#28a745',
+                timer: 3000,
+                timerProgressBar: true
+            });
+        } else if (type === 'error') {
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal!',
+                text: message,
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#dc3545'
+            });
+        }
+    @endif
+});
 </script>
 @endpush

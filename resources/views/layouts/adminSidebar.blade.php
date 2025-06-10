@@ -45,13 +45,33 @@
     <span class="pc-mtext">Absensi</span>
   </a>
 </li>
+@php  
+        $user = Auth::user();
+        $pegawai = $user->pegawai; 
+        $nama_jabatan = $pegawai->jabatan->nama_jabatan;
+        $nama_departemen = $pegawai->departemen->nama_departemen;
+@endphp
+@if($nama_jabatan == 'Staff' && $nama_departemen == 'Sumber Daya Manusia')
+<li class="pc-item">
+  <a href="{{ route('admin.listPengajuan') }}" class="pc-link">
+    <span class="pc-micon"><i class="ti ti-calendar-time"></i></span>
+    <span class="pc-mtext">Data Pengajuan Cuti</span>
+  </a>
+</li>
+@endif
+
+<!-- Pengajuan -->
+<li class="pc-item pc-caption">
+  <label>Pengajuan</label>
+  <i class="ti ti-hierarchy"></i>
+</li>
+
 <li class="pc-item">
   <a href="{{ route('admin.pengajuan_cuti') }}" class="pc-link">
     <span class="pc-micon"><i class="ti ti-calendar-time"></i></span>
     <span class="pc-mtext">Pengajuan Cuti</span>
   </a>
 </li>
-
 <!-- STRUKTUR ORGANISASI -->
 <li class="pc-item pc-caption">
   <label>Struktur Organisasi</label>

@@ -207,7 +207,7 @@
               </div>
               @if ($pegawai->foto)
                 <div class="mt-2">
-                  <img src="{{ asset('fotos/' . $pegawai->foto) }}" alt="Foto Profil" class="img-thumbnail" style="width: 100px; height: 100px; object-fit: cover;">
+                  <img src="{{ asset('uploads/pegawai/' . $pegawai->foto) }}" alt="Foto Profil" class="img-thumbnail" style="width: 100px; height: 100px; object-fit: cover;">
                   <small class="d-block text-muted mt-1">Foto saat ini</small>
                 </div>
               @endif

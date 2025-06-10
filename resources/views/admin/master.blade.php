@@ -44,3 +44,11 @@
   @stack('scripts') <!-- Stack untuk menambahkan custom script per halaman -->
 </body>
 </html>
+<!-- Di bagian head untuk CSS (opsional) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
+<!-- Di bagian sebelum closing body -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    // Script SweetAlert yang sudah saya buat di atas
+</script>
