@@ -12,8 +12,12 @@ class ProfileController extends Controller
         $pegawai = $user->pegawai; 
         $nama_jabatan = $pegawai->jabatan->nama_jabatan;
         $nama_departemen = $pegawai->departemen->nama_departemen;
-        return view('admin.edit-profil', compact('pegawai','nama_departemen','nama_jabatan'));
 
+    if ($user->role == 'hrd') {
+        return view('admin.edit-profil', compact('pegawai', 'nama_departemen', 'nama_jabatan'));
+    } elseif ($user->role == 'pegawai') {
+        return view('karyawan.edit-profil', compact('pegawai', 'nama_departemen', 'nama_jabatan'));
+    }
 
 }
 
@@ -44,9 +48,16 @@ class ProfileController extends Controller
 
     // Handle upload foto jika ada
     if ($request->hasFile('foto')) {
+        // Hapus foto lama jika ada
+        if ($pegawai->foto && file_exists(public_path('uploads/pegawai/' . $pegawai->foto))) {
+            unlink(public_path('uploads/pegawai/' . $pegawai->foto));
+        }
+        
         $file = $request->file('foto');
         $namaFile = time() . '_' . $file->getClientOriginalName();
-        $file->move(public_path('uploads/pegawai', 'public'), $namaFile);
+        
+        // Perbaiki path upload
+        $file->move(public_path('uploads/pegawai'), $namaFile);
         $data['foto'] = $namaFile;
     }
 

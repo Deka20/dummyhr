@@ -184,7 +184,7 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form action="" method="POST" id="cutiForm">
+                <form action="{{ route('admin.cuti.store') }}" method="POST" id="cutiForm">
                     @csrf
                     
                     <div class="row mb-3">

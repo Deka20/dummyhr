@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\PeriodePenilaian;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -25,8 +26,10 @@ class DatabaseSeeder extends Seeder
             // DepartemenSeeder::class,
             // PegawaiSeeder::class,
             // UserSeeder::class,
-            JenisCutiSeeder::class
-
+            // JenisCutiSeeder::class
+            // LokasiKantorSeeder::class
+            // KuisionerSeeder::class
+            PeriodePenilaianSeeder::class,
         ]);
         
     }

@@ -25,7 +25,7 @@
           <i class="ti ti-dashboard"></i>
         </li>
         <li class="pc-item">
-          <a href="{{ url('/dashboard') }}" class="pc-link">
+          <a href="{{ route('karyawan.index') }}" class="pc-link">
             <span class="pc-micon"><i class="ti ti-dashboard"></i></span>
             <span class="pc-mtext">Dashboard</span>
           </a>
@@ -37,7 +37,7 @@
           <i class="ti ti-user-circle"></i>
         </li>
         <li class="pc-item">
-          <a href="{{ url('/absensi') }}" class="pc-link">
+          <a href="{{ route('karyawan.absensi') }}" class="pc-link">
             <span class="pc-micon"><i class="ti ti-clock"></i></span>
             <span class="pc-mtext">Riwayat Absensi</span>
           </a>
@@ -49,15 +49,27 @@
           </a>
         </li>
 
+        <!-- EVALUASI & SURVEY -->
+        <li class="pc-item pc-caption">
+          <label>Evaluasi & Survey</label>
+          <i class="ti ti-clipboard-check"></i>
+        </li>
+        <li class="pc-item">
+          <a href="{{ route('kuisioner.index') }}" class="pc-link">
+            <span class="pc-micon"><i class="ti ti-forms"></i></span>
+            <span class="pc-mtext">Kuisioner</span>
+          </a>
+        </li>
+
         <!-- PENGATURAN -->
         <li class="pc-item pc-caption">
           <label>Pengaturan</label>
           <i class="ti ti-settings"></i>
         </li>
         <li class="pc-item">
-          <a href="{{ url('/pengaturan') }}" class="pc-link">
+          <a href="{{ route('karyawan.edit-profil') }}" class="pc-link">
             <span class="pc-micon"><i class="ti ti-tools"></i></span>
-            <span class="pc-mtext">Pengaturan</span>
+            <span class="pc-mtext">Profile</span>
           </a>
         </li>
       </ul>

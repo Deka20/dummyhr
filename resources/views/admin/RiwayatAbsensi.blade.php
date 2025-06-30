@@ -1,8 +1,8 @@
-@extends('karyawan.master')
+@extends('admin.master')
 
 @section('title', 'Data Absensi')
 @section('breadcrumb')
-  <li class="breadcrumb-item"><a href="{{ route('karyawan.absensi') }}">Absensi</a></li>
+  <li class="breadcrumb-item"><a href="{{ route('admin.absensi') }}">Absensi</a></li>
 @endsection
 
 @section('content')

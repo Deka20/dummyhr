@@ -1,5 +1,5 @@
 @include('layouts.head-css')
-
+<!-- adminSidebar -->
 <!-- [ Pre-loader ] End -->
  <!-- [ Sidebar Menu ] start -->
  <nav class="pc-sidebar">
@@ -62,7 +62,7 @@
 
 <!-- Pengajuan -->
 <li class="pc-item pc-caption">
-  <label>Pengajuan</label>
+  <label>Fitur</label>
   <i class="ti ti-hierarchy"></i>
 </li>
 
@@ -70,6 +70,12 @@
   <a href="{{ route('admin.pengajuan_cuti') }}" class="pc-link">
     <span class="pc-micon"><i class="ti ti-calendar-time"></i></span>
     <span class="pc-mtext">Pengajuan Cuti</span>
+  </a>
+</li>
+<li class="pc-item">
+  <a href="{{ route('admin.RiwayatAbsensi') }}" class="pc-link">
+    <span class="pc-micon"><i class="ti ti-clock"></i></span>
+    <span class="pc-mtext">Riwayat Absensi</span>
   </a>
 </li>
 <!-- STRUKTUR ORGANISASI -->
@@ -89,11 +95,23 @@
   <i class="ti ti-hierarchy"></i>
 </li>
 <li class="pc-item">
-  <a href="{{ route('admin.penilaian') }}" class="pc-link">
-    <i class="ti ti-clipboard-check"></i>
-    <span class="pc-mtext">Penilaian Pegawai</span>
+  <a href="{{ route('admin.kuisioner.index') }}" class="pc-link">
+     <span class="pc-micon"><i class="ti ti-clipboard-check"></i></span>
+    <span class="pc-mtext">Kelola Kuis</span>
   </a>
 </li>
+@php
+$currentPeriode = \App\Models\PeriodePenilaian::where('status', 'aktif')->first();
+@endphp
+
+@if($currentPeriode)
+<li class="pc-item">
+  <a href="{{ route('periode.index', $currentPeriode->id) }}" class="pc-link">
+     <span class="pc-micon"><i class="ti ti-edit"></i></span>
+    <span class="pc-mtext">Kelola Periode</span>
+  </a>
+</li>
+@endif
 
 {{-- <!-- KEUANGAN -->
 <li class="pc-item pc-caption">
@@ -134,6 +152,12 @@
   <a href="{{ route('admin.edit-profile') }}" class="pc-link">
     <span class="pc-micon"><i class="ti ti-tools"></i></span>
     <span class="pc-mtext">Profile</span>
+  </a>
+</li>
+<li class="pc-item">
+  <a href="{{ route('admin.LokasiKantor.index') }}" class="pc-link">
+    <span class="pc-micon"><i class="ti ti-building"></i></span>
+    <span class="pc-mtext">Lokasi Kantor</span>
   </a>
 </li>
 
