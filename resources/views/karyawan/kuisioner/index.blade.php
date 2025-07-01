@@ -1,132 +1,57 @@
 @extends('karyawan.master')
 
-@section('title', 'Kuisioner Penilaian Kinerja Dosen & Laboran')
+@section('title', 'Kuisioner Penilaian Kinerja')
 
 @section('content')
 <div class="container">
     <!-- Header -->
     <div class="card mb-4">
         <div class="card-body text-center">
-            <h3 class="text-primary mb-3">KUISIONER PENILAIAN KINERJA PEGAWAI</h3>
-            <hr>
-            <p class="text-muted mb-0">
-                Selamat datang, <strong>{{ $pegawai->nama }}</strong>
-            </p>
+            <h3 class="text-primary">KUISIONER PENILAIAN KINERJA</h3>
+            <p>Selamat datang, <strong>{{ $pegawai->nama }}</strong></p>
             <small class="text-muted">Departemen: {{ $nama_departemen }}</small>
+            <small class="text-muted d-block">ID Pegawai: {{ $pegawai->id_pegawai }}</small>
         </div>
     </div>
 
     <!-- Alert Messages -->
     @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
+        <div class="alert alert-success">{{ session('success') }}</div>
     @endif
     @if(session('error'))
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            {{ session('error') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
+        <div class="alert alert-danger">{{ session('error') }}</div>
     @endif
 
-    <!-- Selection Form -->
+    <!-- Form Pilih Periode -->
     <div class="card mb-4">
         <div class="card-header">
-            <h5 class="mb-0"><i class="fas fa-filter me-2"></i>Filter Penilaian</h5>
+            <h5>Pilih Periode Penilaian</h5>
         </div>
         <div class="card-body">
-            <form id="selectionForm">
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label for="periode_penilaian" class="form-label">
-                            <i class="fas fa-calendar me-1"></i>Periode Penilaian:
-                        </label>
-                        <select class="form-select" id="periode_penilaian" name="periode_penilaian" required>
-                            <option value="">-- Pilih Periode Penilaian --</option>
-                            @foreach($periode as $p)
-                                <option value="{{ $p->id }}" data-tahun="{{ $p->tahun }}" data-semester="{{ $p->semester }}">
-                                    {{ $p->tahun }} - {{ $p->semester }} ({{ $p->nama_periode }})
-                                </option>
-                            @endforeach
-                        </select>
-                        <div class="form-text">Pilih periode penilaian yang sedang aktif</div>
-                    </div>
-                    
-                    <div class="col-md-6">
-                        <label for="departemen" class="form-label">
-                            <i class="fas fa-building me-1"></i>Departemen:
-                        </label>
-                        <select class="form-select" id="departemen" name="departemen" required>
-                            <option value="">-- Pilih Departemen --</option>
-                            @foreach($departemen as $dept)
-                                <option value="{{ $dept->id }}">{{ $dept->nama_departemen }}</option>
-                            @endforeach
-                        </select>
-                        <div class="form-text">Pilih departemen pegawai yang akan dinilai</div>
-                    </div>
+            <form id="periodeForm">
+                <div class="mb-3">
+                    <select class="form-select" id="periode_penilaian" required>
+                        <option value="">-- Pilih Periode --</option>
+                        @foreach($periode as $p)
+                            <option value="{{ $p->id }}">{{ $p->tahun }} - {{ $p->semester }}</option>
+                        @endforeach
+                    </select>
                 </div>
-
-                <div class="text-center">
-                    <button type="button" id="cariDataBtn" class="btn btn-primary btn-lg" disabled>
-                        <i class="fas fa-search me-2"></i>CARI PEGAWAI
-                    </button>
-                </div>
+                <button type="button" id="loadPegawaiBtn" class="btn btn-primary" disabled>
+                    Tampilkan Semua Pegawai
+                </button>
             </form>
         </div>
     </div>
 
-    <!-- Period Info -->
-    <div id="periodInfo" class="card mb-4" style="display: none;">
-        <div class="card-body bg-light">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <h6 class="mb-1">Informasi Periode Terpilih:</h6>
-                    <div id="periodDetails" class="text-muted"></div>
-                </div>
-                <div class="col-md-4 text-end">
-                    <span class="badge bg-success fs-6">
-                        <i class="fas fa-check-circle me-1"></i>Aktif
-                    </span>
-                </div>
-            </div>
+    <!-- Daftar Semua Pegawai -->
+    <div id="pegawaiSection" class="card" style="display: none;">
+        <div class="card-header">
+            <h5>Daftar Semua Pegawai</h5>
+            <small class="text-muted">Menampilkan semua pegawai dari seluruh departemen</small>
         </div>
-    </div>
-
-    <!-- Results Section -->
-    <div id="resultsSection" class="mt-4" style="display: none;">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">
-                    <i class="fas fa-users me-2"></i>Daftar Pegawai
-                </h5>
-                <div id="pegawaiCount" class="badge bg-info fs-6"></div>
-            </div>
-            <div class="card-body">
-                <!-- Pegawai List -->
-                <div id="pegawaiList">
-                    <!-- Will be populated by JavaScript -->
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Loading Spinner Template -->
-    <div id="loadingTemplate" style="display: none;">
-        <div class="text-center py-5">
-            <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-            <div class="mt-3 text-muted">Memuat data pegawai...</div>
-        </div>
-    </div>
-
-    <!-- Empty State Template -->
-    <div id="emptyStateTemplate" style="display: none;">
-        <div class="text-center py-5">
-            <i class="fas fa-users text-muted" style="font-size: 4rem; opacity: 0.3;"></i>
-            <h5 class="mt-3 text-muted">Tidak Ada Data Pegawai</h5>
-            <p class="text-muted mb-0">Tidak ditemukan pegawai pada departemen yang dipilih</p>
+        <div class="card-body">
+            <div id="pegawaiList"></div>
         </div>
     </div>
 </div>
@@ -134,184 +59,148 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const periodeSelect = document.getElementById('periode_penilaian');
-    const departemenSelect = document.getElementById('departemen');
-    const cariDataBtn = document.getElementById('cariDataBtn');
-    const resultsSection = document.getElementById('resultsSection');
-    const periodInfo = document.getElementById('periodInfo');
-    const periodDetails = document.getElementById('periodDetails');
-    const pegawaiCount = document.getElementById('pegawaiCount');
-    
-    let selectedPeriode = null;
-    let selectedDepartemen = null;
+    const loadPegawaiBtn = document.getElementById('loadPegawaiBtn');
+    const pegawaiSection = document.getElementById('pegawaiSection');
+    const pegawaiList = document.getElementById('pegawaiList');
+    const currentPegawaiId = {{ $pegawai->id_pegawai ?? 'null' }};
+    let allPegawaiData = [];
 
-    // Handle periode penilaian change
     periodeSelect.addEventListener('change', function() {
-        selectedPeriode = this.value;
-        
-        if (selectedPeriode) {
-            const selectedOption = this.options[this.selectedIndex];
-            const tahun = selectedOption.dataset.tahun;
-            const semester = selectedOption.dataset.semester;
-            const namaPeriode = selectedOption.textContent;
-            
-            // Show period info
-            periodDetails.innerHTML = `
-                <div class="row">
-                    <div class="col-md-4">
-                        <strong>Tahun:</strong> ${tahun}
-                    </div>
-                    <div class="col-md-4">
-                        <strong>Semester:</strong> ${semester}
-                    </div>
-                    <div class="col-md-4">
-                        <strong>Periode:</strong> ${namaPeriode.split(' (')[1]?.replace(')', '') || 'N/A'}
-                    </div>
-                </div>
-            `;
-            periodInfo.style.display = 'block';
-        } else {
-            periodInfo.style.display = 'none';
-        }
-        
-        checkFormComplete();
-        hideResults();
+        loadPegawaiBtn.disabled = !this.value;
+        pegawaiSection.style.display = 'none';
     });
 
-    departemenSelect.addEventListener('change', function() {
-        selectedDepartemen = this.value;
-        checkFormComplete();
-        hideResults();
-    });
-
-    function checkFormComplete() {
-        const isComplete = selectedPeriode && selectedDepartemen;
-        cariDataBtn.disabled = !isComplete;
-        
-        if (isComplete) {
-            cariDataBtn.classList.remove('btn-secondary');
-            cariDataBtn.classList.add('btn-primary');
-        } else {
-            cariDataBtn.classList.remove('btn-primary');
-            cariDataBtn.classList.add('btn-secondary');
+    loadPegawaiBtn.addEventListener('click', function() {
+        const periodeId = periodeSelect.value;
+        if (!periodeId) {
+            alert('Silakan pilih periode terlebih dahulu');
+            return;
         }
-    }
+        pegawaiList.innerHTML = '<div class="text-center"><div class="spinner-border"></div><p>Loading semua pegawai...</p></div>';
+        pegawaiSection.style.display = 'block';
 
-    function hideResults() {
-        resultsSection.style.display = 'none';
-    }
-
-    // Handle cari data
-    cariDataBtn.addEventListener('click', function() {
-        if (!selectedPeriode || !selectedDepartemen) return;
-        
-        // Show loading
-        resultsSection.style.display = 'block';
-        const pegawaiList = document.getElementById('pegawaiList');
-        pegawaiList.innerHTML = document.getElementById('loadingTemplate').innerHTML;
-        
-        // Fetch pegawai by departemen
-        fetch(`/kuisioner/get-pegawai/${selectedDepartemen}`)
+        // Kirim periode_id sebagai parameter
+        fetch(`/pegawai/kuisioner/get-all-pegawai?periode_id=${periodeId}`)
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 return response.json();
             })
-            .then(pegawaiData => {
-                displayPegawaiList(pegawaiData);
-                updatePegawaiCount(pegawaiData.length);
+            .then(data => {
+                if (data.success) {
+                    allPegawaiData = data.data;
+                    displayAllPegawai(data.data, periodeId);
+                } else {
+                    pegawaiList.innerHTML = `
+                        <div class="alert alert-warning">
+                            ${data.message || 'Tidak ada pegawai ditemukan'}
+                        </div>
+                    `;
+                }
             })
             .catch(error => {
-                console.error('Error:', error);
                 pegawaiList.innerHTML = `
                     <div class="alert alert-danger">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        Terjadi kesalahan saat memuat data pegawai. Silakan coba lagi.
+                        <strong>Gagal memuat data pegawai</strong><br>
+                        Error: ${error.message}
                     </div>
                 `;
             });
     });
 
-    function updatePegawaiCount(count) {
-        pegawaiCount.textContent = `${count} Pegawai`;
-    }
-
-    function displayPegawaiList(pegawaiData) {
-        const pegawaiList = document.getElementById('pegawaiList');
-        
-        if (pegawaiData.length === 0) {
-            pegawaiList.innerHTML = document.getElementById('emptyStateTemplate').innerHTML;
+    function displayAllPegawai(pegawaiData, periodeId) {
+        if (!pegawaiData || pegawaiData.length === 0) {
+            pegawaiList.innerHTML = `
+                <div class="alert alert-info">
+                    <strong>Tidak ada pegawai lain ditemukan</strong>
+                </div>
+            `;
             return;
         }
 
         let html = '<div class="row">';
-        
-        pegawaiData.forEach(pegawai => {
-            // Check if user exists
-            if (!pegawai.user || !pegawai.user.id_user) {
-                return; // Skip this pegawai if user data is missing
-            }
+        let displayedCount = 0;
 
-            const statusBadge = getStatusBadge(pegawai);
-            
-            html += `
-                <div class="col-md-6 col-lg-4 mb-3">
-                    <div class="card h-100 shadow-sm">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <h6 class="card-title mb-0">${pegawai.nama}</h6>
-                                ${statusBadge}
-                            </div>
-                            <p class="card-text text-muted small mb-2">
-                                <i class="fas fa-id-badge me-1"></i>
-                                ${pegawai.jabatan || 'Dosen/Laboran'}
-                            </p>
-                            <p class="card-text text-muted small mb-3">
-                                <i class="fas fa-envelope me-1"></i>
-                                ${pegawai.user.email || 'N/A'}
-                            </p>
-                            <div class="d-flex gap-2 flex-wrap">
-                                <button type="button" class="btn btn-primary btn-sm flex-fill" 
-                                        onclick="mulaiKuisioner(${selectedPeriode}, ${pegawai.user.id_user})">
-                                    <i class="fas fa-play me-1"></i>Mulai Kuisioner
-                                </button>
-                                <button type="button" class="btn btn-outline-info btn-sm flex-fill" 
-                                        onclick="lihatHasil(${selectedPeriode}, ${pegawai.user.id_user})">
-                                    <i class="fas fa-chart-bar me-1"></i>Lihat Hasil
-                                </button>
+        const groupedByDepartemen = {};
+        pegawaiData.forEach(pegawai => {
+            const dept = pegawai.departemen || 'Tidak ada departemen';
+            if (!groupedByDepartemen[dept]) {
+                groupedByDepartemen[dept] = [];
+            }
+            groupedByDepartemen[dept].push(pegawai);
+        });
+
+        Object.keys(groupedByDepartemen).sort().forEach(departemen => {
+            html += `<div class="col-12 mb-3"><h6 class="text-primary border-bottom pb-2">${departemen}</h6></div>`;
+            groupedByDepartemen[departemen].forEach(pegawai => {
+                if (pegawai.id_pegawai === currentPegawaiId) return;
+                displayedCount++;
+                
+                // Tentukan status badge dan tombol berdasarkan status penilaian
+                let statusBadge = '';
+                let actionButtons = '';
+                
+                if (pegawai.status_penilaian === 'selesai') {
+                    statusBadge = '<span class="badge bg-success">Selesai</span>';
+                    actionButtons = `
+                        <button class="btn btn-outline-info btn-sm" onclick="lihatHasil(${periodeId}, ${pegawai.id_pegawai})">
+                            Lihat Hasil
+                        </button>
+                    `;
+                } else {
+                    statusBadge = '<span class="badge bg-warning">Belum Selesai</span>';
+                    actionButtons = `
+                        <button class="btn btn-primary btn-sm" onclick="mulaiKuisioner(${periodeId}, ${pegawai.id_pegawai})">
+                            Mulai Kuisioner
+                        </button>
+                        <button class="btn btn-outline-info btn-sm" onclick="lihatHasil(${periodeId}, ${pegawai.id_pegawai})">
+                            Lihat Hasil
+                        </button>
+                    `;
+                }
+                
+                html += `
+                    <div class="col-md-6 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h6 class="mb-0">${pegawai.nama}</h6>
+                                    ${statusBadge}
+                                </div>
+                                <p class="text-muted small mb-1">${pegawai.jabatan} ${pegawai.departemen}</p>
+                                <p class="text-muted small mb-1">No: ${pegawai.no_hp || 'N/A'}</p>
+                                <p class="text-muted small mb-1">Departemen: ${pegawai.departemen || 'N/A'}</p>
+                                <div class="d-flex gap-2">
+                                    ${actionButtons}
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            `;
+                `;
+            });
         });
-        
+
         html += '</div>';
+
+        if (displayedCount === 0) {
+            html = '<div class="alert alert-warning">Tidak ada pegawai yang dapat dinilai</div>';
+        } else {
+            html = `<div class="alert alert-info mb-3">Menampilkan ${displayedCount} pegawai dari seluruh departemen</div>` + html;
+        }
+
         pegawaiList.innerHTML = html;
     }
-
-    function getStatusBadge(pegawai) {
-        // This is a placeholder for status checking
-        // You can implement actual status checking via AJAX if needed
-        return '<span class="badge bg-light text-dark">Belum Dinilai</span>';
-    }
-
-    // Auto-select current user's department if available
-    @if($pegawai && $pegawai->id_departemen)
-        departemenSelect.value = "{{ $pegawai->id_departemen }}";
-        departemenSelect.dispatchEvent(new Event('change'));
-    @endif
 });
 
-function mulaiKuisioner(periodeId, dinilaiId) {
-    // Show confirmation dialog
-    if (confirm('Apakah Anda yakin ingin memulai kuisioner untuk pegawai ini?')) {
-        window.location.href = `/kuisioner/${periodeId}/${dinilaiId}`;
+function mulaiKuisioner(periodeId, idPegawai) {
+    if (confirm('Mulai kuisioner untuk pegawai ini?')) {
+        window.location.href = `/pegawai/kuisioner/${periodeId}/${idPegawai}`;
     }
 }
 
-function lihatHasil(periodeId, dinilaiId) {
-    window.location.href = `/kuisioner/${periodeId}/${dinilaiId}/result`;
+function lihatHasil(periodeId, idPegawai) {
+    window.location.href = `/pegawai/kuisioner/${periodeId}/${idPegawai}/result`;
 }
 </script>
 
@@ -319,78 +208,21 @@ function lihatHasil(periodeId, dinilaiId) {
 .card {
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     border: none;
-    /* Tidak ada transition transform */
-    /* transition: transform 0.2s ease-in-out; */ 
 }
-
-.card-header {
-    background-color: #f8f9fa;
-    border-bottom: 1px solid #dee2e6;
-    font-weight: 600;
-}
-
-.table th {
-    background-color: #f8f9fa;
-    font-weight: 600;
-}
-
 .spinner-border {
-    width: 3rem;
-    height: 3rem;
+    width: 2rem;
+    height: 2rem;
 }
-
-.btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
+@media (max-width: 768px) {
+    .d-flex.gap-2 .btn {
+        flex: 1;
+    }
 }
-
-.form-label {
-    font-weight: 600;
-    color: #495057;
+.border-bottom {
+    border-bottom: 2px solid #dee2e6 !important;
 }
-
-.form-text {
-    font-size: 0.85rem;
-}
-
 .badge {
     font-size: 0.75rem;
 }
-
-.alert-dismissible .btn-close {
-    padding: 0.5rem 0.75rem;
-}
-
-/* Responsive improvements */
-@media (max-width: 768px) {
-    .btn-lg {
-        padding: 0.75rem 1.5rem;
-    }
-    
-    .card-body .row .col-md-6 {
-        margin-bottom: 1rem;
-    }
-    
-    .d-flex.gap-2.flex-wrap .btn {
-        margin-bottom: 0.5rem;
-    }
-}
-
-/* Animation for loading */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-#resultsSection {
-    animation: fadeIn 0.3s ease-out;
-}
-
-/* Status badge colors */
-.badge.bg-light {
-    color: #6c757d !important;
-    border: 1px solid #dee2e6;
-}
 </style>
-
 @endsection

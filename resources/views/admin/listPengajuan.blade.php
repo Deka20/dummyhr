@@ -4,7 +4,7 @@
 @section('title', 'Validasi Pengajuan Cuti')
 
 @section('breadcrumb')
-  <li class="breadcrumb-item"><a href="{{ url('/List-Pengajuan') }}">Pengajuan Cuti</a></li>
+  <li class="breadcrumb-item"><a href="{{ url('/list-pengajuan') }}">Pengajuan Cuti</a></li>
 @endsection
 
 @section('content')
@@ -164,7 +164,8 @@
                       <!-- Approve Button -->
                       <button type="button" 
                               class="btn btn-sm btn-success" 
-                              onclick="validateCuti({{ $cuti->id_cuti }}, 'Disetujui')"
+                              data-bs-toggle="modal" 
+                              data-bs-target="#approveModal{{ $cuti->id_cuti }}"
                               title="Setujui">
                         <i class="fas fa-check"></i>
                       </button>
@@ -308,7 +309,7 @@
         </div>
         <div class="modal-footer">
           @if($cuti->status_cuti == 'Menunggu')
-          <button type="button" class="btn btn-success" onclick="validateCuti({{ $cuti->id_cuti }}, 'Disetujui')">
+          <button type="button" class="btn btn-success" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#approveModal{{ $cuti->id_cuti }}">
             <i class="fas fa-check"></i> Setujui
           </button>
           <button type="button" class="btn btn-danger" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#rejectModal{{ $cuti->id_cuti }}">
@@ -321,6 +322,40 @@
     </div>
   </div>
 
+  <!-- Approve Modal -->
+  <div class="modal fade" id="approveModal{{ $cuti->id_cuti }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Konfirmasi Persetujuan</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form action="{{ route('cuti.updateStatus', $cuti->id_cuti) }}" method="POST">
+          @csrf
+          @method('PUT')
+          <input type="hidden" name="status" value="Disetujui">
+          <div class="modal-body">
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle"></i>
+              Apakah Anda yakin ingin menyetujui pengajuan cuti untuk <strong>{{ $cuti->pegawai ? $cuti->pegawai->nama : 'N/A' }}</strong>?
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Catatan (Opsional):</label>
+              <textarea class="form-control" name="keterangan" rows="3" 
+                        placeholder="Masukkan catatan persetujuan jika diperlukan..."></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+            <button type="submit" class="btn btn-success">
+              <i class="fas fa-check"></i> Ya, Setujui
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <!-- Reject Modal -->
   <div class="modal fade" id="rejectModal{{ $cuti->id_cuti }}" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
@@ -329,7 +364,7 @@
           <h5 class="modal-title">Tolak Pengajuan Cuti</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <form action="" method="POST">
+        <form action="{{ route('cuti.updateStatus', $cuti->id_cuti) }}" method="POST">
           @csrf
           @method('PUT')
           <input type="hidden" name="status" value="Ditolak">
@@ -387,59 +422,6 @@
         }
       });
     });
-
-    // Function to validate cuti (approve)
-    function validateCuti(id, status) {
-      Swal.fire({
-        title: 'Konfirmasi',
-        text: 'Apakah Anda yakin ingin menyetujui pengajuan cuti ini?',
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#28a745',
-        cancelButtonColor: '#6c757d',
-        confirmButtonText: 'Ya, Setujui',
-        cancelButtonText: 'Batal'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          // Show loading
-          Swal.fire({
-            title: 'Memproses...',
-            text: 'Mohon tunggu sebentar',
-            allowOutsideClick: false,
-            didOpen: () => {
-              Swal.showLoading()
-            }
-          });
-
-          // Create form and submit
-          var form = document.createElement('form');
-          form.method = 'POST';
-          form.action = `/cuti/validate/${id}`;
-          
-          var csrfToken = document.createElement('input');
-          csrfToken.type = 'hidden';
-          csrfToken.name = '_token';
-          csrfToken.value = '{{ csrf_token() }}';
-          
-          var methodField = document.createElement('input');
-          methodField.type = 'hidden';
-          methodField.name = '_method';
-          methodField.value = 'PUT';
-          
-          var statusField = document.createElement('input');
-          statusField.type = 'hidden';
-          statusField.name = 'status';
-          statusField.value = status;
-          
-          form.appendChild(csrfToken);
-          form.appendChild(methodField);
-          form.appendChild(statusField);
-          
-          document.body.appendChild(form);
-          form.submit();
-        }
-      });
-    }
 
     // Show success/error messages
     @if(session('success'))

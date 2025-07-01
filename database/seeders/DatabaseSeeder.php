@@ -26,10 +26,10 @@ class DatabaseSeeder extends Seeder
             // DepartemenSeeder::class,
             // PegawaiSeeder::class,
             // UserSeeder::class,
-            // JenisCutiSeeder::class
+            JenisCutiSeeder::class
             // LokasiKantorSeeder::class
             // KuisionerSeeder::class
-            PeriodePenilaianSeeder::class,
+            // PeriodePenilaianSeeder::class,
         ]);
         
     }

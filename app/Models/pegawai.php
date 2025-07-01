@@ -63,22 +63,50 @@ class Pegawai extends Model
         return $this->belongsTo(Jabatan::class, 'id_jabatan');
     }
 
+    /**
+     * Get all cuti for this pegawai.
+     */
     public function cuti()
     {
-        return $this->hasMany(Cuti::class, 'id_pegawai');
+        return $this->hasMany(Cuti::class, 'id_pegawai', 'id_pegawai');
     }
 
-    public function getCutiTerpakaiAttribute()
+    /**
+     * Get approved cuti for this pegawai.
+     */
+    public function cutiDisetujui()
     {
-        return $this->cuti()
-            ->where('status_cuti', 'Disetujui')
-            ->get()
-            ->sum('jumlah_hari');
+        return $this->hasMany(Cuti::class, 'id_pegawai', 'id_pegawai')
+                    ->where('status_cuti', 'Disetujui');
     }
 
+    /**
+     * Get pending cuti for this pegawai.
+     */
+    public function cutiMenunggu()
+    {
+        return $this->hasMany(Cuti::class, 'id_pegawai', 'id_pegawai')
+                    ->where('status_cuti', 'Menunggu');
+    }
+
+    /**
+     * Get total cuti days used this year.
+     */
+    public function getTotalCutiThisYearAttribute()
+    {
+        return $this->cutiDisetujui()
+                    ->whereYear('tanggal_pengajuan', now()->year)
+                    ->get()
+                    ->sum('jumlah_hari');
+    }
+
+    /**
+     * Get remaining cuti days for this year.
+     */
     public function getSisaCutiAttribute()
     {
-        return $this->jatahtahunan - $this->cuti_terpakai;
+        $totalCutiTahunan = 12; // Atau ambil dari setting
+        return $totalCutiTahunan - $this->total_cuti_this_year;
     }
 
     // Method untuk mendapatkan nama golongan

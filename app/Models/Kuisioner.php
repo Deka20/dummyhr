@@ -41,6 +41,11 @@ public function scopeGolongan($query, $golongan)
                  ->orWhereNull('golongan'); // Kuisioner umum
 }
 
+    public function periodeKuisioner()
+    {
+        return $this->hasMany(PeriodeKuisioner::class, 'kuisioner_id');
+    }
+
     // Relasi many-to-many ke periode penilaian melalui tabel pivot periode_kuisioner
     public function periodePenilaian(): BelongsToMany
     {
