@@ -1,4 +1,4 @@
-@extends('karyawan.master')
+@extends('admin.master')
 
 @section('title', 'Pengajuan Cuti')
 
@@ -196,10 +196,13 @@
                                                         <i class="ti ti-eye"></i>
                                                     </button>
                                                     @if($item->status_cuti == 'Menunggu')
-                                                    <button class="btn btn-sm btn-outline-warning" onclick="editLeave('{{ $item->id_cuti }}')" title="Edit">
+                                                    <a href="{{ route('admin.cuti.edit', $item->id_cuti) }}" 
+                                                    class="btn btn-sm btn-outline-warning" 
+                                                    title="Edit">
                                                         <i class="ti ti-edit"></i>
-                                                    </button>
-                                                    <form action="{{ route('pegawai.cuti.destroy', $item->id_cuti) }}" method="POST" class="d-inline">
+                                                    </a>
+
+                                                    <form action="{{ route('admin.cuti.destroy', $item->id_cuti) }}" method="POST" class="d-inline">
                                                         @csrf
                                                         @method('DELETE')
                                                         <button type="button" class="btn btn-sm btn-outline-danger" onclick="cancelLeave(this)" title="Batalkan">
@@ -242,7 +245,7 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form action="{{ route('pegawai.cuti.store') }}" method="POST" id="cutiForm">
+                <form action="{{ route('admin.cuti.store') }}" method="POST" id="cutiForm">
                     @csrf
                     
                     <!-- Informasi Pegawai -->
@@ -539,12 +542,6 @@ function showDetail(id) {
                 </div>
             `;
         });
-}
-
-// Edit leave function (if needed)
-function editLeave(id) {
-    // Redirect to edit page or show edit modal
-    window.location.href = `{{ url('pegawai/cuti') }}/${id}/edit`;
 }
 
 // Cancel leave function  

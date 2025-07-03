@@ -26,7 +26,7 @@ class authController extends Controller
     {
         // Validasi data dengan pesan bahasa Indonesia
         $request->validate([
-            'role' => ['required', 'string', 'in:hrd,kepala,pegawai'],
+            'role' => ['required', 'string', 'in:hrd,kepala_yayasan,pegawai'],
             'username' => ['required', 'string'],
             'password' => ['required', 'string'],
         ], [
@@ -74,7 +74,7 @@ class authController extends Controller
     {
         return match ($role) {
             'hrd' => route('admin.index'),
-            'kepala' => route('kepala.dashboard'),
+            'kepala_yayasan' => route('kepala.index'),
             'pegawai' => route('karyawan.index'),
             default => route('home'),
         };

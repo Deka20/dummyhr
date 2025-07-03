@@ -67,7 +67,7 @@
 </li>
 
 <li class="pc-item">
-  <a href="{{ route('admin.pengajuan_cuti') }}" class="pc-link">
+  <a href="{{ route('admin.cuti.index') }}" class="pc-link">
     <span class="pc-micon"><i class="ti ti-calendar-time"></i></span>
     <span class="pc-mtext">Pengajuan Cuti</span>
   </a>

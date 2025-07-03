@@ -37,8 +37,8 @@ class Penilaian extends Model
     }
 
     // Relasi ke pegawai penilai
-    public function pegawaiPenilai()
-    {
+    public function penilaiPegawai()
+    {   
         return $this->belongsTo(Pegawai::class, 'penilai_pegawai_id');
     }
 

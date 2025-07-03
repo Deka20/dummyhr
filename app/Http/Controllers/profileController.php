@@ -17,6 +17,8 @@ class ProfileController extends Controller
         return view('admin.edit-profil', compact('pegawai', 'nama_departemen', 'nama_jabatan'));
     } elseif ($user->role == 'pegawai') {
         return view('karyawan.edit-profil', compact('pegawai', 'nama_departemen', 'nama_jabatan'));
+    } elseif ($user->role == 'kepala_yayasan') {
+        return view('kepala.edit-profil', compact('pegawai', 'nama_departemen', 'nama_jabatan'));
     }
 
 }
@@ -63,7 +65,7 @@ class ProfileController extends Controller
 
     $pegawai->update($data);
 
-    return redirect()->back()->with('success', 'Profil berhasil diperbarui.');
+    return redirect()->back()->with('success', 'Profil berhasil diperbarui.','notifikasi');
 }
 }
 

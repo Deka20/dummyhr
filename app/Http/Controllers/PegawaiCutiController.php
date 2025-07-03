@@ -83,7 +83,7 @@ class PegawaiCutiController extends Controller
         $cuti->keterangan = $request->keterangan;
         $cuti->save();
 
-        return redirect()->route('cuti.index')->with('success', 'Pengajuan cuti berhasil dikirim.');
+        return redirect()->route('pegawai.cuti.index')->with('success', 'Pengajuan cuti berhasil dikirim.');
     }
 
     public function show($id)
@@ -143,6 +143,6 @@ class PegawaiCutiController extends Controller
 
         $cuti->delete();
 
-        return redirect()->route('cuti.index')->with('success', 'Pengajuan cuti berhasil dibatalkan.');
+        return redirect()->route('pegawai.cuti.index')->with('success', 'Pengajuan cuti berhasil dibatalkan.');
     }
 }

@@ -10,10 +10,10 @@ class UserSeeder extends Seeder
     public function run()
     {
         DB::table('user')->insert([
-            'username' => 'wera',
-            'password' => Hash::make('wera'),
-            'role' => 'hrd', // bisa 'hrd', 'pegawai', atau 'kepala'
-            'id_pegawai' => 4 // pastikan ini sesuai ID dari PegawaiSeeder
+            'username' => 'nina',
+            'password' => Hash::make('nina'),
+            'role' => 'kepala_yayasan', // bisa 'hrd', 'pegawai', atau 'kepala'
+            'id_pegawai' => 7 // pastikan ini sesuai ID dari PegawaiSeeder
         ]);
     }
 }

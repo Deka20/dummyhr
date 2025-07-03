@@ -18,8 +18,8 @@ class AdminDashboardController extends Controller
     
     // Waktu testing yang bisa diubah-ubah
     const TESTING_TIME = [
-        'date' => '2025-06-26',  // Format: Y-m-d
-        'time' => '17:30:00'     // Format: H:i:s (contoh: 07:30 untuk test terlambat)
+        'date' => '2025-07-02',  // Format: Y-m-d
+        'time' => '07:30:00'     // Format: H:i:s (contoh: 07:30 untuk test terlambat)
     ];
     
     const JAM_MASUK_STANDAR = 8;  // 08:00

@@ -23,27 +23,70 @@
 
           <!-- Filter Section -->
           <div class="row mb-3">
-            <div class="col-md-4">
-              <select class="form-select" id="filterStatus">
-                <option value="">Semua Status</option>
-                <option value="Hadir">Hadir</option>
-                <option value="Terlambat">Terlambat</option>
-                <option value="Izin">Izin</option>
-                <option value="Sakit">Sakit</option>
-                <option value="Tidak Hadir">Tidak Hadir</option>
-              </select>
+            <div class="col-12">
+              <form method="GET" action="{{ route('karyawan.absensi') }}" class="row g-2">
+                <div class="col-md-3">
+                  <select name="bulan" class="form-select">
+                    <option value="">Pilih Bulan</option>
+                    @foreach($bulanList as $key => $bulan)
+                      <option value="{{ $key }}" {{ request('bulan') == $key ? 'selected' : '' }}>
+                        {{ $bulan }}
+                      </option>
+                    @endforeach
+                  </select>
+                </div>
+                <div class="col-md-2">
+                  <select name="tahun" class="form-select">
+                    <option value="">Pilih Tahun</option>
+                    @foreach($tahunList as $tahun)
+                      <option value="{{ $tahun }}" {{ request('tahun') == $tahun ? 'selected' : '' }}>
+                        {{ $tahun }}
+                      </option>
+                    @endforeach
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <select name="status" class="form-select">
+                    <option value="">Semua Status</option>
+                    @foreach($statusList as $status)
+                      <option value="{{ $status }}" {{ request('status') == $status ? 'selected' : '' }}>
+                        {{ $status }}
+                      </option>
+                    @endforeach
+                  </select>
+                </div>
+                <div class="col-md-2">
+                  <button type="submit" class="btn btn-primary">Filter</button>
+                </div>
+                <div class="col-md-2">
+                  <a href="{{ route('karyawan.absensi') }}" class="btn btn-secondary">Reset</a>
+                </div>
+              </form>
             </div>
-            <div class="col-md-4">
-              <input type="date" class="form-control" id="filterTanggalMulai" placeholder="Dari Tanggal">
-            </div>
-            <div class="col-md-4">
-              <input type="date" class="form-control" id="filterTanggalAkhir" placeholder="Sampai Tanggal">
+          </div>
+
+          <!-- Info Section -->
+          <div class="row mb-3">
+            <div class="col-12">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <small class="text-muted">
+                    Menampilkan {{ $absensi->firstItem() }} - {{ $absensi->lastItem() }} 
+                    dari {{ $absensi->total() }} data
+                  </small>
+                </div>
+                <div>
+                  <small class="text-muted">
+                    Halaman {{ $absensi->currentPage() }} dari {{ $absensi->lastPage() }}
+                  </small>
+                </div>
+              </div>
             </div>
           </div>
 
           <!-- Table Section -->
           <div class="table-responsive">
-            <table id="absensi-table" class="table table-striped">
+            <table class="table table-striped">
               <thead>
                 <tr>
                   <th>No</th>
@@ -61,7 +104,7 @@
               <tbody>
                 @forelse($absensi as $index => $item)
                   <tr>
-                    <td>{{ $index + 1 }}</td>
+                    <td>{{ $absensi->firstItem() + $index }}</td>
                     <td>{{ $item->pegawai->nama ?? 'N/A' }}</td>
                     <td>{{ $item->pegawai->departemen->nama_departemen ?? 'N/A' }}</td>
                     <td>{{ \Carbon\Carbon::parse($item->tanggal)->format('d/m/Y') }}</td>
@@ -107,12 +150,25 @@
                   </tr>
                 @empty
                   <tr>
-                    <td colspan="10" class="text-center">Tidak ada data absensi</td>
+                    <td colspan="10" class="text-center">
+                      @if(request()->hasAny(['bulan', 'tahun', 'status']))
+                        Tidak ada data absensi sesuai filter yang dipilih
+                      @else
+                        Tidak ada data absensi
+                      @endif
+                    </td>
                   </tr>
                 @endforelse
               </tbody>
             </table>
           </div>
+
+          <!-- Pagination Section -->
+          @if($absensi->hasPages())
+            <div class="d-flex justify-content-center mt-4">
+              {{ $absensi->links() }}
+            </div>
+          @endif
         </div>
       </div>
     </div>
@@ -203,62 +259,3 @@
     </div>
   @endforeach
 @endsection
-
-@push('scripts')
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
-
-<script>
-$(document).ready(function() {
-    // Initialize DataTable
-    var table = $('#absensi-table').DataTable({
-        "language": {
-            "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Indonesian.json"
-        },
-        "order": [[ 3, "desc" ]], // Sort by date
-        "pageLength": 25,
-        "columnDefs": [
-            { "orderable": false, "targets": [0, 9] } // Disable sorting for No and Action
-        ]
-    });
-
-    // Filter by Status
-    $('#filterStatus').on('change', function() {
-        var val = $(this).val();
-        table.column(4).search(val ? val : '', true, false).draw();
-    });
-
-    // Date range filter
-    $.fn.dataTable.ext.search.push(
-        function(settings, data, dataIndex) {
-            var min = $('#filterTanggalMulai').val();
-            var max = $('#filterTanggalAkhir').val();
-            var dateText = data[3]; // Date column
-            
-            if (min === '' && max === '') {
-                return true;
-            }
-            
-            // Convert date from d/m/Y to Y-m-d for comparison
-            var dateParts = dateText.split('/');
-            if (dateParts.length !== 3) return true;
-            
-            var dateFormatted = dateParts[2] + '-' + dateParts[1].padStart(2, '0') + '-' + dateParts[0].padStart(2, '0');
-            
-            if (min === '') {
-                return dateFormatted <= max;
-            } else if (max === '') {
-                return dateFormatted >= min;
-            } else {
-                return dateFormatted >= min && dateFormatted <= max;
-            }
-        }
-    );
-
-    $('#filterTanggalMulai, #filterTanggalAkhir').on('change', function() {
-        table.draw();
-    });
-});
-</script>
-@endpush

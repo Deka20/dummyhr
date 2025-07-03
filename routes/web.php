@@ -17,7 +17,10 @@ use App\Http\Controllers\{
     PeriodeController,
     PeriodeKuisionerController,
     PegawaiKuisionerController,
-    PegawaiCutiController
+    PegawaiCutiController,
+    KepalaDashboardController,
+    KepalaListPengajuanController,
+    RekapPenilaianSDMController
 };
 
 // Redirect root ke halaman login
@@ -82,16 +85,20 @@ Route::middleware(['auth', 'check.role:hrd'])->prefix('hrd')->group(function () 
     Route::get('/riwayat-absensi', [RiwayatAbsensiController::class, 'index'])->name('admin.RiwayatAbsensi');
 
     // Pengajuan Cuti
-    Route::prefix('cuti-admin')->group(function () {
-        Route::get('/', [CutiController::class, 'index'])->name('admin.pengajuan_cuti');
-        Route::post('/', [CutiController::class, 'store'])->name('admin.cuti.store');
-        Route::get('/{id}', [CutiController::class, 'show'])->name('admin.cuti.show');
+     Route::prefix('cuti')->name('admin.')->group(function (){
+            Route::get('/', [CutiController::class, 'index'])->name('cuti.index');
+            Route::get('/create', [CutiController::class, 'create'])->name('cuti.create');
+            Route::post('/', [CutiController::class, 'store'])->name('cuti.store');
+            Route::get('/{id}', [CutiController::class, 'show'])->name('cuti.show');
+            Route::get('/{id}/edit', [CutiController::class, 'edit'])->name('cuti.edit');
+            Route::put('/{id}', [CutiController::class, 'update'])->name('cuti.update');
+            Route::delete('/{id}', [CutiController::class, 'destroy'])->name('cuti.destroy');
     });
 
-    //List Pengajuan Routes
-Route::get('/list-pengajuan', [ListPengajuanController::class, 'index'])->name('admin.listPengajuan');
-Route::put('/cuti/{id}/status', [ListPengajuanController::class, 'updateStatus'])->name('cuti.updateStatus');
-Route::get('/cuti/{id}/detail', [ListPengajuanController::class, 'show'])->name('cuti.detail'); // Optional for future use
+            //List Pengajuan Routes
+        Route::get('/list-pengajuan', [ListPengajuanController::class, 'index'])->name('admin.listPengajuan');
+        Route::put('/cuti/{id}/status', [ListPengajuanController::class, 'updateStatus'])->name('cuti.updateStatus');
+        Route::get('/cuti/{id}/detail', [ListPengajuanController::class, 'show'])->name('cuti.detail'); // Optional for future use
     // Kuisioner
     Route::prefix('kuisioner')->group(function () {
         Route::get('/', [KuisionerController::class, 'index'])->name('admin.kuisioner.index');
@@ -162,21 +169,59 @@ Route::prefix('pegawai')->middleware(['check.role:pegawai'])->group(function () 
         
         // Hasil
         Route::get('/{periode}/{dinilai}/result', [PegawaiKuisionerController::class, 'result'])->name('result');
-        Route::get('/{periode}/{dinilai}', [PegawaiKuisionerController::class, 'fill'])->name('fill');
+        // Route::get('/{periode}/{dinilai}', [PegawaiKuisionerController::class, 'fill'])->name('fill');
 
         // Riwayat dan hapus
         Route::get('/history', [PegawaiKuisionerController::class, 'history'])->name('history');
         Route::delete('/{periode}/{dinilai}', [PegawaiKuisionerController::class, 'destroy'])->name('destroy');
     });
 
-            Route::prefix('cuti')->name('cuti.')->group(function () {
-            Route::get('/', [PegawaiCutiController::class, 'index'])->name('index');
-            Route::get('/create', [PegawaiCutiController::class, 'create'])->name('create');
-            Route::post('/', [PegawaiCutiController::class, 'store'])->name('store');
-            Route::get('/{id}', [PegawaiCutiController::class, 'show'])->name('show');
-            Route::get('/{id}/edit', [PegawaiCutiController::class, 'edit'])->name('edit');
-            Route::put('/{id}', [PegawaiCutiController::class, 'update'])->name('update');
-            Route::delete('/{id}', [PegawaiCutiController::class, 'destroy'])->name('destroy');
+            Route::prefix('cuti')->name('pegawai.')->group(function () {
+            Route::get('/', [PegawaiCutiController::class, 'index'])->name('cuti.index');
+            Route::get('/create', [PegawaiCutiController::class, 'create'])->name('cuti.create');
+            Route::post('/', [PegawaiCutiController::class, 'store'])->name('cuti.store');
+            Route::get('/{id}', [PegawaiCutiController::class, 'show'])->name('cuti.show');
+            Route::get('/{id}/edit', [PegawaiCutiController::class, 'edit'])->name('cuti.edit');
+            Route::put('/{id}', [PegawaiCutiController::class, 'update'])->name('cuti.update');
+            Route::delete('/{id}', [PegawaiCutiController::class, 'destroy'])->name('cuti.destroy');
         });
   
+});
+
+Route::middleware(['auth', 'check.role:kepala_yayasan'])->prefix('kepala_yayasan')->group(function () {
+Route::get('/dashboard', [KepalaDashboardController::class, 'index'])->name('kepala.index');
+
+    // Profil
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('kepala.edit-profile');
+    Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
+
+    Route::get('/list-pengajuan', [KepalaListPengajuanController::class, 'index'])->name('kepala.listPengajuan');
+    Route::put('/cuti/{id}/status', [KepalaListPengajuanController::class, 'updateStatus'])->name('cuti.updateStatus');
+    Route::get('/cuti/{id}/detail', [KepalaListPengajuanController::class, 'show'])->name('cuti.detail');
+
+
+        // Route untuk halaman utama rekap penilaian SDM
+    Route::get('/kepala-yayasan/rekap-sdm', [RekapPenilaianSDMController::class, 'index'])
+        ->name('kepala.rekap.index');
+    
+    // Route untuk detail penilaian pegawai tertentu
+    Route::get('/kepala-yayasan/rekap-sdm/detail/{pegawaiId}', [RekapPenilaianSDMController::class, 'detail'])
+        ->name('kepala_yayasan.rekap_sdm.detail');
+    
+    // Route untuk export data rekap
+    Route::get('/kepala-yayasan/rekap-sdm/export', [RekapPenilaianSDMController::class, 'export'])
+        ->name('kepala_yayasan.rekap_sdm.export');
+    
+    // API Routes untuk AJAX calls
+    Route::prefix('api/kepala-yayasan/rekap-sdm')->group(function () {
+        
+        // Route untuk mendapatkan data rekap via AJAX
+        Route::get('/data', [RekapPenilaianSDMController::class, 'getRekapData'])
+            ->name('kepala_yayasan.rekap_sdm.api.data');
+        
+        // Route untuk mendapatkan statistik dashboard via AJAX
+        Route::get('/statistik', [RekapPenilaianSDMController::class, 'getStatistikDashboard'])
+            ->name('kepala_yayasan.rekap_sdm.api.statistik');
+    });
+
 });

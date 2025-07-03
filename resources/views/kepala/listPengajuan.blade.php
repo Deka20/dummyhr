@@ -1,5 +1,5 @@
 <!-- resources/views/admin/listPengajuan.blade.php -->
-@extends('admin.master')
+@extends('kepala.master')
 
 @section('title', 'Validasi Pengajuan Cuti - FIFO Queue')
 

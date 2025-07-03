@@ -10,28 +10,39 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
-class ListPengajuanController extends Controller
+class KepalaListPengajuanController extends Controller
 {
     public function index(Request $request)
     {
-        // Ambil user yang login
+        // Ambil user yang login (kepala yayasan)
         $user = Auth::user();
         $pegawai = $user->pegawai;
-        $nama_departemen = $pegawai && $pegawai->departemen ? $pegawai->departemen->nama_departemen : 'Tidak diketahui';
+        $nama_departemen = $pegawai && $pegawai->departemen ? $pegawai->departemen->nama_departemen : 'Kepala Yayasan';
 
         // Query data cuti dengan FIFO - HANYA TAMPILKAN YANG MENUNGGU
+        // Kepala yayasan dapat melihat semua pengajuan dari semua departemen
         $query = Cuti::with(['pegawai.departemen', 'pegawai.jabatan', 'jenisCuti'])
             ->where('status_cuti', 'Menunggu') // HANYA AMBIL YANG MENUNGGU
             ->orderBy('tanggal_pengajuan', 'ASC'); // FIFO: Yang pertama masuk, pertama keluar
 
-        // Filter tambahan (opsional, karena sudah filtered ke Menunggu)
+        // Filter berdasarkan departemen (opsional)
         if ($request->filled('departemen')) {
             $query->whereHas('pegawai', function ($q) use ($request) {
                 $q->where('id_departemen', $request->departemen);
             });
         }
+
+        // Filter berdasarkan jenis cuti (opsional)
         if ($request->filled('jenis_cuti')) {
             $query->where('id_jenis_cuti', $request->jenis_cuti);
+        }
+
+        // Filter berdasarkan tanggal pengajuan (opsional)
+        if ($request->filled('tanggal_mulai') && $request->filled('tanggal_selesai')) {
+            $query->whereBetween('tanggal_pengajuan', [
+                $request->tanggal_mulai,
+                $request->tanggal_selesai
+            ]);
         }
 
         $pengajuan_cuti = $query->get();
@@ -50,18 +61,31 @@ class ListPengajuanController extends Controller
             $cuti->nomor_antrian = $nomor_antrian++;
         }
 
-        // Statistik - Hitung dari semua data, bukan hanya yang ditampilkan
-        $all_cuti = Cuti::all();
+        // Statistik - Hitung dari semua data per departemen dan keseluruhan
+        $all_cuti = Cuti::with('pegawai.departemen')->get();
         $pending = $all_cuti->where('status_cuti', 'Menunggu')->count();
         $approved = $all_cuti->where('status_cuti', 'Disetujui')->count();
         $rejected = $all_cuti->where('status_cuti', 'Ditolak')->count();
         $total = $all_cuti->count();
 
+        // Statistik per departemen
+        $stats_per_departemen = [];
+        $departemen_list = Departemen::all();
+        foreach ($departemen_list as $dept) {
+            $dept_cuti = $all_cuti->where('pegawai.id_departemen', $dept->id_departemen);
+            $stats_per_departemen[$dept->nama_departemen] = [
+                'pending' => $dept_cuti->where('status_cuti', 'Menunggu')->count(),
+                'approved' => $dept_cuti->where('status_cuti', 'Disetujui')->count(),
+                'rejected' => $dept_cuti->where('status_cuti', 'Ditolak')->count(),
+                'total' => $dept_cuti->count()
+            ];
+        }
+
         // Dropdown data
         $departemen = Departemen::all();
         $jenis_cuti_options = JenisCuti::pluck('nama_jenis_cuti', 'id_jenis_cuti');
 
-        return view('admin.listPengajuan', compact(
+        return view('kepala.listPengajuan', compact(
             'pegawai',
             'nama_departemen',
             'pengajuan_cuti',
@@ -70,7 +94,8 @@ class ListPengajuanController extends Controller
             'pending',
             'approved',
             'rejected',
-            'total'
+            'total',
+            'stats_per_departemen'
         ));
     }
 
@@ -79,7 +104,7 @@ class ListPengajuanController extends Controller
         try {
             $request->validate([
                 'status' => 'required|in:Disetujui,Ditolak,Menunggu',
-                'keterangan' => 'nullable|string|max:255',
+                'keterangan' => 'nullable|string|max:500',
             ]);
 
             $cuti = Cuti::findOrFail($id);
@@ -101,9 +126,10 @@ class ListPengajuanController extends Controller
             }
 
             $cuti->status_cuti = $request->status;
+            $cuti->disetujui_oleh = Auth::id(); // Catat siapa yang menyetujui
             
-            // Only add keterangan if provided and status is rejected
-            if ($request->status === 'Ditolak' && $request->filled('keterangan')) {
+            // Add keterangan if provided
+            if ($request->filled('keterangan')) {
                 $cuti->keterangan = $request->keterangan;
             }
             
@@ -115,25 +141,41 @@ class ListPengajuanController extends Controller
         } catch (\Illuminate\Validation\ValidationException $e) {
             return redirect()->back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
-            Log::error('Error updating cuti status: ' . $e->getMessage());
+            Log::error('Error updating cuti status by kepala yayasan: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Terjadi kesalahan saat memproses pengajuan cuti. Silakan coba lagi.');
         }
     }
 
-    // Method baru untuk melihat riwayat pengajuan yang sudah diproses
+    // Method untuk melihat riwayat pengajuan yang sudah diproses
     public function riwayat(Request $request)
     {
         $query = Cuti::with(['pegawai.departemen', 'pegawai.jabatan', 'jenisCuti'])
             ->whereIn('status_cuti', ['Disetujui', 'Ditolak'])
             ->orderBy('updated_at', 'DESC'); // Urutkan berdasarkan tanggal update terbaru
 
+        // Filter berdasarkan status
         if ($request->filled('status')) {
             $query->where('status_cuti', $request->status);
         }
+
+        // Filter berdasarkan departemen
         if ($request->filled('departemen')) {
             $query->whereHas('pegawai', function ($q) use ($request) {
                 $q->where('id_departemen', $request->departemen);
             });
+        }
+
+        // Filter berdasarkan jenis cuti
+        if ($request->filled('jenis_cuti')) {
+            $query->where('id_jenis_cuti', $request->jenis_cuti);
+        }
+
+        // Filter berdasarkan rentang tanggal
+        if ($request->filled('tanggal_mulai') && $request->filled('tanggal_selesai')) {
+            $query->whereBetween('updated_at', [
+                $request->tanggal_mulai . ' 00:00:00',
+                $request->tanggal_selesai . ' 23:59:59'
+            ]);
         }
 
         $riwayat_cuti = $query->get();
@@ -149,8 +191,9 @@ class ListPengajuanController extends Controller
         }
 
         $departemen = Departemen::all();
+        $jenis_cuti_options = JenisCuti::pluck('nama_jenis_cuti', 'id_jenis_cuti');
         
-        return view('admin.riwayatPengajuan', compact('riwayat_cuti', 'departemen'));
+        return view('kepala.riwayatPengajuan', compact('riwayat_cuti', 'departemen', 'jenis_cuti_options'));
     }
 
     public function show($id)
@@ -206,5 +249,111 @@ class ListPengajuanController extends Controller
             ->count() + 1;
 
         return response()->json(['position' => $position]);
+    }
+
+    /**
+     * Dashboard summary for kepala yayasan
+     */
+    public function dashboard()
+    {
+        // Total pengajuan per status
+        $total_menunggu = Cuti::where('status_cuti', 'Menunggu')->count();
+        $total_disetujui = Cuti::where('status_cuti', 'Disetujui')->count();
+        $total_ditolak = Cuti::where('status_cuti', 'Ditolak')->count();
+
+        // Pengajuan menunggu terlama
+        $pengajuan_terlama = Cuti::with(['pegawai.departemen'])
+            ->where('status_cuti', 'Menunggu')
+            ->orderBy('tanggal_pengajuan', 'ASC')
+            ->first();
+
+        // Statistik per departemen
+        $stats_departemen = Departemen::withCount([
+            'pegawai as total_pegawai',
+            'pegawai as cuti_menunggu' => function ($query) {
+                $query->whereHas('cuti', function ($q) {
+                    $q->where('status_cuti', 'Menunggu');
+                });
+            }
+        ])->get();
+
+        // Pengajuan hari ini
+        $pengajuan_hari_ini = Cuti::whereDate('tanggal_pengajuan', today())->count();
+
+        // Pengajuan minggu ini
+        $pengajuan_minggu_ini = Cuti::whereBetween('tanggal_pengajuan', [
+            now()->startOfWeek(),
+            now()->endOfWeek()
+        ])->count();
+
+        return view('kepala.dashboard', compact(
+            'total_menunggu',
+            'total_disetujui',
+            'total_ditolak',
+            'pengajuan_terlama',
+            'stats_departemen',
+            'pengajuan_hari_ini',
+            'pengajuan_minggu_ini'
+        ));
+    }
+
+    /**
+     * Bulk approve/reject multiple cuti applications
+     */
+    public function bulkUpdate(Request $request)
+    {
+        try {
+            $request->validate([
+                'selected_cuti' => 'required|array',
+                'selected_cuti.*' => 'exists:cuti,id_cuti',
+                'bulk_action' => 'required|in:Disetujui,Ditolak',
+                'bulk_keterangan' => 'nullable|string|max:500'
+            ]);
+
+            $updated_count = 0;
+            $errors = [];
+
+            foreach ($request->selected_cuti as $cuti_id) {
+                $cuti = Cuti::find($cuti_id);
+                
+                if (!$cuti || $cuti->status_cuti !== 'Menunggu') {
+                    $errors[] = "Pengajuan ID {$cuti_id} sudah diproses sebelumnya.";
+                    continue;
+                }
+
+                // FIFO validation for approval
+                if ($request->bulk_action === 'Disetujui') {
+                    $pengajuan_lebih_lama = Cuti::where('status_cuti', 'Menunggu')
+                        ->where('tanggal_pengajuan', '<', $cuti->tanggal_pengajuan)
+                        ->exists();
+                    
+                    if ($pengajuan_lebih_lama) {
+                        $errors[] = "Tidak dapat menyetujui pengajuan ID {$cuti_id}. Masih ada pengajuan yang lebih lama menunggu.";
+                        continue;
+                    }
+                }
+
+                $cuti->status_cuti = $request->bulk_action;
+                $cuti->disetujui_oleh = Auth::id();
+                
+                if ($request->filled('bulk_keterangan')) {
+                    $cuti->keterangan = $request->bulk_keterangan;
+                }
+                
+                $cuti->save();
+                $updated_count++;
+            }
+
+            $message = "Berhasil memproses {$updated_count} pengajuan cuti.";
+            if (!empty($errors)) {
+                $message .= " Beberapa pengajuan gagal diproses: " . implode(', ', $errors);
+            }
+
+            return redirect()->back()->with('success', $message);
+
+        } catch (\Exception $e) {
+            Log::error('Error in bulk update: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat memproses pengajuan cuti.');
+        }
     }
 }
