@@ -159,7 +159,7 @@ class ListPengajuanController extends Controller
             $cuti = Cuti::with(['pegawai.departemen', 'pegawai.jabatan', 'jenisCuti'])
                         ->findOrFail($id);
             
-            // Calculate duration
+            // kalkulasi durasi
             if ($cuti->tanggal_mulai && $cuti->tanggal_selesai) {
                 $cuti->jumlah_hari = Carbon::parse($cuti->tanggal_mulai)
                     ->diffInDays(Carbon::parse($cuti->tanggal_selesai)) + 1;
@@ -191,7 +191,7 @@ class ListPengajuanController extends Controller
     }
 
     /**
-     * Get FIFO queue position for a specific cuti
+     * Get FIFO queue posisi untuk cuti
      */
     public function getFifoPosition($id)
     {
