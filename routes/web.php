@@ -20,7 +20,8 @@ use App\Http\Controllers\{
     PegawaiCutiController,
     KepalaDashboardController,
     KepalaListPengajuanController,
-    RekapPenilaianSDMController
+    RekapPenilaianSDMController,
+    LogSistemController
 };
 
 // Redirect root ke halaman login
@@ -95,10 +96,6 @@ Route::middleware(['auth', 'check.role:hrd'])->prefix('hrd')->group(function () 
             Route::delete('/{id}', [CutiController::class, 'destroy'])->name('cuti.destroy');
     });
 
-            //List Pengajuan Routes
-        Route::get('/list-pengajuan', [ListPengajuanController::class, 'index'])->name('admin.listPengajuan');
-        Route::put('/cuti/{id}/status', [ListPengajuanController::class, 'updateStatus'])->name('cuti.updateStatus');
-        Route::get('/cuti/{id}/detail', [ListPengajuanController::class, 'show'])->name('cuti.detail'); // Optional for future use
     // Kuisioner
     Route::prefix('kuisioner')->group(function () {
         Route::get('/', [KuisionerController::class, 'index'])->name('admin.kuisioner.index');
@@ -134,6 +131,17 @@ Route::middleware(['auth', 'check.role:hrd'])->prefix('hrd')->group(function () 
     // Profil
     Route::get('/profile', [ProfileController::class, 'edit'])->name('admin.edit-profile');
     Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
+
+        //List Pengajuan Routes
+    Route::get('/list-pengajuan', [ListPengajuanController::class, 'index'])->name('admin.listPengajuan');
+    Route::put('/cuti/{id}/update-status', [ListPengajuanController::class, 'updateStatus'])->name('cuti.updateStatus');
+    Route::get('/cuti/{id}/detail', [ListPengajuanController::class, 'show'])->name('cuti.detail');
+
+    Route::prefix('admin')->name('admin.')->group(function() {
+    Route::get('/log-sistem', [LogSistemController::class, 'index'])->name('log-sistem.index');
+    Route::delete('/log-sistem/{id}', [LogSistemController::class, 'destroy'])->name('log-sistem.destroy');
+    Route::delete('/log-sistem-clear-all', [LogSistemController::class, 'clearAll'])->name('log-sistem.clear-all');
+});
 });
 
 // ====================
@@ -195,9 +203,12 @@ Route::get('/dashboard', [KepalaDashboardController::class, 'index'])->name('kep
     Route::get('/profile', [ProfileController::class, 'edit'])->name('kepala.edit-profile');
     Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
-    Route::get('/list-pengajuan', [KepalaListPengajuanController::class, 'index'])->name('kepala.listPengajuan');
+
+    Route::name('kepala.')->group(function () {
+    Route::get('/list-pengajuan', [KepalaListPengajuanController::class, 'index'])->name('listPengajuan');
     Route::put('/cuti/{id}/status', [KepalaListPengajuanController::class, 'updateStatus'])->name('cuti.updateStatus');
     Route::get('/cuti/{id}/detail', [KepalaListPengajuanController::class, 'show'])->name('cuti.detail');
+    });
 
 
         // Route untuk halaman utama rekap penilaian SDM

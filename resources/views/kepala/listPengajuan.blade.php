@@ -347,7 +347,7 @@
           <h5 class="modal-title">Konfirmasi Persetujuan</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <form action="{{ route('cuti.updateStatus', $cuti->id_cuti) }}" method="POST">
+        <form action="{{ route('kepala.cuti.updateStatus', $cuti->id_cuti) }}" method="POST">
           @csrf
           @method('PUT')
           <input type="hidden" name="status" value="Disetujui">
@@ -379,7 +379,7 @@
           <h5 class="modal-title">Tolak Pengajuan Cuti</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <form action="{{ route('cuti.updateStatus', $cuti->id_cuti) }}" method="POST">
+        <form action="{{ route('kepala.cuti.updateStatus', $cuti->id_cuti) }}" method="POST">
           @csrf
           @method('PUT')
           <input type="hidden" name="status" value="Ditolak">

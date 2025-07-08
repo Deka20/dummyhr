@@ -160,6 +160,11 @@ $currentPeriode = \App\Models\PeriodePenilaian::where('status', 'aktif')->first(
     <span class="pc-mtext">Lokasi Kantor</span>
   </a>
 </li>
-
+<li class="pc-item">
+  <a href="{{ route('admin.log-sistem.index') }}" class="pc-link">
+    <span class="pc-micon"><i class="ti ti-file-text"></i></span>
+    <span class="pc-mtext">Log Sistem</span>
+  </a>
+</li>
 </nav>
 <!-- [ Sidebar Menu ] end -->

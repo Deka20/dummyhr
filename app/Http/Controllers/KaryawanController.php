@@ -2,16 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Pegawai;
+use Carbon\Carbon;
 use App\Models\Jabatan;
+use App\Models\Pegawai;
 use App\Models\Departemen;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Carbon\Carbon;
 
 class KaryawanController extends Controller
 {
@@ -74,9 +75,23 @@ class KaryawanController extends Controller
             if ($request->hasFile('foto')) {
                 $validated['foto'] = $this->uploadFoto($request->file('foto'));
             }
-
+ $user = Auth::user();
             // Simpan data pegawai
-            $pegawai = Pegawai::create($validated);
+            DB::statement("SET @current_user_id = " . $user->id_user);
+
+
+        $pegawai = Pegawai::create($validated);
+       
+    
+        if ($user) {
+            DB::table('log_sistem')->insert([
+                'id_user' => $user->id,
+                'aksi' => 'Menambahkan data karyawan: ' . $request->nama,
+                'waktu' => now(),
+            ]);
+        }
+
+        
             
             Log::info('Pegawai berhasil dibuat dengan ID: ' . $pegawai->id_pegawai);
 
@@ -109,6 +124,7 @@ class KaryawanController extends Controller
                                  'errors' => $errorMessages
                              ]
                          ]);
+
                          
         } catch (\Exception $e) {
             Log::error('Gagal menyimpan pegawai: ' . $e->getMessage());
@@ -118,6 +134,7 @@ class KaryawanController extends Controller
             if (isset($validated['foto'])) {
                 $this->hapusFoto($validated['foto']);
             }
+        
 
             return back()->withInput()->with([
                 'alert' => [
@@ -279,6 +296,9 @@ class KaryawanController extends Controller
     public function destroy($id)
     {
         try {
+            $user = Auth::user();
+            // Simpan data pegawai
+            DB::statement("SET @current_user_id = " . $user->id_user);
             $pegawai = Pegawai::findOrFail($id);
             
             // Hapus foto jika ada

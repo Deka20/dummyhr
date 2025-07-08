@@ -20,7 +20,7 @@ class RoleMiddleware
             // Redirect ke dashboard berdasarkan role user
             return match (Auth::user()->role) {
                 'hrd' => redirect()->route('admin.index'),
-                'kepala' => redirect()->route('kepala.dashboard'),
+                'kepala_yayasan' => redirect()->route('kepala.dashboard'),
                 'pegawai' => redirect()->route('karyawan.index'),
                 default => redirect()->route('login'),
             };

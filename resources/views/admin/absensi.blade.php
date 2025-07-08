@@ -19,9 +19,6 @@
               <button class="btn btn-primary btn-sm" onclick="exportTable()">
                 <i class="fas fa-download me-1"></i> Export
               </button>
-              <button class="btn btn-outline-secondary btn-sm" onclick="refreshTable()">
-                <i class="fas fa-sync-alt me-1"></i> Refresh
-              </button>
             </div>
           </div>
         </div>
@@ -34,24 +31,10 @@
             </div>
           @endif
 
-          <!-- Filter Section -->
+          <!-- Filter Section (Simplified) -->
           <div class="p-3 border-bottom bg-light">
             <div class="row g-3">
-              <div class="col-md-3">
-                <label class="form-label small fw-bold">Filter Departemen</label>
-                <select name="departemen" id="filterDepartemen" class="form-select form-select-sm">
-                  <option value="">Semua Departemen</option>
-                  @forelse($departemen as $dept)
-                    <option value="{{ $dept->nama_departemen }}" 
-                            {{ request('departemen') == $dept->id_departemen ? 'selected' : '' }}>
-                      {{ $dept->nama_departemen }}
-                    </option>
-                  @empty
-                    <option disabled>Tidak ada departemen tersedia</option>
-                  @endforelse
-                </select>
-              </div>
-              <div class="col-md-3">
+              <div class="col-md-4">
                 <label class="form-label small fw-bold">Filter Status</label>
                 <select class="form-select form-select-sm" id="filterStatus">
                   <option value="">Semua Status</option>
@@ -61,11 +44,11 @@
                   <option value="Tidak Hadir">Tidak Hadir</option>
                 </select>
               </div>
-              <div class="col-md-3">
+              <div class="col-md-4">
                 <label class="form-label small fw-bold">Dari Tanggal</label>
                 <input type="date" class="form-control form-control-sm" id="filterTanggalMulai">
               </div>
-              <div class="col-md-3">
+              <div class="col-md-4">
                 <label class="form-label small fw-bold">Sampai Tanggal</label>
                 <input type="date" class="form-control form-control-sm" id="filterTanggalAkhir">
               </div>
@@ -74,7 +57,7 @@
 
           <!-- Table Section -->
           <div class="table-responsive">
-            <table id="" class="table table-striped table-bordered nowrap">
+            <table class="table table-striped table-hover">
               <thead class="table-light">
                 <tr>
                   <th class="text-center">No</th>
@@ -90,7 +73,7 @@
               <tbody>
                 @forelse($absensi as $index => $item)
                   <tr>
-                    <td class="text-center fw-bold">{{ $index + 1 }}</td>
+                    <td class="text-center fw-bold">{{ $absensi->firstItem() + $index }}</td>
                     <td>
                       <div class="d-flex align-items-center">
                         <div class="avatar avatar-sm bg-primary rounded-circle me-2 d-flex align-items-center justify-content-center">
@@ -136,40 +119,43 @@
                         <span class="text-muted">-</span>
                       @endif
                     </td>
+<td class="text-center">
+  @if($item->waktu_pulang)
+    <div class="fw-bold text-danger">
+      {{ \Carbon\Carbon::parse($item->waktu_pulang)->format('H:i') }}
+    </div>
+    <small class="text-muted">WIB</small>
+  @else
+    @if(
+      $item->status_kehadiran === 'Hadir' &&
+      \Carbon\Carbon::parse($item->tanggal)->lt(\Carbon\Carbon::today())
+    )
+      <span class="badge bg-secondary">
+        <i class="fas fa-sign-out-alt me-1"></i> Lupa Absen Pulang
+      </span>
+    @else
+      <span class="text-muted">-</span>
+    @endif
+  @endif
+</td>
+
                     <td class="text-center">
-                      @if($item->waktu_pulang)
-                        <div class="fw-bold text-danger">
-                          {{ \Carbon\Carbon::parse($item->waktu_pulang)->format('H:i') }}
-                        </div>
-                        <small class="text-muted">WIB</small>
-                      @else
-                        <span class="text-muted">-</span>
-                      @endif
-                    </td>
-                    <td class="text-center">
-                      <div class="btn-group btn-group-sm" role="group">
+                      <div class="d-flex justify-content-center gap-2">
                         <button type="button" 
-                                class="btn btn-outline-info" 
+                                class="btn btn-outline-info btn-sm"
                                 data-bs-toggle="modal" 
                                 data-bs-target="#detailModal{{ $item->id }}"
                                 title="Detail">
                           <i class="fas fa-eye"></i>
                         </button>
-                        <a href="" 
-                           class="btn btn-outline-warning" 
-                           data-bs-toggle="tooltip" 
-                           title="Edit">
-                          <i class="fas fa-edit"></i>
-                        </a>
-                        <form action="" 
+                        <form action="{{ route('admin.absensi.destroy', $item->id_kehadiran) }}" 
                               method="POST" 
                               class="d-inline">
                           @csrf
                           @method('DELETE')
                           <button type="submit" 
-                                  class="btn btn-outline-danger" 
+                                  class="btn btn-outline-danger btn-sm"
                                   onclick="return confirm('Yakin ingin menghapus data absensi ini?')"
-                                  data-bs-toggle="tooltip" 
                                   title="Hapus">
                             <i class="fas fa-trash"></i>
                           </button>
@@ -192,19 +178,24 @@
             </table>
           </div>
 
-          <!-- Table Footer Info -->
+          <!-- Laravel Pagination -->
+          <div class="d-flex justify-content-between align-items-center p-3">
+            <div class="text-muted small">
+              <i class="fas fa-info-circle me-1"></i>
+              Menampilkan {{ $absensi->firstItem() ?? 0 }} sampai {{ $absensi->lastItem() ?? 0 }} dari {{ $absensi->total() }} data
+            </div>
+            <div>
+              {{ $absensi->links('pagination::bootstrap-4') }}
+            </div>
+          </div>
+
+          <!-- Status Legend -->
           <div class="card-footer bg-light">
-            <div class="d-flex justify-content-between align-items-center">
-              <div class="text-muted small">
-                <i class="fas fa-info-circle me-1"></i>
-                Menampilkan {{ $absensi->count() }} data absensi pegawai
-              </div>
-              <div class="d-flex gap-2">
-                <span class="badge bg-success"><i class="fas fa-check me-1"></i>Hadir</span>
-                <span class="badge bg-warning"><i class="fas fa-exclamation me-1"></i>Izin</span>
-                <span class="badge bg-info"><i class="fas fa-heartbeat me-1"></i>Sakit</span>
-                <span class="badge bg-danger"><i class="fas fa-times me-1"></i>Alpa</span>
-              </div>
+            <div class="d-flex justify-content-center gap-2">
+              <span class="badge bg-success"><i class="fas fa-check me-1"></i>Hadir</span>
+              <span class="badge bg-warning"><i class="fas fa-exclamation me-1"></i>Izin</span>
+              <span class="badge bg-info"><i class="fas fa-heartbeat me-1"></i>Sakit</span>
+              <span class="badge bg-danger"><i class="fas fa-times me-1"></i>Tidak Hadir</span>
             </div>
           </div>
         </div>
@@ -292,118 +283,63 @@
 @endsection
 
 @push('scripts')
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-  <script src="{{ asset('assets/js/plugins/jquery.dataTables.min.js') }}"></script>
-  <script src="{{ asset('assets/js/plugins/dataTables.bootstrap5.min.js') }}"></script>
-  <script src="{{ asset('assets/js/plugins/dataTables.buttons.min.js') }}"></script>
-  <script src="{{ asset('assets/js/plugins/buttons.bootstrap5.min.js') }}"></script>
-  <script src="{{ asset('assets/js/plugins/jszip.min.js') }}"></script>
-  <script src="{{ asset('assets/js/plugins/buttons.html5.min.js') }}"></script>
-
   <script>
-    $(document).ready(function() {
-      // Initialize DataTable
-      var table = $('#attendance-table').DataTable({
-        "language": {
-          "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Indonesian.json"
-        },
-        "order": [[ 3, "desc" ]], // Urutkan berdasarkan tanggal terbaru
-        "pageLength": 25,
-        "responsive": true,
-        "dom": '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
-               '<"row"<"col-sm-12"tr>>' +
-               '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
-        "columnDefs": [
-          { "orderable": false, "targets": [0, 7] }, // Disable sorting for No and Action columns
-          { "searchable": false, "targets": [0, 7] }
-        ],
-        "drawCallback": function(settings) {
-          // Reinitialize tooltips after table redraw
-          $('[data-bs-toggle="tooltip"]').tooltip();
-        }
-      });
-
-      // Filter functions
-      $('#filterDepartemen').on('change', function() {
-        var val = $(this).val();
-        table.column(2).search(val ? '^' + val + '$' : '', true, false).draw();
-      });
-
-      $('#filterStatus').on('change', function() {
-        var val = $(this).val();
-        table.column(4).search(val ? val : '', true, false).draw();
-      });
-
-      // Date range filter
-      $.fn.dataTable.ext.search.push(
-        function(settings, data, dataIndex) {
-          var min = $('#filterTanggalMulai').val();
-          var max = $('#filterTanggalAkhir').val();
-          var dateText = $(data[3]).text() || data[3]; // Get text from HTML or plain text
-          
-          if (min === '' && max === '') {
-            return true;
-          }
-          
-          // Convert date from d/m/Y to Y-m-d for comparison
-          var dateParts = dateText.split('/');
-          if (dateParts.length !== 3) return true;
-          
-          var dateFormatted = dateParts[2] + '-' + dateParts[1].padStart(2, '0') + '-' + dateParts[0].padStart(2, '0');
-          
-          if (min === '') {
-            return dateFormatted <= max;
-          } else if (max === '') {
-            return dateFormatted >= min;
-          } else {
-            return dateFormatted >= min && dateFormatted <= max;
-          }
-        }
-      );
-
-      $('#filterTanggalMulai, #filterTanggalAkhir').on('change', function() {
-        table.draw();
-      });
-
-      // Initialize tooltips
-      $('[data-bs-toggle="tooltip"]').tooltip();
-    });
-
-    // Refresh table function
-    function refreshTable() {
-      location.reload();
+    // Simple filter functions (tanpa DataTables)
+    function filterTable() {
+      const status = document.getElementById('filterStatus').value;
+      const tanggalMulai = document.getElementById('filterTanggalMulai').value;
+      const tanggalAkhir = document.getElementById('filterTanggalAkhir').value;
+      
+      // Simple filtering logic - ini bisa dikembangkan lebih lanjut
+      // Untuk sekarang, filter akan me-reload halaman dengan parameter
+      const params = new URLSearchParams(window.location.search);
+      
+      if (status) params.set('status', status);
+      else params.delete('status');
+      
+      if (tanggalMulai) params.set('tanggal_mulai', tanggalMulai);
+      else params.delete('tanggal_mulai');
+      
+      if (tanggalAkhir) params.set('tanggal_akhir', tanggalAkhir);
+      else params.delete('tanggal_akhir');
+      
+      window.location.search = params.toString();
     }
 
-    // Export function
+    // Event listeners for filters
+    document.getElementById('filterStatus').addEventListener('change', filterTable);
+    document.getElementById('filterTanggalMulai').addEventListener('change', filterTable);
+    document.getElementById('filterTanggalAkhir').addEventListener('change', filterTable);
+
+    // Export function (simplified)
     function exportTable() {
-      var table = $('#attendance-table').DataTable();
+      // Simple export - bisa dikembangkan lebih lanjut
+      const table = document.querySelector('table');
+      const rows = table.querySelectorAll('tbody tr');
       
-      // Get all data including filtered data
-      var data = table.rows({ search: 'applied' }).data().toArray();
-      
-      // Create CSV content
-      var csvContent = "data:text/csv;charset=utf-8,";
+      let csvContent = "data:text/csv;charset=utf-8,";
       csvContent += "No,Nama Pegawai,Departemen,Tanggal,Status,Waktu Masuk,Waktu Keluar\n";
       
-      data.forEach(function(row, index) {
-        var cleanRow = [
-          index + 1,
-          $(row[1]).find('.fw-bold').text() || 'N/A',
-          $(row[2]).text() || 'N/A',
-          $(row[3]).find('.fw-bold').text() || 'N/A',
-          $(row[4]).text().trim() || 'N/A',
-          $(row[5]).find('.fw-bold').text() || '-',
-          $(row[6]).find('.fw-bold').text() || '-'
-        ];
-        
-        var csvRow = cleanRow.map(function(cell) {
-          return '"' + String(cell).replace(/"/g, '""') + '"';
-        });
-        csvContent += csvRow.join(",") + "\n";
+      rows.forEach((row, index) => {
+        const cells = row.querySelectorAll('td');
+        if (cells.length > 0 && !cells[0].textContent.includes('Tidak ada data')) {
+          const rowData = [
+            cells[0].textContent.trim(),
+            cells[1].querySelector('.fw-bold').textContent.trim(),
+            cells[2].textContent.trim(),
+            cells[3].querySelector('.fw-bold').textContent.trim(),
+            cells[4].textContent.trim(),
+            cells[5].querySelector('.fw-bold') ? cells[5].querySelector('.fw-bold').textContent.trim() : '-',
+            cells[6].querySelector('.fw-bold') ? cells[6].querySelector('.fw-bold').textContent.trim() : '-'
+          ];
+          
+          const csvRow = rowData.map(cell => `"${cell}"`).join(',');
+          csvContent += csvRow + "\n";
+        }
       });
 
-      var encodedUri = encodeURI(csvContent);
-      var link = document.createElement("a");
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
       link.setAttribute("href", encodedUri);
       link.setAttribute("download", "data_absensi_" + new Date().toISOString().slice(0, 10) + ".csv");
       document.body.appendChild(link);

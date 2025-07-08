@@ -21,9 +21,9 @@
                         <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#filterModal">
                             <i class="fas fa-filter"></i> Filter
                         </button>
-                        <button class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#exportModal">
+                        {{-- <button class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#exportModal">
                             <i class="fas fa-download"></i> Export
-                        </button>
+                        </button> --}}
                         <button class="btn btn-outline-info btn-sm" onclick="refreshData()">
                             <i class="fas fa-sync-alt"></i> Refresh
                         </button>

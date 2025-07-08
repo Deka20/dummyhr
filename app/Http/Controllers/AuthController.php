@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\DB;
 
 class authController extends Controller
 {
@@ -21,6 +22,7 @@ class authController extends Controller
 
         return view('auth.login');
     }
+
 
     public function login(Request $request)
     {
@@ -56,6 +58,13 @@ class authController extends Controller
 
             $request->session()->regenerate();
 
+                DB::table('log_activity')->insert([
+                'id_user' => $user->id_user,
+                'keterangan' => 'Login ke sistem',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
             // Redirect sesuai peran
             $redirectTo = $this->getRedirectRoute($request->role);
 
@@ -82,6 +91,13 @@ class authController extends Controller
 
     public function logout(Request $request)
     {
+
+        DB::table('log_activity')->insert([
+    'id_user' => Auth::id(),
+    'keterangan' => 'Logout dari sistem',
+    'created_at' => now(),
+    'updated_at' => now(),
+]);
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();

@@ -56,12 +56,12 @@
                         <a href="{{ route('kepala.rekap.index') }}" class="btn btn-outline-secondary btn-sm mb-2">
                             <i class="fas fa-arrow-left"></i> Kembali
                         </a>
-                        <button class="btn btn-outline-primary btn-sm mb-2" onclick="window.print()">
+                        {{-- <button class="btn btn-outline-primary btn-sm mb-2" onclick="window.print()">
                             <i class="fas fa-print"></i> Cetak
                         </button>
                         <button class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#exportModal">
                             <i class="fas fa-download"></i> Export
-                        </button>
+                        </button> --}}
                     </div>
                 </div>
             </div>
