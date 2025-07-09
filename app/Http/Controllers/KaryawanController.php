@@ -82,17 +82,7 @@ class KaryawanController extends Controller
 
         $pegawai = Pegawai::create($validated);
        
-    
-        if ($user) {
-            DB::table('log_sistem')->insert([
-                'id_user' => $user->id,
-                'aksi' => 'Menambahkan data karyawan: ' . $request->nama,
-                'waktu' => now(),
-            ]);
-        }
-
-        
-            
+               
             Log::info('Pegawai berhasil dibuat dengan ID: ' . $pegawai->id_pegawai);
 
             return redirect()->route('admin.karyawan')->with([

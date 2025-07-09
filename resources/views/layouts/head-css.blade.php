@@ -19,6 +19,7 @@
 <!-- Template CSS -->
 <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}" id="main-style-link">
 <link rel="stylesheet" href="{{ asset('assets/css/style-preset.css') }}">
+
 <style>
     /* Mengubah warna teks dan latar belakang pagination */
     div.dataTables_wrapper div.dataTables_paginate ul.pagination {

@@ -2,29 +2,15 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\{
-    AuthController,
-    AbsensiController,
-    CutiController,
-    ProfileController,
-    KaryawanController,
-    KuisionerController,
-    PenilaianController,
-    LokasiKantorController,
-    ListPengajuanController,
-    AdminDashboardController,
-    RiwayatAbsensiController,
-    PegawaiDashboardController,
-    PeriodeController,
-    PeriodeKuisionerController,
-    PegawaiKuisionerController,
-    PegawaiCutiController,
-    KepalaDashboardController,
-    KepalaListPengajuanController,
-    RekapPenilaianSDMController,
-    LogSistemController
+    AuthController, AbsensiController, CutiController, ProfileController, KaryawanController,
+    KuisionerController, PenilaianController, LokasiKantorController, ListPengajuanController,
+    AdminDashboardController, RiwayatAbsensiController, PegawaiDashboardController,
+    PeriodeController, PeriodeKuisionerController, PegawaiKuisionerController,
+    PegawaiCutiController, KepalaDashboardController, KepalaListPengajuanController,
+    RekapPenilaianSDMController, LogSistemController,UserController
 };
 
-// Redirect root ke halaman login
+// Redirect root ke login
 Route::redirect('/', '/login');
 
 // ====================
@@ -37,29 +23,17 @@ Route::controller(AuthController::class)->group(function () {
 });
 
 // ====================
-// HRD / Admin Routes
+// HRD Routes
 // ====================
 Route::middleware(['auth', 'check.role:hrd'])->prefix('hrd')->group(function () {
-
-    // Dashboard
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.index');
     Route::post('/absen', [AdminDashboardController::class, 'absen'])->name('admin.absensi');
 
     // Lokasi Kantor
-    Route::resource('lokasi-kantor', LokasiKantorController::class)->names([
-        'index'   => 'admin.LokasiKantor.index',
-        'create'  => 'admin.LokasiKantor.tambah',
-        'store'   => 'admin.LokasiKantor.store',
-        'show'    => 'admin.LokasiKantor.show',
-        'edit'    => 'admin.LokasiKantor.edit',
-        'update'  => 'admin.LokasiKantor.update',
-        'destroy' => 'admin.LokasiKantor.destroy',
-    ]);
-    Route::get('/lokasi-kantor/{id}', [AdminDashboardController::class, 'getLokasiKantor'])
-        ->name('admin.lokasi-kantor.get')
-        ->where('id', '[0-9]+');
+    Route::resource('lokasi-kantor', LokasiKantorController::class)->names('admin.LokasiKantor');
+    Route::get('/lokasi-kantor/{id}', [AdminDashboardController::class, 'getLokasiKantor'])->name('admin.lokasi-kantor.get')->where('id', '[0-9]+');
 
-    // Kelola Karyawan
+    // Karyawan
     Route::prefix('karyawan')->group(function () {
         Route::get('/', [KaryawanController::class, 'index'])->name('admin.karyawan');
         Route::get('/create', [KaryawanController::class, 'create'])->name('karyawan.create');
@@ -68,11 +42,9 @@ Route::middleware(['auth', 'check.role:hrd'])->prefix('hrd')->group(function () 
         Route::get('/{id}/edit', [KaryawanController::class, 'edit'])->name('pegawai.edit');
         Route::put('/{id}', [KaryawanController::class, 'update'])->name('pegawai.update');
         Route::delete('/{id}', [KaryawanController::class, 'destroy'])->name('pegawai.destroy');
+        Route::post('/{id}/generate-account', [KaryawanController::class, 'generateUserAccount'])->name('karyawan.generateAccount');
+        Route::post('/{id}/reset-password', [KaryawanController::class, 'resetUserPassword'])->name('karyawan.resetPassword');
     });
-     // Route untuk generate user account dan reset password
-    Route::post('/karyawan/{id}/generate-account', [KaryawanController::class, 'generateUserAccount'])->name('karyawan.generateAccount');
-    Route::post('/karyawan/{id}/reset-password', [KaryawanController::class, 'resetUserPassword'])->name('karyawan.resetPassword');
-
 
     // Absensi
     Route::prefix('absensi')->group(function () {
@@ -82,41 +54,20 @@ Route::middleware(['auth', 'check.role:hrd'])->prefix('hrd')->group(function () 
         Route::delete('/{id}', [AbsensiController::class, 'destroy'])->name('admin.absensi.destroy');
     });
 
-    // Riwayat Absensi
     Route::get('/riwayat-absensi', [RiwayatAbsensiController::class, 'index'])->name('admin.RiwayatAbsensi');
 
-    // Pengajuan Cuti
-     Route::prefix('cuti')->name('admin.')->group(function (){
-            Route::get('/', [CutiController::class, 'index'])->name('cuti.index');
-            Route::get('/create', [CutiController::class, 'create'])->name('cuti.create');
-            Route::post('/', [CutiController::class, 'store'])->name('cuti.store');
-            Route::get('/{id}', [CutiController::class, 'show'])->name('cuti.show');
-            Route::get('/{id}/edit', [CutiController::class, 'edit'])->name('cuti.edit');
-            Route::put('/{id}', [CutiController::class, 'update'])->name('cuti.update');
-            Route::delete('/{id}', [CutiController::class, 'destroy'])->name('cuti.destroy');
-    });
+    // Cuti
+    Route::resource('cuti', CutiController::class)->names('admin.cuti');
 
     // Kuisioner
-    Route::prefix('kuisioner')->group(function () {
-        Route::get('/', [KuisionerController::class, 'index'])->name('admin.kuisioner.index');
-        Route::get('/create', [KuisionerController::class, 'create'])->name('admin.kuisioner.create');
-        Route::post('/', [KuisionerController::class, 'store'])->name('admin.kuisioner.store');
-        Route::get('/{kuisioner}', [KuisionerController::class, 'show'])->name('admin.kuisioner.show');
-        Route::get('/{kuisioner}/edit', [KuisionerController::class, 'edit'])->name('admin.kuisioner.edit');
-        Route::put('/{kuisioner}', [KuisionerController::class, 'update'])->name('admin.kuisioner.update');
-        Route::patch('/{kuisioner}/toggle', [KuisionerController::class, 'toggle'])->name('admin.kuisioner.toggle');
-        Route::delete('/{kuisioner}', [KuisionerController::class, 'destroy'])->name('admin.kuisioner.destroy');
-    });
+    Route::resource('kuisioner', KuisionerController::class)->except(['create', 'edit'])->names('admin.kuisioner');
+    Route::get('kuisioner/create', [KuisionerController::class, 'create'])->name('admin.kuisioner.create');
+    Route::get('kuisioner/{kuisioner}/edit', [KuisionerController::class, 'edit'])->name('admin.kuisioner.edit');
+    Route::patch('kuisioner/{kuisioner}/toggle', [KuisionerController::class, 'toggle'])->name('admin.kuisioner.toggle');
 
     // Periode
     Route::prefix('periode')->group(function () {
-        Route::get('/', [PeriodeController::class, 'index'])->name('periode.index');
-        Route::get('/create', [PeriodeController::class, 'create'])->name('periode.create');
-        Route::post('/', [PeriodeController::class, 'store'])->name('periode.store');
-        Route::get('/{id}/edit', [PeriodeController::class, 'edit'])->name('periode.edit');
-        Route::put('/{id}', [PeriodeController::class, 'update'])->name('periode.update');
-        Route::delete('/{id}', [PeriodeController::class, 'destroy'])->name('periode.destroy');
-
+        Route::resource('/', PeriodeController::class)->parameters(['' => 'id'])->names('periode');
         Route::prefix('{periodeId}/kuisioner')->group(function () {
             Route::get('/', [PeriodeKuisionerController::class, 'index'])->name('periode.kuisioner.index');
             Route::put('/', [PeriodeKuisionerController::class, 'update'])->name('periode.kuisioner.update');
@@ -124,115 +75,91 @@ Route::middleware(['auth', 'check.role:hrd'])->prefix('hrd')->group(function () 
             Route::delete('/reset', [PeriodeKuisionerController::class, 'reset'])->name('periode.kuisioner.reset');
             Route::post('/auto-select', [PeriodeKuisionerController::class, 'autoSelect'])->name('periode.kuisioner.auto-select');
         });
+        Route::post('/{periode}/kuisioner/bulk-action', [PeriodeKuisionerController::class, 'bulkAction'])->name('admin.periode.kuisioner.bulk-action');
     });
-    Route::post('/periode/{periode}/kuisioner/bulk-action', [PeriodeKuisionerController::class, 'bulkAction'])
-        ->name('admin.periode.kuisioner.bulk-action');
 
     // Profil
     Route::get('/profile', [ProfileController::class, 'edit'])->name('admin.edit-profile');
     Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
-        //List Pengajuan Routes
+    // Pengajuan
     Route::get('/list-pengajuan', [ListPengajuanController::class, 'index'])->name('admin.listPengajuan');
     Route::put('/cuti/{id}/update-status', [ListPengajuanController::class, 'updateStatus'])->name('cuti.updateStatus');
     Route::get('/cuti/{id}/detail', [ListPengajuanController::class, 'show'])->name('cuti.detail');
 
-    Route::prefix('admin')->name('admin.')->group(function() {
-    Route::get('/log-sistem', [LogSistemController::class, 'index'])->name('log-sistem.index');
-    Route::delete('/log-sistem/{id}', [LogSistemController::class, 'destroy'])->name('log-sistem.destroy');
-    Route::delete('/log-sistem-clear-all', [LogSistemController::class, 'clearAll'])->name('log-sistem.clear-all');
+    // Log Sistem
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::get('/log-sistem', [LogSistemController::class, 'index'])->name('log-sistem.index');
+        Route::delete('/log-sistem/{id}', [LogSistemController::class, 'destroy'])->name('log-sistem.destroy');
+        Route::delete('/log-sistem-clear-all', [LogSistemController::class, 'clearAll'])->name('log-sistem.clear-all');
+    });
+
+Route::name('admin.')->group(function () {
+ // User Management Routes
+Route::get('user', [UserController::class, 'index'])->name('user.index');
+Route::get('user/create', [UserController::class, 'create'])->name('user.create');
+Route::post('user', [UserController::class, 'store'])->name('user.store');
+Route::get('user/{id}/edit', [UserController::class, 'edit'])->name('user.edit');
+Route::put('user/{id}', [UserController::class, 'update'])->name('user.update');
+Route::delete('user/{id}', [UserController::class, 'destroy'])->name('user.destroy');
+
+// Additional routes for user management
+Route::post('user/create-for-pegawai', [UserController::class, 'createForPegawai'])->name('user.create-for-pegawai');
+Route::post('user/create-multiple', [UserController::class, 'createMultiple'])->name('user.create-multiple');
 });
+
 });
 
 // ====================
 // Pegawai Routes
 // ====================
 Route::prefix('pegawai')->middleware(['check.role:pegawai'])->group(function () {
-
-    // Dashboard
     Route::get('/dashboard', [PegawaiDashboardController::class, 'index'])->name('karyawan.index');
     Route::post('/absen', [PegawaiDashboardController::class, 'absen'])->name('pegawai.absensi');
-
-    // Profil
     Route::get('/profile', [ProfileController::class, 'edit'])->name('karyawan.edit-profil');
     Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
-
-    // Absensi
     Route::get('/absensi', [RiwayatAbsensiController::class, 'index'])->name('karyawan.absensi');
 
     // Kuisioner
     Route::prefix('kuisioner')->name('kuisioner.')->group(function () {
         Route::get('/', [PegawaiKuisionerController::class, 'index'])->name('index');
-
-        // AJAX endpoints
         Route::get('/get-all-pegawai', [PegawaiKuisionerController::class, 'getAllPegawai']);
         Route::get('/debug/pegawai', [PegawaiKuisionerController::class, 'debugPegawai']);
-        
-        // Form kuisioner
         Route::get('/{periode}/{dinilai}', [PegawaiKuisionerController::class, 'show'])->name('show');
         Route::post('/{periode}/{dinilai}', [PegawaiKuisionerController::class, 'store'])->name('store');
-        
-        // Reset route - changed to GET for direct access from link
         Route::get('/{periode}/{dinilai}/reset', [PegawaiKuisionerController::class, 'reset'])->name('reset');
-        
-        // Hasil
         Route::get('/{periode}/{dinilai}/result', [PegawaiKuisionerController::class, 'result'])->name('result');
-        // Route::get('/{periode}/{dinilai}', [PegawaiKuisionerController::class, 'fill'])->name('fill');
-
-        // Riwayat dan hapus
         Route::get('/history', [PegawaiKuisionerController::class, 'history'])->name('history');
         Route::delete('/{periode}/{dinilai}', [PegawaiKuisionerController::class, 'destroy'])->name('destroy');
     });
 
-            Route::prefix('cuti')->name('pegawai.')->group(function () {
-            Route::get('/', [PegawaiCutiController::class, 'index'])->name('cuti.index');
-            Route::get('/create', [PegawaiCutiController::class, 'create'])->name('cuti.create');
-            Route::post('/', [PegawaiCutiController::class, 'store'])->name('cuti.store');
-            Route::get('/{id}', [PegawaiCutiController::class, 'show'])->name('cuti.show');
-            Route::get('/{id}/edit', [PegawaiCutiController::class, 'edit'])->name('cuti.edit');
-            Route::put('/{id}', [PegawaiCutiController::class, 'update'])->name('cuti.update');
-            Route::delete('/{id}', [PegawaiCutiController::class, 'destroy'])->name('cuti.destroy');
-        });
-  
+    // Cuti
+    Route::resource('cuti', PegawaiCutiController::class)->names('pegawai.cuti');
 });
 
+// ====================
+// Kepala Yayasan Routes
+// ====================
 Route::middleware(['auth', 'check.role:kepala_yayasan'])->prefix('kepala_yayasan')->group(function () {
-Route::get('/dashboard', [KepalaDashboardController::class, 'index'])->name('kepala.index');
-
-    // Profil
+    Route::get('/dashboard', [KepalaDashboardController::class, 'index'])->name('kepala.index');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('kepala.edit-profile');
     Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
-
-    Route::name('kepala.')->group(function () {
-    Route::get('/list-pengajuan', [KepalaListPengajuanController::class, 'index'])->name('listPengajuan');
-    Route::put('/cuti/{id}/status', [KepalaListPengajuanController::class, 'updateStatus'])->name('cuti.updateStatus');
-    Route::get('/cuti/{id}/detail', [KepalaListPengajuanController::class, 'show'])->name('cuti.detail');
+    Route::prefix('list-pengajuan')->name('kepala.')->group(function () {
+        Route::get('/', [KepalaListPengajuanController::class, 'index'])->name('listPengajuan');
+        Route::put('/cuti/{id}/status', [KepalaListPengajuanController::class, 'updateStatus'])->name('cuti.updateStatus');
+        Route::get('/cuti/{id}/detail', [KepalaListPengajuanController::class, 'show'])->name('cuti.detail');
     });
 
+    Route::prefix('kepala-yayasan/rekap-sdm')->name('kepala_yayasan.rekap_sdm.')->group(function () {
+        Route::get('/', [RekapPenilaianSDMController::class, 'index'])->name('index');
+        Route::get('/detail/{pegawaiId}', [RekapPenilaianSDMController::class, 'detail'])->name('detail');
+        Route::get('/export', [RekapPenilaianSDMController::class, 'export'])->name('export');
 
-        // Route untuk halaman utama rekap penilaian SDM
-    Route::get('/kepala-yayasan/rekap-sdm', [RekapPenilaianSDMController::class, 'index'])
-        ->name('kepala.rekap.index');
-    
-    // Route untuk detail penilaian pegawai tertentu
-    Route::get('/kepala-yayasan/rekap-sdm/detail/{pegawaiId}', [RekapPenilaianSDMController::class, 'detail'])
-        ->name('kepala_yayasan.rekap_sdm.detail');
-    
-    // Route untuk export data rekap
-    Route::get('/kepala-yayasan/rekap-sdm/export', [RekapPenilaianSDMController::class, 'export'])
-        ->name('kepala_yayasan.rekap_sdm.export');
-    
-    // API Routes untuk AJAX calls
-    Route::prefix('api/kepala-yayasan/rekap-sdm')->group(function () {
-        
-        // Route untuk mendapatkan data rekap via AJAX
-        Route::get('/data', [RekapPenilaianSDMController::class, 'getRekapData'])
-            ->name('kepala_yayasan.rekap_sdm.api.data');
-        
-        // Route untuk mendapatkan statistik dashboard via AJAX
-        Route::get('/statistik', [RekapPenilaianSDMController::class, 'getStatistikDashboard'])
-            ->name('kepala_yayasan.rekap_sdm.api.statistik');
+        // API
+        Route::prefix('api')->group(function () {
+            Route::get('/data', [RekapPenilaianSDMController::class, 'getRekapData'])->name('api.data');
+            Route::get('/statistik', [RekapPenilaianSDMController::class, 'getStatistikDashboard'])->name('api.statistik');
+        });
     });
-
 });

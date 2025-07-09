@@ -46,9 +46,10 @@
   @stack('styles')
 </body>
 </html>
+
 <!-- Di bagian head untuk CSS (opsional) -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <!-- Di bagian sebelum closing body -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>

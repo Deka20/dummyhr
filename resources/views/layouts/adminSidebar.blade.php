@@ -45,6 +45,12 @@
     <span class="pc-mtext">Absensi</span>
   </a>
 </li>
+<li class="pc-item">
+  <a href="{{route('admin.user.index')}}" class="pc-link">
+    <span class="pc-micon"><i class="ti ti-user"></i></span>
+    <span class="pc-mtext">Data User</span>
+  </a>
+</li>
 @php  
         $user = Auth::user();
         $pegawai = $user->pegawai; 

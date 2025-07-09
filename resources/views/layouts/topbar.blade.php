@@ -94,6 +94,7 @@
 </header>
 <!-- [ Header ] end -->
 <script src="{{ asset('assets/js/plugins/sweetalert2.all.min.js') }}"></script>
+
 <script>
 
 function confirmLogout() {
