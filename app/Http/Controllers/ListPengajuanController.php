@@ -19,6 +19,13 @@ class ListPengajuanController extends Controller
         $pegawai = $user->pegawai;
         $nama_departemen = $pegawai && $pegawai->departemen ? $pegawai->departemen->nama_departemen : 'Tidak Diketahui';
 
+
+         if (
+        $user->pegawai->jabatan->nama_jabatan != 'Kepala' ||
+        $user->pegawai->departemen->nama_departemen != 'Sumber Daya Manusia'
+    ) {
+        abort(403, 'Unauthorized');
+    }
         // Query data cuti dengan FIFO - HANYA TAMPILKAN YANG MENUNGGU
         // Kepala yayasan dapat melihat semua pengajuan dari semua departemen
         $query = Cuti::with(['pegawai.departemen', 'pegawai.jabatan', 'jenisCuti'])

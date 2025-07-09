@@ -51,7 +51,7 @@
         $nama_jabatan = $pegawai->jabatan->nama_jabatan;
         $nama_departemen = $pegawai->departemen->nama_departemen;
 @endphp
-@if($nama_jabatan == 'Staff' && $nama_departemen == 'Sumber Daya Manusia')
+@if($nama_jabatan == 'Kepala' && $nama_departemen == 'Sumber Daya Manusia')
 <li class="pc-item">
   <a href="{{ route('admin.listPengajuan') }}" class="pc-link">
     <span class="pc-micon"><i class="ti ti-calendar-time"></i></span>
