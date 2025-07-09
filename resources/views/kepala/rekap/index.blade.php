@@ -334,7 +334,7 @@
                             </td>
                             <td class="text-center">
                                 <div class="btn-group btn-group-sm">
-                                    <a href="{{ route('kepala_yayasan.rekap_sdm.detail', ['pegawaiId' => $data->id_pegawai, 'periode_id' => $periodeAktif->id]) }}" 
+                                    <a href="{{ route('kepala.rekap.detail', ['pegawaiId' => $data->id_pegawai, 'periode_id' => $periodeAktif->id]) }}" 
                                        class="btn btn-outline-primary btn-sm">
                                         <i class="fas fa-eye"></i>
                                     </a>
@@ -490,7 +490,7 @@ function changeSort(sortBy) {
 function showHistory(pegawaiId) {
     // Implementasi untuk menampilkan riwayat penilaian
     // Bisa menggunakan modal atau redirect ke halaman detail
-    window.open(`{{ route('kepala_yayasan.rekap_sdm.detail', ['pegawaiId' => '__ID__', 'periode_id' => $periodeAktif->id ?? '']) }}`.replace('__ID__', pegawaiId), '_blank');
+    window.open(`{{ route('kepala.rekap.detail', ['pegawaiId' => '__ID__', 'periode_id' => $periodeAktif->id ?? '']) }}`.replace('__ID__', pegawaiId), '_blank');
 }
 
 // Auto refresh setiap 5 menit
