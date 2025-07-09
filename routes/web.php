@@ -151,7 +151,7 @@ Route::middleware(['auth', 'check.role:kepala_yayasan'])->prefix('kepala_yayasan
         Route::get('/cuti/{id}/detail', [KepalaListPengajuanController::class, 'show'])->name('cuti.detail');
     });
 
-    Route::prefix('kepala-yayasan/rekap-sdm')->name('kepala_yayasan.rekap_sdm.')->group(function () {
+    Route::prefix('kepala-yayasan/rekap-sdm')->name('kepala.rekap.')->group(function () {
         Route::get('/', [RekapPenilaianSDMController::class, 'index'])->name('index');
         Route::get('/detail/{pegawaiId}', [RekapPenilaianSDMController::class, 'detail'])->name('detail');
         Route::get('/export', [RekapPenilaianSDMController::class, 'export'])->name('export');
