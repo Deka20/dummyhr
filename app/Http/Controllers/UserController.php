@@ -50,7 +50,7 @@ class UserController extends Controller
             ->with(['departemen', 'jabatan'])
             ->get();
 
-        return view('admin.user.create', compact('pegawaiTanpaUser','nama_departemen'));
+        return view('admin.user.create', compact('pegawaiTanpaUser','nama_departemen','pegawai'));
     }
 
     /**
