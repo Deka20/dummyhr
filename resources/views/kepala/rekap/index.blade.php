@@ -426,7 +426,7 @@
                 <h5 class="modal-title">Export Rekap Penilaian</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form method="POST" action="{{ route('kepala_yayasan.rekap_sdm.export') }}">
+            <form method="POST" action="{{ route('kepala.rekap.export') }}">
                 @csrf
                 <div class="modal-body">
                     <input type="hidden" name="periode_id" value="{{ $periodeAktif->id ?? '' }}">
