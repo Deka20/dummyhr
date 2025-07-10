@@ -91,7 +91,7 @@
         </button>
       </div>
       <div class="card-body">
-        <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data" id="formProfile">
+        <form action="{{ route('pegawai.profile.update') }}" method="POST" enctype="multipart/form-data" id="formProfile">
           @csrf
           
           <div class="row">

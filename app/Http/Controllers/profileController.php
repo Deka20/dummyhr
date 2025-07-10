@@ -11,80 +11,101 @@ use Illuminate\Validation\Rules\Password;
 
 class ProfileController extends Controller
 {
-   public function edit()
-{
-     $user = Auth::user();
+    public function edit()
+    {
+        $user = Auth::user();
         $pegawai = $user->pegawai; 
-        $nama_jabatan = $pegawai->jabatan->nama_jabatan;
-        $nama_departemen = $pegawai->departemen->nama_departemen;
-
-    if ($user->role == 'hrd') {
-        return view('admin.edit-profil', compact('pegawai', 'nama_departemen', 'nama_jabatan'));
-    } elseif ($user->role == 'pegawai') {
-        return view('karyawan.edit-profil', compact('pegawai', 'nama_departemen', 'nama_jabatan'));
-    } elseif ($user->role == 'kepala_yayasan') {
-        return view('kepala.edit-profil', compact('pegawai', 'nama_departemen', 'nama_jabatan'));
-    }
-
-}
-
-
-    public function update(Request $request)
-{
-    $request->validate([
-        'nama' => 'required|string|max:255',
-        'tempat_lahir' => 'nullable|string|max:100',
-        'tanggal_lahir' => 'nullable|date',
-        'jenis_kelamin' => 'nullable|in:L,P',
-        'alamat' => 'nullable|string|max:255',
-        'no_hp' => 'nullable|string|max:20',
-        'email' => 'nullable|email|max:255',
-        'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-    ]);
-
-    $pegawai = Auth::user()->pegawai;
-
-    if (!$pegawai) {
-        return redirect()->back()->with([
-            'notifikasi' => 'Data pegawai tidak ditemukan.',
-            'type' => 'error'
-        ]);
-    }
-
-    $data = $request->only([
-        'nama', 'tempat_lahir', 'tanggal_lahir', 'jenis_kelamin',
-        'alamat', 'no_hp', 'email'
-    ]);
-
-    // Handle upload foto jika ada
-    if ($request->hasFile('foto')) {
-        // Hapus foto lama jika ada
-        if ($pegawai->foto && file_exists(public_path('uploads/pegawai/' . $pegawai->foto))) {
-            unlink(public_path('uploads/pegawai/' . $pegawai->foto));
+        
+        // Validasi jika pegawai tidak ditemukan
+        if (!$pegawai) {
+            return redirect()->back()->with([
+                'notifikasi' => 'Data pegawai tidak ditemukan.',
+                'type' => 'error'
+            ]);
         }
         
-        $file = $request->file('foto');
-        $namaFile = time() . '_' . $file->getClientOriginalName();
-        
-        // Perbaiki path upload
-        $file->move(public_path('uploads/pegawai'), $namaFile);
-        $data['foto'] = $namaFile;
+        $nama_jabatan = $pegawai->jabatan->nama_jabatan ?? 'Jabatan tidak tersedia';
+        $nama_departemen = $pegawai->departemen->nama_departemen ?? 'Departemen tidak tersedia';
+
+        if ($user->role == 'hrd') {
+            return view('admin.edit-profil', compact('pegawai', 'nama_departemen', 'nama_jabatan'));
+        } elseif ($user->role == 'pegawai') {
+            return view('karyawan.edit-profil', compact('pegawai', 'nama_departemen', 'nama_jabatan'));
+        } elseif ($user->role == 'kepala_yayasan') {
+            return view('kepala.edit-profil', compact('pegawai', 'nama_departemen', 'nama_jabatan'));
+        } else {
+            // Tambahkan fallback jika role tidak dikenali
+            return redirect()->back()->with([
+                'notifikasi' => 'Role pengguna tidak dikenali.',
+                'type' => 'error'
+            ]);
+        }
     }
 
-    try {
-        $pegawai->update($data);
-        
-        return redirect()->back()->with([
-            'notifikasi' => 'Profil berhasil diperbarui.',
-            'type' => 'success'
+    public function update(Request $request)
+    {
+        $request->validate([
+            'nama' => 'required|string|max:255',
+            'tempat_lahir' => 'nullable|string|max:100',
+            'tanggal_lahir' => 'nullable|date',
+            'jenis_kelamin' => 'nullable|in:L,P',
+            'alamat' => 'nullable|string|max:255',
+            'no_hp' => 'nullable|string|max:20',
+            'email' => 'nullable|email|max:255',
+            'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
-    } catch (\Exception $e) {
-        return redirect()->back()->with([
-            'notifikasi' => 'Terjadi kesalahan saat memperbarui profil.',
-            'type' => 'error'
+
+        $pegawai = Auth::user()->pegawai;
+
+        if (!$pegawai) {
+            return redirect()->back()->with([
+                'notifikasi' => 'Data pegawai tidak ditemukan.',
+                'type' => 'error'
+            ]);
+        }
+
+        $data = $request->only([
+            'nama', 'tempat_lahir', 'tanggal_lahir', 'jenis_kelamin',
+            'alamat', 'no_hp', 'email'
         ]);
+
+        // Handle upload foto jika ada
+        if ($request->hasFile('foto')) {
+            // Hapus foto lama jika ada
+            if ($pegawai->foto && file_exists(public_path('uploads/pegawai/' . $pegawai->foto))) {
+                unlink(public_path('uploads/pegawai/' . $pegawai->foto));
+            }
+            
+            $file = $request->file('foto');
+            $namaFile = time() . '_' . $file->getClientOriginalName();
+            
+            // Pastikan folder uploads/pegawai ada
+            $uploadPath = public_path('uploads/pegawai');
+            if (!file_exists($uploadPath)) {
+                mkdir($uploadPath, 0755, true);
+            }
+            
+            $file->move($uploadPath, $namaFile);
+            $data['foto'] = $namaFile;
+        }
+
+        try {
+            $pegawai->update($data);
+            
+            return redirect()->back()->with([
+                'success' => 'Profil berhasil diperbarui.',
+                'notifikasi' => 'Profil berhasil diperbarui.',
+                'type' => 'success'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error updating profile: ' . $e->getMessage());
+            
+            return redirect()->back()->with([
+                'notifikasi' => 'Terjadi kesalahan saat memperbarui profil: ' . $e->getMessage(),
+                'type' => 'error'
+            ]);
+        }
     }
-}
 
     /**
      * Update password pengguna

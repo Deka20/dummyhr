@@ -10,12 +10,6 @@
 <div class="row">
   <!-- Profil Pengguna -->
   <div class="col-md-12">
-          @if(session('success'))
-<div class="alert alert-success alert-dismissible fade show" role="alert">
-  <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
-  <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-</div>
-@endif
     <div class="card mb-4">
 
       <div class="card-header">
@@ -98,7 +92,7 @@
         </button>
       </div>
       <div class="card-body">
-        <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data" id="formProfile">
+        <form action="{{ route('kepala.profile.update') }}" method="POST" enctype="multipart/form-data" id="formProfile">
           @csrf
           
           <div class="row">
@@ -248,7 +242,7 @@
         </button>
       </div>
       <div class="card-body">
-        <form action="{{ route('password.update') }}" method="POST" id="formPassword">
+        <form action="{{ route('kepala.password.update') }}" method="POST" id="formPassword">
           @csrf
           
           <div class="row">

@@ -30,7 +30,17 @@ Route::middleware(['auth', 'check.role:hrd'])->prefix('hrd')->group(function () 
     Route::post('/absen', [AdminDashboardController::class, 'absen'])->name('admin.absensi');
 
     // Lokasi Kantor
-    Route::resource('lokasi-kantor', LokasiKantorController::class)->names('admin.LokasiKantor');
+    // Lokasi Kantor
+    Route::resource('lokasi-kantor', LokasiKantorController::class)->names([
+        'index'   => 'admin.LokasiKantor.index',
+        'create'  => 'admin.LokasiKantor.tambah',
+        'store'   => 'admin.LokasiKantor.store',
+        'show'    => 'admin.LokasiKantor.show',
+        'edit'    => 'admin.LokasiKantor.edit',
+        'update'  => 'admin.LokasiKantor.update',
+        'destroy' => 'admin.LokasiKantor.destroy',
+    ]);
+
     Route::get('/lokasi-kantor/{id}', [AdminDashboardController::class, 'getLokasiKantor'])->name('admin.lokasi-kantor.get')->where('id', '[0-9]+');
 
     // Karyawan
@@ -57,7 +67,15 @@ Route::middleware(['auth', 'check.role:hrd'])->prefix('hrd')->group(function () 
     Route::get('/riwayat-absensi', [RiwayatAbsensiController::class, 'index'])->name('admin.RiwayatAbsensi');
 
     // Cuti
-    Route::resource('cuti', CutiController::class)->names('admin.cuti');
+     Route::prefix('cuti')->name('admin.')->group(function (){
+            Route::get('/', [CutiController::class, 'index'])->name('cuti.index');
+            Route::get('/create', [CutiController::class, 'create'])->name('cuti.create');
+            Route::post('/', [CutiController::class, 'store'])->name('cuti.store');
+            Route::get('/{id}', [CutiController::class, 'show'])->name('cuti.show');
+            Route::get('/{id}/edit', [CutiController::class, 'edit'])->name('cuti.edit');
+            Route::put('/{id}', [CutiController::class, 'update'])->name('cuti.update');
+            Route::delete('/{id}', [CutiController::class, 'destroy'])->name('cuti.destroy');
+    });
 
     // Kuisioner
     Route::resource('kuisioner', KuisionerController::class)->except(['create', 'edit'])->names('admin.kuisioner');
@@ -80,7 +98,8 @@ Route::middleware(['auth', 'check.role:hrd'])->prefix('hrd')->group(function () 
 
     // Profil
     Route::get('/profile', [ProfileController::class, 'edit'])->name('admin.edit-profile');
-    Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/profile/update', [ProfileController::class, 'update'])->name('admin.profile.update');
+    Route::post('/profile/password/update', [ProfileController::class, 'updatePassword'])->name('admin.password.update');
 
     // Pengajuan
     Route::get('/list-pengajuan', [ListPengajuanController::class, 'index'])->name('admin.listPengajuan');
@@ -117,7 +136,7 @@ Route::prefix('pegawai')->middleware(['check.role:pegawai'])->group(function () 
     Route::get('/dashboard', [PegawaiDashboardController::class, 'index'])->name('karyawan.index');
     Route::post('/absen', [PegawaiDashboardController::class, 'absen'])->name('pegawai.absensi');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('karyawan.edit-profil');
-    Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/profile', [ProfileController::class, 'update'])->name('pegawai.profile.update');
     Route::get('/absensi', [RiwayatAbsensiController::class, 'index'])->name('karyawan.absensi');
 
     // Kuisioner
@@ -143,8 +162,8 @@ Route::prefix('pegawai')->middleware(['check.role:pegawai'])->group(function () 
 Route::middleware(['auth', 'check.role:kepala_yayasan'])->prefix('kepala_yayasan')->group(function () {
     Route::get('/dashboard', [KepalaDashboardController::class, 'index'])->name('kepala.index');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('kepala.edit-profile');
-    Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::post('/password/update', [ProfileController::class, 'updatePassword'])->name('password.update');
+    Route::post('/profile', [ProfileController::class, 'update'])->name('kepala.profile.update');
+    Route::post('/password/update', [ProfileController::class, 'updatePassword'])->name('kepala.password.update');
 
     Route::prefix('list-pengajuan')->name('kepala.')->group(function () {
         Route::get('/', [KepalaListPengajuanController::class, 'index'])->name('listPengajuan');

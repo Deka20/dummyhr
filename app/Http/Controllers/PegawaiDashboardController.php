@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Log;
 class PegawaiDashboardController extends Controller
 {
     // TESTING MODE - Set ke true untuk mengaktifkan mode testing
-    const TESTING_MODE = true;
+    const TESTING_MODE = false;
     
     // Waktu testing yang bisa diubah-ubah
     const TESTING_TIME = [

@@ -5,7 +5,7 @@
  <nav class="pc-sidebar">
   <div class="navbar-wrapper">
   <div class="m-header d-flex align-items-center">
-  <a href="{{ url('/dashboard') }}" class="b-brand d-flex align-items-center text-decoration-none">
+  <a href="{{ route('kepala.index') }}" class="b-brand d-flex align-items-center text-decoration-none">
     <img src="{{ asset('assets/images/logo.png') }}" class="img-fluid me-2" style="height: 40px;" alt="Logo">
 
     <div class="vr me-3" style="height: 40px; background-color:black;"></div>
@@ -21,7 +21,7 @@
       <ul class="pc-navbar">
        <!-- DASHBOARD -->
 <li class="pc-item">
-  <a href="" class="pc-link">
+  <a href="{{route('kepala.index')}}" class="pc-link">
     <span class="pc-micon"><i class="ti ti-dashboard"></i></span>
     <span class="pc-mtext">Dashboard</span>
   </a>
