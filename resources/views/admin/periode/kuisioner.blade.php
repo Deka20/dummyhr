@@ -4,6 +4,27 @@
 
 @section('content')
 <!-- Header Info -->
+<!-- Alert Messages -->
+@if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show mt-3">
+        {{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+@endif
+
+@if(session('error'))
+    <div class="alert alert-danger alert-dismissible fade show mt-3">
+        {{ session('error') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+@endif
+
+@if(session('info'))
+    <div class="alert alert-info alert-dismissible fade show mt-3">
+        {{ session('info') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+@endif
 <div class="mb-3">
     <a href="{{route('periode.index')}}" class="btn btn-secondary">
         <i class="fas fa-arrow-left me-1"></i> Kembali
@@ -21,7 +42,6 @@
                 <div class="mt-2">
                     <span class="badge bg-light text-dark">{{ $kuisionerDipilih }} Terpilih</span>
                     <span class="badge bg-light text-dark">{{ $totalKuisioner }} Total</span>
-                    <span class="badge bg-light text-dark">Bobot: {{ $totalBobot }}</span>
                 </div>
             </div>
         </div>
@@ -135,9 +155,6 @@
                                                            {{ in_array($kuisioner->id, $kuisionerTerpilih) ? 'checked' : '' }}
                                                            form="kuisionerForm">
                                                     <label class="form-check-label w-100" for="kuisioner_{{ $kuisioner->id }}">
-                                                        <div class="mb-2">
-                                                            <span class="badge bg-secondary">Bobot: {{ $kuisioner->bobot }}</span>
-                                                        </div>
                                                         <p class="mb-0 small">{{ $kuisioner->pertanyaan }}</p>
                                                     </label>
                                                 </div>
@@ -161,27 +178,7 @@
     </div>
 </div>
 
-<!-- Alert Messages -->
-@if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show mt-3">
-        {{ session('success') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-@endif
 
-@if(session('error'))
-    <div class="alert alert-danger alert-dismissible fade show mt-3">
-        {{ session('error') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-@endif
-
-@if(session('info'))
-    <div class="alert alert-info alert-dismissible fade show mt-3">
-        {{ session('info') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-@endif
 @endsection
 
 @push('scripts')

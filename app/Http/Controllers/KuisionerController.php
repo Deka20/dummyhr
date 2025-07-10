@@ -81,17 +81,12 @@ class KuisionerController extends Controller
         $validator = Validator::make($request->all(), [
             'kategori' => 'required|string|max:100',
             'pertanyaan' => 'required|string|max:1000',
-            'bobot' => 'required|numeric|min:0.1|max:10',
             'aktif' => 'nullable|boolean'
         ], [
             'kategori.required' => 'Kategori wajib diisi',
             'kategori.max' => 'Kategori maksimal 100 karakter',
             'pertanyaan.required' => 'Pertanyaan wajib diisi',
-            'pertanyaan.max' => 'Pertanyaan maksimal 1000 karakter',
-            'bobot.required' => 'Bobot wajib diisi',
-            'bobot.numeric' => 'Bobot harus berupa angka',
-            'bobot.min' => 'Bobot minimal 0.1',
-            'bobot.max' => 'Bobot maksimal 10'
+            'pertanyaan.max' => 'Pertanyaan maksimal 1000 karakter'
         ]);
 
         if ($validator->fails()) {
@@ -104,7 +99,6 @@ class KuisionerController extends Controller
             Kuisioner::create([
                 'kategori' => $request->kategori,
                 'pertanyaan' => $request->pertanyaan,
-                'bobot' => $request->bobot,
                 'aktif' => $request->has('aktif') ? true : false
             ]);
 
@@ -199,17 +193,12 @@ class KuisionerController extends Controller
         $validator = Validator::make($request->all(), [
             'kategori' => 'required|string|max:100',
             'pertanyaan' => 'required|string|max:1000',
-            'bobot' => 'required|numeric|min:0.1|max:10',
             'aktif' => 'nullable|boolean'
         ], [
             'kategori.required' => 'Kategori wajib diisi',
             'kategori.max' => 'Kategori maksimal 100 karakter',
             'pertanyaan.required' => 'Pertanyaan wajib diisi',
-            'pertanyaan.max' => 'Pertanyaan maksimal 1000 karakter',
-            'bobot.required' => 'Bobot wajib diisi',
-            'bobot.numeric' => 'Bobot harus berupa angka',
-            'bobot.min' => 'Bobot minimal 0.1',
-            'bobot.max' => 'Bobot maksimal 10'
+            'pertanyaan.max' => 'Pertanyaan maksimal 1000 karakter'
         ]);
 
         if ($validator->fails()) {
@@ -222,7 +211,6 @@ class KuisionerController extends Controller
             $kuisioner->update([
                 'kategori' => $request->kategori,
                 'pertanyaan' => $request->pertanyaan,
-                'bobot' => $request->bobot,
                 'aktif' => $request->has('aktif') ? true : false
             ]);
 

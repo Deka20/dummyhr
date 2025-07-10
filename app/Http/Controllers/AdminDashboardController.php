@@ -51,22 +51,40 @@ class AdminDashboardController extends Controller
     {
         $today = $this->getToday();
         
-        // Statistik kehadiran hari ini
+        // Statistik kehadiran hari ini - HANYA PEGAWAI AKTIF
         $user = Auth::user();
         $pegawai = $user->pegawai;
         $nama_departemen = $pegawai->departemen->nama_departemen;
-        $totalKaryawan = Pegawai::count();
         
-        $kehadiranHariIni = Absensi::where('tanggal', $today)->get();
+        // Hitung hanya pegawai dengan status 'Aktif'
+        $totalKaryawanAktif = Pegawai::where('status', 'Aktif')->count();
+        
+        // Kehadiran hari ini hanya dari pegawai aktif
+        $kehadiranHariIni = Absensi::whereDate('tanggal', $today)
+            ->whereHas('pegawai', function($query) {
+                $query->where('status', 'Aktif');
+            })
+            ->get();
         
         $masukHariIni = $kehadiranHariIni->where('waktu_masuk', '!=', null)->count();
         $terlambat = $kehadiranHariIni->where('status_kehadiran', 'Terlambat')->count();
         
-        $cutiHariIni = 0;
+        // Hitung pegawai aktif yang cuti hari ini
+        // Asumsi: ada model Cuti atau field cuti di tabel pegawai/absensi
+        $cutiHariIni = Absensi::whereDate('tanggal', $today)
+            ->where('status_kehadiran', 'Cuti')
+            ->whereHas('pegawai', function($query) {
+                $query->where('status', 'Aktif');
+            })
+            ->count();
         
-        $tidakMasuk = $totalKaryawan - $masukHariIni - $cutiHariIni;
+        // Tidak masuk = Total pegawai aktif - yang masuk - yang cuti
+        $tidakMasuk = $totalKaryawanAktif - $masukHariIni - $cutiHariIni;
+        
+        // Pastikan tidak negatif
+        $tidakMasuk = max(0, $tidakMasuk);
 
-        // Data pegawai berdasarkan jabatan dan departemen
+        // Data pegawai berdasarkan jabatan dan departemen (hanya pegawai aktif)
         $jabatanData = $this->getPegawaiByJabatan();
         $departemenData = $this->getPegawaiByDepartemen();
 
@@ -85,8 +103,17 @@ class AdminDashboardController extends Controller
             ];
         }
 
+        // Debug info untuk memastikan perhitungan benar
+        $debugInfo = [
+            'total_pegawai_aktif' => $totalKaryawanAktif,
+            'masuk_hari_ini' => $masukHariIni,
+            'cuti_hari_ini' => $cutiHariIni,
+            'tidak_masuk' => $tidakMasuk,
+            'terlambat' => $terlambat
+        ];
+
         return view('admin.index', compact(
-            'totalKaryawan',
+            'totalKaryawanAktif',
             'masukHariIni',
             'cutiHariIni',
             'terlambat',
@@ -96,7 +123,8 @@ class AdminDashboardController extends Controller
             'lokasiKantorList',
             'pegawai',
             'nama_departemen',
-            'testingInfo'
+            'testingInfo',
+            'debugInfo'
         ));
     }
 
@@ -124,6 +152,14 @@ class AdminDashboardController extends Controller
             }
             
             $pegawai = $user->pegawai;
+            
+            // Pastikan pegawai memiliki status aktif
+            if ($pegawai->status !== 'Aktif') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Hanya pegawai dengan status aktif yang dapat melakukan absensi'
+                ], 403);
+            }
 
             // Ambil lokasi kantor yang dipilih
             $lokasiKantor = LokasiKantor::where('id', $request->lokasi_kantor_id)
@@ -254,7 +290,9 @@ class AdminDashboardController extends Controller
                     $kehadiran->status_jam_kerja = 'Setengah Hari';
                 } else {
                     $kehadiran->status_jam_kerja = 'Kurang';
-                }                            $kehadiran->save();
+                }
+                
+                $kehadiran->save();
                 DB::commit();
 
                 $responseMessage = 'Absen pulang berhasil dicatat pada ' . 
@@ -334,15 +372,14 @@ class AdminDashboardController extends Controller
             ]
         ]);
     }
-
-    // ... method lainnya tetap sama ...
     
     /**
-     * Mendapatkan data pegawai berdasarkan jabatan
+     * Mendapatkan data pegawai berdasarkan jabatan (hanya pegawai aktif)
      */
     private function getPegawaiByJabatan()
     {
         $jabatanData = Pegawai::with('jabatan')
+            ->where('status', 'Aktif')  // Tambahkan filter status aktif
             ->select('id_jabatan', DB::raw('count(*) as total'))
             ->groupBy('id_jabatan')
             ->get()
@@ -357,21 +394,22 @@ class AdminDashboardController extends Controller
             ->values()
             ->toArray();
 
-        // Hitung persentase
-        $totalKaryawan = Pegawai::count();
+        // Hitung persentase berdasarkan total pegawai aktif
+        $totalKaryawanAktif = Pegawai::where('status', 'Aktif')->count();
         foreach ($jabatanData as &$item) {
-            $item['percentage'] = $totalKaryawan > 0 ? round(($item['total'] / $totalKaryawan) * 100, 1) : 0;
+            $item['percentage'] = $totalKaryawanAktif > 0 ? round(($item['total'] / $totalKaryawanAktif) * 100, 1) : 0;
         }
 
         return $jabatanData;
     }
 
     /**
-     * Mendapatkan data pegawai berdasarkan departemen
+     * Mendapatkan data pegawai berdasarkan departemen (hanya pegawai aktif)
      */
     private function getPegawaiByDepartemen()
     {
         $departemenData = Pegawai::with('departemen')
+            ->where('status', 'Aktif')  // Tambahkan filter status aktif
             ->select('id_departemen', DB::raw('count(*) as total'))
             ->groupBy('id_departemen')
             ->get()
@@ -386,10 +424,10 @@ class AdminDashboardController extends Controller
             ->values()
             ->toArray();
 
-        // Hitung persentase
-        $totalKaryawan = Pegawai::count();
+        // Hitung persentase berdasarkan total pegawai aktif
+        $totalKaryawanAktif = Pegawai::where('status', 'Aktif')->count();
         foreach ($departemenData as &$item) {
-            $item['percentage'] = $totalKaryawan > 0 ? round(($item['total'] / $totalKaryawan) * 100, 1) : 0;
+            $item['percentage'] = $totalKaryawanAktif > 0 ? round(($item['total'] / $totalKaryawanAktif) * 100, 1) : 0;
         }
 
         return $departemenData;
@@ -430,7 +468,7 @@ class AdminDashboardController extends Controller
     }
 
     /**
-     * Laporan jam kerja pegawai
+     * Laporan jam kerja pegawai (hanya pegawai aktif)
      */
     public function laporanJamKerja(Request $request)
     {
@@ -443,6 +481,7 @@ class AdminDashboardController extends Controller
                   ->whereNotNull('waktu_masuk')
                   ->whereNotNull('waktu_pulang');
         }, 'departemen', 'jabatan'])
+        ->where('status', 'Aktif')  // Tambahkan filter status aktif
         ->get()
         ->map(function ($pegawai) {
             $absensiData = $pegawai->absensi;
@@ -465,7 +504,8 @@ class AdminDashboardController extends Controller
             'data' => $laporanData,
             'summary' => [
                 'bulan' => $bulan,
-                'tahun' => $tahun
+                'tahun' => $tahun,
+                'total_pegawai_aktif' => Pegawai::where('status', 'Aktif')->count()
             ]
         ]);
     }

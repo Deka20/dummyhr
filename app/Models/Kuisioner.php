@@ -27,19 +27,6 @@ class Kuisioner extends Model
         'aktif' => 'boolean',
     ];
 
-    // Scope untuk departemen
-public function scopeDepartemen($query, $departemenId)
-{
-    return $query->where('departemen_id', $departemenId)
-                 ->orWhereNull('departemen_id'); // Kuisioner umum
-}
-
-// Scope untuk golongan
-public function scopeGolongan($query, $golongan)
-{
-    return $query->where('golongan', $golongan)
-                 ->orWhereNull('golongan'); // Kuisioner umum
-}
 
     public function periodeKuisioner()
     {
@@ -59,18 +46,15 @@ public function scopeGolongan($query, $golongan)
         return $this->hasMany(JawabanKuisioner::class, 'kuisioner_id');
     }
 
-    // FIXED: Scope untuk kuisioner aktif - menggunakan kolom 'aktif' bukan 'status'
-    public function scopeAktif($query)
-    {
-        return $query->where('aktif', 1); // Jika menggunakan integer 1/0
-    }
+ public function scopeAktif($query)
+{
+    return $query->where('aktif', true);
+}
 
-    // FIXED: Scope untuk kuisioner non-aktif - menggunakan 0 untuk konsistensi
-    public function scopeNonAktif($query)
-    {
-        return $query->where('aktif', 0); // Jika menggunakan integer 1/0
-    }
-
+public function scopeNonAktif($query)
+{
+    return $query->where('aktif', false);
+}
     // Scope untuk kategori tertentu
     public function scopeKategori($query, $kategori)
     {
@@ -83,11 +67,6 @@ public function scopeGolongan($query, $golongan)
         return $query->where('pertanyaan', 'like', '%' . $keyword . '%');
     }
 
-    // Scope untuk bobot minimal
-    public function scopeBobotMinimal($query, $bobot)
-    {
-        return $query->where('bobot', '>=', $bobot);
-    }
 
     // Accessor untuk status badge
     public function getStatusBadgeAttribute()

@@ -295,7 +295,7 @@
                     <select class="form-select @error('role') is-invalid @enderror" id="role" name="role" required>
                         <option value="" selected disabled>Pilih Role</option>
                         <option value="hrd" {{ old('role') == 'hrd' ? 'selected' : '' }}>HRD</option>
-                        <option value="kepala_yayasan" {{ old('role') == 'kepala_yayasan' ? 'selected' : '' }}>Kepala Yayasan</option>
+                        <option value="kepala_yayasan" {{ old('role') == 'kepala_yayasan' ? 'selected' : '' }}>Kepala Yayasan / Dept</option>
                         <option value="pegawai" {{ old('role') == 'pegawai' ? 'selected' : '' }}>Pegawai</option>
                     </select>
                     <label for="role">Login Sebagai</label>

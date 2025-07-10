@@ -55,14 +55,14 @@
         data-bs-auto-close="outside"
         aria-expanded="false"
       >
-        <img src="{{ asset('uploads/pegawai/' . $pegawai->foto) }}" alt="user-image" class="user-avtar">
+        <img src="{{ asset('uploads/pegawai/' . $pegawai->foto) }}" alt="user-image" class="user-profile-circle">
         <span>{{$pegawai->nama}}</span>
       </a>
       <div class="dropdown-menu dropdown-user-profile dropdown-menu-end pc-h-dropdown">
         <div class="dropdown-header">
           <div class="d-flex mb-1">
             <div class="flex-shrink-0">
-              <img src="{{ asset('uploads/pegawai/' . $pegawai->foto) }}" alt="user-image" class="user-avtar wid-35">
+              <img src="{{ asset('uploads/pegawai/' . $pegawai->foto) }}" alt="user-image" class="user-profile-circle">
             </div>
             <div class="flex-grow-1 ms-3">
               <h6 class="mb-1">{{$pegawai->nama}}</h6>
@@ -93,6 +93,75 @@
 </div>
 </header>
 <!-- [ Header ] end -->
+
+<style>
+/* CSS untuk foto profil lingkaran yang konsisten */
+.user-profile-circle {
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 50% !important;
+    object-fit: cover !important;
+    border: 2px solid #dee2e6 !important;
+    display: inline-block !important;
+    flex-shrink: 0 !important;
+    background-color: #f8f9fa !important;
+    transition: border-color 0.3s ease !important;
+}
+
+.user-profile-circle:hover {
+    border-color: #007bff !important;
+}
+
+/* Override semua styling lain */
+.user-avtar,
+.user-avtar.wid-35,
+.dropdown-header .user-avtar {
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 50% !important;
+    object-fit: cover !important;
+    border: 2px solid #dee2e6 !important;
+    display: inline-block !important;
+    flex-shrink: 0 !important;
+    background-color: #f8f9fa !important;
+}
+
+/* Styling untuk header user profile */
+.header-user-profile .pc-head-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 8px;
+    border-radius: 20px;
+    transition: background-color 0.3s ease;
+}
+
+.header-user-profile .pc-head-link:hover {
+    background-color: rgba(0, 123, 255, 0.1);
+}
+
+.header-user-profile span {
+    font-weight: 500;
+    color: #495057;
+}
+
+.dropdown-header {
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.dropdown-header h6 {
+    color: #212529;
+    font-weight: 600;
+}
+
+.dropdown-header .flex-grow-1 span {
+    color: #6c757d;
+    font-size: 0.875rem;
+}
+</style>
+
 <script src="{{ asset('assets/js/plugins/sweetalert2.all.min.js') }}"></script>
 
 <script>

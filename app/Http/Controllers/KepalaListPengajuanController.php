@@ -14,16 +14,39 @@ class KepalaListPengajuanController extends Controller
 {
     public function index(Request $request)
     {
-        // Ambil user yang login (kepala yayasan)
+        // Ambil user yang login
         $user = Auth::user();
         $pegawai = $user->pegawai;
-        $nama_departemen = $pegawai && $pegawai->departemen ? $pegawai->departemen->nama_departemen : 'Kepala Yayasan';
+        
+        if (!$pegawai || !$pegawai->jabatan) {
+            return redirect()->back()->with('error', 'Data pegawai atau jabatan tidak ditemukan.');
+        }
+
+        $nama_departemen = $pegawai->departemen ? $pegawai->departemen->nama_departemen : 'Kepala Yayasan';
+        $jabatan = $pegawai->jabatan->nama_jabatan;
 
         // Query data cuti dengan FIFO - HANYA TAMPILKAN YANG MENUNGGU
-        // Kepala yayasan dapat melihat semua pengajuan dari semua departemen
         $query = Cuti::with(['pegawai.departemen', 'pegawai.jabatan', 'jenisCuti'])
-            ->where('status_cuti', 'Menunggu') // HANYA AMBIL YANG MENUNGGU
+            ->where('status_cuti', 'Menunggu')
             ->orderBy('tanggal_pengajuan', 'ASC'); // FIFO: Yang pertama masuk, pertama keluar
+
+        // Filter berdasarkan jabatan yang login
+        if ($jabatan === 'Kepala Yayasan') {
+            // Kepala Yayasan melihat pengajuan dari role hrd dan jabatan Kepala
+            $query->whereHas('pegawai.user', function ($q) {
+                $q->where('role', 'hrd');
+            })->orWhereHas('pegawai.jabatan', function ($q) {
+                $q->where('nama_jabatan', 'like', '%Kepala%');
+            });
+        } elseif ($jabatan === 'Kepala Departemen' || strpos($jabatan, 'Kepala') !== false) {
+            // Kepala Departemen melihat pengajuan dari departemen yang sama
+            $query->whereHas('pegawai', function ($q) use ($pegawai) {
+                $q->where('id_departemen', $pegawai->id_departemen);
+            });
+        } else {
+            // Jika bukan kepala, tidak ada akses
+            return redirect()->back()->with('error', 'Anda tidak memiliki akses untuk melihat pengajuan cuti.');
+        }
 
         // Filter berdasarkan departemen (opsional)
         if ($request->filled('departemen')) {
@@ -61,8 +84,25 @@ class KepalaListPengajuanController extends Controller
             $cuti->nomor_antrian = $nomor_antrian++;
         }
 
-        // Statistik - Hitung dari semua data per departemen dan keseluruhan
-        $all_cuti = Cuti::with('pegawai.departemen')->get();
+        // Statistik berdasarkan akses jabatan
+        if ($jabatan === 'Kepala Yayasan') {
+            // Statistik untuk Kepala Yayasan - hrd dan Kepala
+            $all_cuti = Cuti::with('pegawai.departemen', 'pegawai.jabatan', 'pegawai.user')
+                ->where(function ($query) {
+                    $query->whereHas('pegawai.user', function ($q) {
+                        $q->where('role', 'hrd');
+                    })->orWhereHas('pegawai.jabatan', function ($q) {
+                        $q->where('nama_jabatan', 'like', '%Kepala%');
+                    });
+                })->get();
+        } else {
+            // Statistik untuk Kepala Departemen - departemen yang sama
+            $all_cuti = Cuti::with('pegawai.departemen')
+                ->whereHas('pegawai', function ($q) use ($pegawai) {
+                    $q->where('id_departemen', $pegawai->id_departemen);
+                })->get();
+        }
+
         $pending = $all_cuti->where('status_cuti', 'Menunggu')->count();
         $approved = $all_cuti->where('status_cuti', 'Disetujui')->count();
         $rejected = $all_cuti->where('status_cuti', 'Ditolak')->count();
@@ -70,24 +110,44 @@ class KepalaListPengajuanController extends Controller
 
         // Statistik per departemen
         $stats_per_departemen = [];
-        $departemen_list = Departemen::all();
-        foreach ($departemen_list as $dept) {
-            $dept_cuti = $all_cuti->where('pegawai.id_departemen', $dept->id_departemen);
-            $stats_per_departemen[$dept->nama_departemen] = [
-                'pending' => $dept_cuti->where('status_cuti', 'Menunggu')->count(),
-                'approved' => $dept_cuti->where('status_cuti', 'Disetujui')->count(),
-                'rejected' => $dept_cuti->where('status_cuti', 'Ditolak')->count(),
-                'total' => $dept_cuti->count()
-            ];
+        if ($jabatan === 'Kepala Yayasan') {
+            // Kepala Yayasan: statistik semua departemen untuk hrd dan Kepala
+            $departemen_list = Departemen::all();
+            foreach ($departemen_list as $dept) {
+                $dept_cuti = $all_cuti->where('pegawai.id_departemen', $dept->id_departemen);
+                $stats_per_departemen[$dept->nama_departemen] = [
+                    'pending' => $dept_cuti->where('status_cuti', 'Menunggu')->count(),
+                    'approved' => $dept_cuti->where('status_cuti', 'Disetujui')->count(),
+                    'rejected' => $dept_cuti->where('status_cuti', 'Ditolak')->count(),
+                    'total' => $dept_cuti->count()
+                ];
+            }
+        } else {
+            // Kepala Departemen: statistik departemen sendiri
+            $dept = $pegawai->departemen;
+            if ($dept) {
+                $stats_per_departemen[$dept->nama_departemen] = [
+                    'pending' => $pending,
+                    'approved' => $approved,
+                    'rejected' => $rejected,
+                    'total' => $total
+                ];
+            }
         }
 
         // Dropdown data
-        $departemen = Departemen::all();
+        if ($jabatan === 'Kepala Yayasan') {
+            $departemen = Departemen::all();
+        } else {
+            $departemen = collect([$pegawai->departemen])->filter();
+        }
+        
         $jenis_cuti_options = JenisCuti::pluck('nama_jenis_cuti', 'id_jenis_cuti');
 
         return view('kepala.listPengajuan', compact(
             'pegawai',
             'nama_departemen',
+            'jabatan',
             'pengajuan_cuti',
             'departemen',
             'jenis_cuti_options',
@@ -108,6 +168,25 @@ class KepalaListPengajuanController extends Controller
             ]);
 
             $cuti = Cuti::findOrFail($id);
+            $user = Auth::user();
+            $pegawai = $user->pegawai;
+            $jabatan = $pegawai->jabatan->nama_jabatan;
+
+            // Validasi akses berdasarkan jabatan
+            $hasAccess = false;
+            
+            if ($jabatan === 'Kepala Yayasan') {
+                // Kepala Yayasan dapat memproses pengajuan dari hrd dan Kepala
+                $hasAccess = $cuti->pegawai->user->role === 'hrd' || 
+                           strpos($cuti->pegawai->jabatan->nama_jabatan, 'Kepala') !== false;
+            } elseif ($jabatan === 'Kepala Departemen' || strpos($jabatan, 'Kepala') !== false) {
+                // Kepala Departemen dapat memproses pengajuan dari departemen yang sama
+                $hasAccess = $cuti->pegawai->id_departemen === $pegawai->id_departemen;
+            }
+
+            if (!$hasAccess) {
+                return redirect()->back()->with('error', 'Anda tidak memiliki akses untuk memproses pengajuan cuti ini.');
+            }
             
             // Check if cuti is still pending
             if ($cuti->status_cuti !== 'Menunggu') {
@@ -141,7 +220,7 @@ class KepalaListPengajuanController extends Controller
         } catch (\Illuminate\Validation\ValidationException $e) {
             return redirect()->back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
-            Log::error('Error updating cuti status by kepala yayasan: ' . $e->getMessage());
+            Log::error('Error updating cuti status: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Terjadi kesalahan saat memproses pengajuan cuti. Silakan coba lagi.');
         }
     }
@@ -149,9 +228,28 @@ class KepalaListPengajuanController extends Controller
     // Method untuk melihat riwayat pengajuan yang sudah diproses
     public function riwayat(Request $request)
     {
+        $user = Auth::user();
+        $pegawai = $user->pegawai;
+        $jabatan = $pegawai->jabatan->nama_jabatan;
+
         $query = Cuti::with(['pegawai.departemen', 'pegawai.jabatan', 'jenisCuti'])
             ->whereIn('status_cuti', ['Disetujui', 'Ditolak'])
-            ->orderBy('updated_at', 'DESC'); // Urutkan berdasarkan tanggal update terbaru
+            ->orderBy('updated_at', 'DESC');
+
+        // Filter berdasarkan jabatan yang login
+        if ($jabatan === 'Kepala Yayasan') {
+            $query->where(function ($mainQuery) {
+                $mainQuery->whereHas('pegawai.user', function ($q) {
+                    $q->where('role', 'hrd');
+                })->orWhereHas('pegawai.jabatan', function ($q) {
+                    $q->where('nama_jabatan', 'like', '%Kepala%');
+                });
+            });
+        } elseif ($jabatan === 'Kepala Departemen' || strpos($jabatan, 'Kepala') !== false) {
+            $query->whereHas('pegawai', function ($q) use ($pegawai) {
+                $q->where('id_departemen', $pegawai->id_departemen);
+            });
+        }
 
         // Filter berdasarkan status
         if ($request->filled('status')) {
@@ -190,7 +288,13 @@ class KepalaListPengajuanController extends Controller
             }
         }
 
-        $departemen = Departemen::all();
+        // Dropdown data berdasarkan akses
+        if ($jabatan === 'Kepala Yayasan') {
+            $departemen = Departemen::all();
+        } else {
+            $departemen = collect([$pegawai->departemen])->filter();
+        }
+        
         $jenis_cuti_options = JenisCuti::pluck('nama_jenis_cuti', 'id_jenis_cuti');
         
         return view('kepala.riwayatPengajuan', compact('riwayat_cuti', 'departemen', 'jenis_cuti_options'));
@@ -201,6 +305,24 @@ class KepalaListPengajuanController extends Controller
         try {
             $cuti = Cuti::with(['pegawai.departemen', 'pegawai.jabatan', 'jenisCuti'])
                         ->findOrFail($id);
+            
+            // Validasi akses
+            $user = Auth::user();
+            $pegawai = $user->pegawai;
+            $jabatan = $pegawai->jabatan->nama_jabatan;
+            
+            $hasAccess = false;
+            
+            if ($jabatan === 'Kepala Yayasan') {
+                $hasAccess = $cuti->pegawai->user->role === 'hrd' || 
+                           strpos($cuti->pegawai->jabatan->nama_jabatan, 'Kepala') !== false;
+            } elseif ($jabatan === 'Kepala Departemen' || strpos($jabatan, 'Kepala') !== false) {
+                $hasAccess = $cuti->pegawai->id_departemen === $pegawai->id_departemen;
+            }
+
+            if (!$hasAccess) {
+                return response()->json(['error' => 'Akses ditolak'], 403);
+            }
             
             // Calculate duration
             if ($cuti->tanggal_mulai && $cuti->tanggal_selesai) {
@@ -221,10 +343,30 @@ class KepalaListPengajuanController extends Controller
      */
     public function getNextFifo()
     {
-        $next_cuti = Cuti::with(['pegawai.departemen', 'pegawai.jabatan', 'jenisCuti'])
+        $user = Auth::user();
+        $pegawai = $user->pegawai;
+        $jabatan = $pegawai->jabatan->nama_jabatan;
+
+        $query = Cuti::with(['pegawai.departemen', 'pegawai.jabatan', 'jenisCuti'])
             ->where('status_cuti', 'Menunggu')
-            ->orderBy('tanggal_pengajuan', 'ASC')
-            ->first();
+            ->orderBy('tanggal_pengajuan', 'ASC');
+
+        // Filter berdasarkan jabatan
+        if ($jabatan === 'Kepala Yayasan') {
+            $query->where(function ($mainQuery) {
+                $mainQuery->whereHas('pegawai.user', function ($q) {
+                    $q->where('role', 'hrd');
+                })->orWhereHas('pegawai.jabatan', function ($q) {
+                    $q->where('nama_jabatan', 'like', '%Kepala%');
+                });
+            });
+        } elseif ($jabatan === 'Kepala Departemen' || strpos($jabatan, 'Kepala') !== false) {
+            $query->whereHas('pegawai', function ($q) use ($pegawai) {
+                $q->where('id_departemen', $pegawai->id_departemen);
+            });
+        }
+
+        $next_cuti = $query->first();
 
         if (!$next_cuti) {
             return response()->json(['message' => 'Tidak ada pengajuan cuti dalam antrian']);
@@ -252,36 +394,67 @@ class KepalaListPengajuanController extends Controller
     }
 
     /**
-     * Dashboard summary for kepala yayasan
+     * Dashboard summary berdasarkan jabatan
      */
     public function dashboard()
     {
+        $user = Auth::user();
+        $pegawai = $user->pegawai;
+        $jabatan = $pegawai->jabatan->nama_jabatan;
+
+        // Query berdasarkan jabatan
+        if ($jabatan === 'Kepala Yayasan') {
+            $query = Cuti::where(function ($mainQuery) {
+                $mainQuery->whereHas('pegawai.user', function ($q) {
+                    $q->where('role', 'hrd');
+                })->orWhereHas('pegawai.jabatan', function ($q) {
+                    $q->where('nama_jabatan', 'like', '%Kepala%');
+                });
+            });
+        } else {
+            $query = Cuti::whereHas('pegawai', function ($q) use ($pegawai) {
+                $q->where('id_departemen', $pegawai->id_departemen);
+            });
+        }
+
         // Total pengajuan per status
-        $total_menunggu = Cuti::where('status_cuti', 'Menunggu')->count();
-        $total_disetujui = Cuti::where('status_cuti', 'Disetujui')->count();
-        $total_ditolak = Cuti::where('status_cuti', 'Ditolak')->count();
+        $total_menunggu = $query->where('status_cuti', 'Menunggu')->count();
+        $total_disetujui = $query->where('status_cuti', 'Disetujui')->count();
+        $total_ditolak = $query->where('status_cuti', 'Ditolak')->count();
 
         // Pengajuan menunggu terlama
-        $pengajuan_terlama = Cuti::with(['pegawai.departemen'])
+        $pengajuan_terlama = $query->with(['pegawai.departemen'])
             ->where('status_cuti', 'Menunggu')
             ->orderBy('tanggal_pengajuan', 'ASC')
             ->first();
 
         // Statistik per departemen
-        $stats_departemen = Departemen::withCount([
-            'pegawai as total_pegawai',
-            'pegawai as cuti_menunggu' => function ($query) {
-                $query->whereHas('cuti', function ($q) {
-                    $q->where('status_cuti', 'Menunggu');
-                });
-            }
-        ])->get();
+        if ($jabatan === 'Kepala Yayasan') {
+            $stats_departemen = Departemen::withCount([
+                'pegawai as total_pegawai',
+                'pegawai as cuti_menunggu' => function ($query) {
+                    $query->whereHas('cuti', function ($q) {
+                        $q->where('status_cuti', 'Menunggu');
+                    });
+                }
+            ])->get();
+        } else {
+            $stats_departemen = collect([$pegawai->departemen])->map(function ($dept) {
+                return [
+                    'nama_departemen' => $dept->nama_departemen,
+                    'total_pegawai' => $dept->pegawai()->count(),
+                    'cuti_menunggu' => $dept->pegawai()->whereHas('cuti', function ($q) {
+                        $q->where('status_cuti', 'Menunggu');
+                    })->count()
+                ];
+            });
+        }
 
         // Pengajuan hari ini
-        $pengajuan_hari_ini = Cuti::whereDate('tanggal_pengajuan', today())->count();
+        $pengajuan_hari_ini = $query->whereDate('tanggal_pengajuan', today())->count();
 
         // Pengajuan minggu ini
-        $pengajuan_minggu_ini = Cuti::whereBetween('tanggal_pengajuan', [
+        $pengajuan_minggu_ini = $query->whereBetween('tanggal_pengajuan', [
             now()->startOfWeek(),
             now()->endOfWeek()
         ])->count();
@@ -310,6 +483,10 @@ class KepalaListPengajuanController extends Controller
                 'bulk_keterangan' => 'nullable|string|max:500'
             ]);
 
+            $user = Auth::user();
+            $pegawai = $user->pegawai;
+            $jabatan = $pegawai->jabatan->nama_jabatan;
+
             $updated_count = 0;
             $errors = [];
 
@@ -318,6 +495,21 @@ class KepalaListPengajuanController extends Controller
                 
                 if (!$cuti || $cuti->status_cuti !== 'Menunggu') {
                     $errors[] = "Pengajuan ID {$cuti_id} sudah diproses sebelumnya.";
+                    continue;
+                }
+
+                // Validasi akses
+                $hasAccess = false;
+                
+                if ($jabatan === 'Kepala Yayasan') {
+                    $hasAccess = $cuti->pegawai->role === 'hrd' || 
+                               strpos($cuti->pegawai->jabatan->nama_jabatan, 'Kepala') !== false;
+                } elseif ($jabatan === 'Kepala Departemen' || strpos($jabatan, 'Kepala') !== false) {
+                    $hasAccess = $cuti->pegawai->id_departemen === $pegawai->id_departemen;
+                }
+
+                if (!$hasAccess) {
+                    $errors[] = "Tidak memiliki akses untuk memproses pengajuan ID {$cuti_id}.";
                     continue;
                 }
 

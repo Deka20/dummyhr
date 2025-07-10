@@ -20,12 +20,12 @@ class PeriodeKuisionerController extends Controller
         try {
             // Ambil periode berdasarkan ID dengan eager loading
             $periode = PeriodePenilaian::with(['kuisioner' => function($query) {
-                $query->select('kuisioner.id', 'kuisioner.kategori', 'kuisioner.pertanyaan', 'kuisioner.bobot');
+                $query->select('kuisioner.id', 'kuisioner.kategori', 'kuisioner.pertanyaan');
             }])->findOrFail($periodeId);
             
             // Ambil semua kuisioner aktif
             $semuaKuisioner = Kuisioner::where('aktif', 1)
-                ->select('id', 'kategori', 'pertanyaan', 'bobot', 'aktif')
+                ->select('id', 'kategori', 'pertanyaan', 'aktif')
                 ->orderBy('kategori')
                 ->orderBy('id')
                 ->get();
@@ -39,8 +39,6 @@ class PeriodeKuisionerController extends Controller
             // Hitung statistik
             $totalKuisioner = $semuaKuisioner->count();
             $kuisionerDipilih = count($kuisionerTerpilih);
-            $selectedKuisioner = $semuaKuisioner->whereIn('id', $kuisionerTerpilih);
-            $totalBobot = $selectedKuisioner->sum('bobot');
             
             // Ambil data user dan departemen
             $user = Auth::user();
@@ -53,7 +51,6 @@ class PeriodeKuisionerController extends Controller
                 'kuisionerTerpilih',
                 'totalKuisioner',
                 'kuisionerDipilih',
-                'totalBobot',
                 'pegawai',
                 'nama_departemen'
             ));

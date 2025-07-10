@@ -19,7 +19,7 @@
                         <div>
                             <h6 class="card-title text-muted mb-1 fw-normal">Masuk Hari Ini</h6>
                             <h3 class="mb-0 text-success fw-bold">{{ $masukHariIni }}</h3>
-                            <small class="text-muted">dari {{ $totalKaryawan }} karyawan</small>
+                            <small class="text-muted">dari {{ $totalKaryawanAktif }} karyawan</small>
                         </div>
                         <div class="text-success opacity-75">
                             <i class="fas fa-user-check fa-2x"></i>
@@ -91,7 +91,7 @@
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center py-3">
                     <h5 class="mb-0 fw-semibold">Pegawai Berdasarkan Jabatan</h5>
-                    <small class="text-muted">Total: {{ $totalKaryawan }} orang</small>
+                    <small class="text-muted">Total: {{ $totalKaryawanAktif}} orang</small>
                 </div>
                 <div class="card-body">
                     <div id="jabatan-chart" style="height: 300px;"></div>
@@ -121,7 +121,7 @@
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center py-3">
                     <h5 class="mb-0 fw-semibold">Pegawai Berdasarkan Departemen</h5>
-                    <small class="text-muted">Total: {{ $totalKaryawan }} orang</small>
+                    <small class="text-muted">Total: {{ $totalKaryawanAktif }} orang</small>
                 </div>
                 <div class="card-body">
                     <div id="departemen-chart" style="height: 300px;"></div>

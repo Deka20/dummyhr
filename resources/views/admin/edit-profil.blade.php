@@ -11,7 +11,14 @@
 <div class="row">
   <!-- Profil Pengguna -->
   <div class="col-md-12">
+          @if(session('success'))
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+  <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+  <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+@endif
     <div class="card mb-4">
+
       <div class="card-header">
         <h5>Profil Pengguna</h5>
       </div>
@@ -192,14 +199,14 @@
               @enderror
             </div>
 
-            <!-- Keamanan & Media -->
+            <!-- Foto Profil -->
             <div class="col-md-12 mb-4 mt-3">
               <h6 class="text-muted border-bottom pb-2 mb-3">
-                <i class="fas fa-shield-alt me-2"></i>Keamanan & Media
+                <i class="fas fa-image me-2"></i>Foto Profil
               </h6>
             </div>
 
-            <div class="col-md-6 mb-3">
+            <div class="col-md-12 mb-3">
               <label for="foto" class="form-label">Foto Profil</label>
               <input type="file" name="foto" class="form-control @error('foto') is-invalid @enderror" id="foto" accept="image/jpg,image/jpeg,image/png" disabled>
               <div class="form-text">
@@ -212,24 +219,6 @@
                 </div>
               @endif
               @error('foto')
-                <div class="invalid-feedback">{{ $message }}</div>
-              @enderror
-            </div>
-
-            <div class="col-md-6 mb-3">
-              <label for="password" class="form-label">Password Baru</label>
-              <div class="input-group">
-                <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" id="password" 
-                  placeholder="Biarkan kosong jika tidak ingin mengganti password" disabled>
-                <button class="btn btn-outline-secondary" type="button" id="togglePassword" disabled>
-                  <i class="fas fa-eye" id="eyeIcon"></i>
-                </button>
-              </div>
-              <div class="form-text">
-                <i class="fas fa-info-circle me-1"></i>Minimal 8 karakter, kosongkan jika tidak ingin mengubah
-              </div>
-              @error('password')
                 <div class="invalid-feedback">{{ $message }}</div>
               @enderror
             </div>
@@ -247,71 +236,174 @@
       </div>
     </div>
   </div>
+
+  <!-- Form Ganti Password -->
+  <div class="col-md-12 mt-4">
+    <div class="card shadow-sm">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+          <i class="fas fa-lock me-2"></i>Keamanan Password
+        </h5>
+        <button type="button" id="btnEditPassword" style="background-color: #dc3545;" class="btn text-white btn-sm">
+          <i class="fas fa-key me-1"></i>Ganti Password
+        </button>
+      </div>
+      <div class="card-body">
+        <form action="{{ route('password.update') }}" method="POST" id="formPassword">
+          @csrf
+          
+          <div class="row">
+            <div class="col-md-12 mb-3">
+              <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                <strong>Perhatian:</strong> Pastikan password baru Anda aman dan mudah diingat. Gunakan kombinasi huruf besar, huruf kecil, angka, dan simbol.
+              </div>
+            </div>
+
+            <div class="col-md-12 mb-3">
+              <label for="current_password" class="form-label">Password Lama <span class="text-danger">*</span></label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                <input type="password" name="current_password" class="form-control @error('current_password') is-invalid @enderror" id="current_password" 
+                  placeholder="Masukkan password lama" required disabled>
+                <button class="btn btn-outline-secondary" type="button" id="toggleCurrentPassword" disabled>
+                  <i class="fas fa-eye" id="eyeIconCurrent"></i>
+                </button>
+              </div>
+              @error('current_password')
+                <div class="invalid-feedback">{{ $message }}</div>
+              @enderror
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label for="new_password" class="form-label">Password Baru <span class="text-danger">*</span></label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-key"></i></span>
+                <input type="password" name="new_password" class="form-control @error('new_password') is-invalid @enderror" id="new_password" 
+                  placeholder="Masukkan password baru" required disabled>
+                <button class="btn btn-outline-secondary" type="button" id="toggleNewPassword" disabled>
+                  <i class="fas fa-eye" id="eyeIconNew"></i>
+                </button>
+              </div>
+              <div class="form-text">
+                <i class="fas fa-info-circle me-1"></i>Minimal 8 karakter
+              </div>
+              @error('new_password')
+                <div class="invalid-feedback">{{ $message }}</div>
+              @enderror
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label for="new_password_confirmation" class="form-label">Konfirmasi Password Baru <span class="text-danger">*</span></label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-key"></i></span>
+                <input type="password" name="new_password_confirmation" class="form-control" id="new_password_confirmation" 
+                  placeholder="Ulangi password baru" required disabled>
+                <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword" disabled>
+                  <i class="fas fa-eye" id="eyeIconConfirm"></i>
+                </button>
+              </div>
+              <div class="form-text">
+                <i class="fas fa-info-circle me-1"></i>Harus sama dengan password baru
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-end mt-4 pt-3 border-top">
+            <button type="button" id="btnCancelPassword" class="btn btn-outline-secondary me-2" disabled>
+              <i class="fas fa-times me-1"></i>Batal
+            </button>
+            <button type="submit" class="btn btn-danger" id="btnSubmitPassword" disabled>
+              <i class="fas fa-save me-1"></i>Ganti Password
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 </div>
 @endsection
 
 @push('scripts')
 <script>
   document.addEventListener('DOMContentLoaded', function () {
+    // Profile Form Elements
     const btnEdit = document.getElementById('btnEdit');
     const btnEditQuick = document.getElementById('btnEditQuick');
     const btnCancel = document.getElementById('btnCancel');
     const btnSubmit = document.getElementById('btnSubmit');
-    const togglePassword = document.getElementById('togglePassword');
-    const passwordInput = document.getElementById('password');
-    const eyeIcon = document.getElementById('eyeIcon');
     const form = document.getElementById('formProfile');
+
+    // Password Form Elements
+    const btnEditPassword = document.getElementById('btnEditPassword');
+    const btnCancelPassword = document.getElementById('btnCancelPassword');
+    const btnSubmitPassword = document.getElementById('btnSubmitPassword');
+    const formPassword = document.getElementById('formPassword');
+    const toggleCurrentPassword = document.getElementById('toggleCurrentPassword');
+    const toggleNewPassword = document.getElementById('toggleNewPassword');
+    const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
 
     // Store original form data
     let originalFormData = new FormData(form);
 
-    // Edit button functionality
+    // Profile Edit functionality
     [btnEdit, btnEditQuick].forEach(btn => {
       btn.addEventListener('click', function () {
-        toggleForm(false);
-        // Scroll to form
+        toggleProfileForm(false);
         document.getElementById('formProfile').scrollIntoView({ behavior: 'smooth' });
       });
     });
 
-    // Cancel button functionality
     btnCancel.addEventListener('click', function () {
       if (confirm('Apakah Anda yakin ingin membatalkan perubahan?')) {
-        toggleForm(true);
+        toggleProfileForm(true);
         form.reset();
-        // Restore original values
         restoreOriginalValues();
       }
     });
 
-    // Toggle password visibility
-    togglePassword.addEventListener('click', function () {
-      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-      passwordInput.setAttribute('type', type);
-      eyeIcon.classList.toggle('fa-eye');
-      eyeIcon.classList.toggle('fa-eye-slash');
+    // Password Edit functionality
+    btnEditPassword.addEventListener('click', function () {
+      togglePasswordForm(false);
+      document.getElementById('formPassword').scrollIntoView({ behavior: 'smooth' });
     });
 
-    function toggleForm(disabled) {
-      // Enable/disable all form elements
+    btnCancelPassword.addEventListener('click', function () {
+      if (confirm('Apakah Anda yakin ingin membatalkan perubahan password?')) {
+        togglePasswordForm(true);
+        formPassword.reset();
+      }
+    });
+
+    // Toggle password visibility functions
+    function setupPasswordToggle(toggleBtn, passwordInput, eyeIcon) {
+      toggleBtn.addEventListener('click', function () {
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        eyeIcon.classList.toggle('fa-eye');
+        eyeIcon.classList.toggle('fa-eye-slash');
+      });
+    }
+
+    setupPasswordToggle(toggleCurrentPassword, document.getElementById('current_password'), document.getElementById('eyeIconCurrent'));
+    setupPasswordToggle(toggleNewPassword, document.getElementById('new_password'), document.getElementById('eyeIconNew'));
+    setupPasswordToggle(toggleConfirmPassword, document.getElementById('new_password_confirmation'), document.getElementById('eyeIconConfirm'));
+
+    function toggleProfileForm(disabled) {
       const elements = form.querySelectorAll('input, select, textarea');
       
       elements.forEach(el => {
         el.disabled = disabled;
         if (!disabled) {
-          // Remove was-validated class when enabling form
           el.classList.remove('was-validated');
         }
       });
 
-      // Toggle buttons
       btnEdit.disabled = !disabled;
       btnEditQuick.disabled = !disabled;
       btnCancel.disabled = disabled;
       btnSubmit.disabled = disabled;
-      togglePassword.disabled = disabled;
 
-      // Update button text
       if (disabled) {
         btnEdit.innerHTML = '<i class="fas fa-edit me-1"></i>Edit';
         btnEditQuick.innerHTML = '<i class="fas fa-edit me-1"></i>Edit Profile';
@@ -321,16 +413,37 @@
       }
     }
 
+    function togglePasswordForm(disabled) {
+      const elements = formPassword.querySelectorAll('input');
+      
+      elements.forEach(el => {
+        el.disabled = disabled;
+        if (!disabled) {
+          el.classList.remove('was-validated');
+        }
+      });
+
+      btnEditPassword.disabled = !disabled;
+      btnCancelPassword.disabled = disabled;
+      btnSubmitPassword.disabled = disabled;
+      toggleCurrentPassword.disabled = disabled;
+      toggleNewPassword.disabled = disabled;
+      toggleConfirmPassword.disabled = disabled;
+
+      if (disabled) {
+        btnEditPassword.innerHTML = '<i class="fas fa-key me-1"></i>Ganti Password';
+      } else {
+        btnEditPassword.innerHTML = '<i class="fas fa-times me-1"></i>Cancel';
+      }
+    }
+
     function restoreOriginalValues() {
-      // Restore original form values
       const inputs = form.querySelectorAll('input, textarea, select');
       inputs.forEach(input => {
         if (input.type === 'radio') {
           input.checked = input.defaultChecked;
-        } else if (input.type !== 'file' && input.type !== 'password') {
+        } else if (input.type !== 'file') {
           input.value = input.defaultValue;
-        } else if (input.type === 'password') {
-          input.value = '';
         }
       });
     }
@@ -346,9 +459,36 @@
         return false;
       }
       
-      // Show loading state
       btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Menyimpan...';
       btnSubmit.disabled = true;
+    });
+
+    // Password form validation
+    formPassword.addEventListener('submit', function(e) {
+      const currentPassword = document.getElementById('current_password').value;
+      const newPassword = document.getElementById('new_password').value;
+      const confirmPassword = document.getElementById('new_password_confirmation').value;
+      
+      if (!currentPassword || !newPassword || !confirmPassword) {
+        e.preventDefault();
+        alert('Semua field password wajib diisi!');
+        return false;
+      }
+
+      if (newPassword !== confirmPassword) {
+        e.preventDefault();
+        alert('Password baru dan konfirmasi password tidak cocok!');
+        return false;
+      }
+
+      if (newPassword.length < 8) {
+        e.preventDefault();
+        alert('Password baru minimal 8 karakter!');
+        return false;
+      }
+      
+      btnSubmitPassword.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Mengubah Password...';
+      btnSubmitPassword.disabled = true;
     });
   });
 </script>
@@ -359,7 +499,6 @@
     const alertType = '{{ session("type") }}';
     const alertMessage = '{{ session("notifikasi") }}';
     
-    // Create alert element
     const alertDiv = document.createElement('div');
     alertDiv.className = `alert alert-${alertType === 'success' ? 'success' : 'danger'} alert-dismissible fade show position-fixed`;
     alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
@@ -371,7 +510,6 @@
     
     document.body.appendChild(alertDiv);
     
-    // Auto dismiss after 5 seconds
     setTimeout(() => {
       if (alertDiv.parentNode) {
         alertDiv.remove();

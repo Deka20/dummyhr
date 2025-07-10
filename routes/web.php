@@ -144,6 +144,7 @@ Route::middleware(['auth', 'check.role:kepala_yayasan'])->prefix('kepala_yayasan
     Route::get('/dashboard', [KepalaDashboardController::class, 'index'])->name('kepala.index');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('kepala.edit-profile');
     Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/password/update', [ProfileController::class, 'updatePassword'])->name('password.update');
 
     Route::prefix('list-pengajuan')->name('kepala.')->group(function () {
         Route::get('/', [KepalaListPengajuanController::class, 'index'])->name('listPengajuan');
