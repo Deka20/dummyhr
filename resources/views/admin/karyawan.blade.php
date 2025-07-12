@@ -350,14 +350,19 @@
 @endsection
 
 @push('scripts')
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script>
+  
+
+
   // Function untuk mengubah per_page
   function changePerPage(value) {
     const url = new URL(window.location.href);
     url.searchParams.set('per_page', value);
     url.searchParams.set('page', 1); // Reset ke halaman 1
     window.location.href = url.toString();
-  }
+  };
 
   // Preview foto saat upload
   document.getElementById('inputFoto').addEventListener('change', function(e) {
@@ -386,7 +391,20 @@
       modal.show();
     });
   @endif
+
+  
 </script>
+<script>
+       @if(session('success'))
+      Swal.fire({
+        icon: 'success',
+        title: 'Berhasil!',
+        text: '{{ session('success') }}',
+        timer: 3000,
+        showConfirmButton: false
+      });
+    @endif
+// </script>
 @endpush
 
 @push('styles')

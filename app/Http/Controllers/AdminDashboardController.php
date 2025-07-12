@@ -18,8 +18,8 @@ class AdminDashboardController extends Controller
     
     // Waktu testing yang bisa diubah-ubah
     const TESTING_TIME = [
-        'date' => '2025-07-10',  // Format: Y-m-d
-        'time' => '07:30:00'     // Format: H:i:s (contoh: 07:30 untuk test terlambat)
+        'date' => '2025-07-11',  // Format: Y-m-d
+        'time' => '17:30:00'     // Format: H:i:s (contoh: 07:30 untuk test terlambat)
     ];
     
     const JAM_MASUK_STANDAR = 8;  // 08:00
@@ -134,6 +134,8 @@ class AdminDashboardController extends Controller
     public function absen(Request $request)
     {
         try {
+            $user= Auth::user();
+            DB::statement("SET @current_user_id = " . $user->id_user);
             // Validasi input
             $request->validate([
                 'action' => 'required|in:masuk,pulang',

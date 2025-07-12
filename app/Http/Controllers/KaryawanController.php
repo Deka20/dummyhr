@@ -140,13 +140,7 @@ class KaryawanController extends Controller
                
             Log::info('Pegawai berhasil dibuat dengan ID: ' . $pegawai->id_pegawai);
 
-            return redirect()->route('admin.karyawan')->with([
-                'alert' => [
-                    'type' => 'success',
-                    'title' => 'Berhasil!',
-                    'message' => 'Data pegawai berhasil ditambahkan.'
-                ]
-            ]);
+            return redirect()->back()->with('success');
 
         } catch (ValidationException $e) {
             Log::error('Error validasi: ', $e->errors());
@@ -362,10 +356,7 @@ class KaryawanController extends Controller
         
         DB::commit();
         
-        return redirect()->route('admin.karyawan')->with([
-            'notifikasi' => 'Data pegawai dan user terkait berhasil dihapus!',
-            'type' => 'success'
-        ]);
+        return redirect()->back()->with('success');
         
     } catch (ModelNotFoundException $e) {
         DB::rollback();

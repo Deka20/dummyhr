@@ -199,6 +199,8 @@ function deleteUser(userId) {
 }
 
 function createUserForPegawai(idPegawai) {
+    console.log('Creating user for pegawai ID:', idPegawai);
+    
     Swal.fire({
         title: 'Buat User untuk Pegawai',
         text: "User akan dibuat otomatis dengan username dari email pegawai",
@@ -210,26 +212,54 @@ function createUserForPegawai(idPegawai) {
         cancelButtonText: 'Batal'
     }).then((result) => {
         if (result.isConfirmed) {
+            console.log('Sending request to create user...');
+            
             $.ajax({
-                url: '/admin/user/create-for-pegawai',
+                url: "{{ route('admin.user.create-for-pegawai') }}", // Menggunakan route helper
                 type: 'POST',
                 data: {
                     "_token": "{{ csrf_token() }}",
                     "id_pegawai": idPegawai
                 },
+                beforeSend: function(xhr) {
+                    console.log('Request data:', {
+                        "_token": "{{ csrf_token() }}",
+                        "id_pegawai": idPegawai
+                    });
+                },
                 success: function(response) {
+                    console.log('Success response:', response);
+                    
                     Swal.fire(
                         'Berhasil!',
-                        'User berhasil dibuat untuk pegawai.',
+                        response.message || 'User berhasil dibuat untuk pegawai.',
                         'success'
                     ).then(() => {
                         location.reload();
                     });
                 },
-                error: function(xhr) {
+                error: function(xhr, status, error) {
+                    console.error('Error details:', {
+                        status: status,
+                        error: error,
+                        responseText: xhr.responseText,
+                        responseJSON: xhr.responseJSON,
+                        statusCode: xhr.status
+                    });
+                    
+                    let errorMessage = 'Terjadi kesalahan saat membuat user.';
+                    
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage = xhr.responseJSON.message;
+                    } else if (xhr.status === 404) {
+                        errorMessage = 'Route tidak ditemukan. Pastikan route sudah didaftarkan.';
+                    } else if (xhr.status === 419) {
+                        errorMessage = 'CSRF token tidak valid. Silakan refresh halaman.';
+                    }
+                    
                     Swal.fire(
                         'Gagal!',
-                        'Terjadi kesalahan saat membuat user.',
+                        errorMessage,
                         'error'
                     );
                 }
@@ -271,14 +301,15 @@ function createMultipleUsers() {
             });
 
             $.ajax({
-                url: '/admin/user/create-multiple',
+                url: "{{ route('admin.user.create-multiple') }}", // Menggunakan route helper
                 type: 'POST',
                 data: {
                     "_token": "{{ csrf_token() }}",
                     "id_pegawai": selectedPegawai
                 },
                 success: function(response) {
-                    console.log('Success response:', response); // Debug log
+                    console.log('Success response:', response);
+                    
                     Swal.fire(
                         'Berhasil!',
                         'User berhasil dibuat untuk ' + response.created + ' pegawai.',
@@ -288,14 +319,22 @@ function createMultipleUsers() {
                     });
                 },
                 error: function(xhr, status, error) {
-                    console.log('Error response:', xhr.responseText); // Debug log
-                    console.log('Status:', status); // Debug log
-                    console.log('Error:', error); // Debug log
+                    console.error('Error details:', {
+                        status: status,
+                        error: error,
+                        responseText: xhr.responseText,
+                        responseJSON: xhr.responseJSON,
+                        statusCode: xhr.status
+                    });
                     
                     let errorMessage = 'Terjadi kesalahan saat membuat user.';
                     
                     if (xhr.responseJSON && xhr.responseJSON.message) {
                         errorMessage = xhr.responseJSON.message;
+                    } else if (xhr.status === 404) {
+                        errorMessage = 'Route tidak ditemukan. Pastikan route sudah didaftarkan.';
+                    } else if (xhr.status === 419) {
+                        errorMessage = 'CSRF token tidak valid. Silakan refresh halaman.';
                     }
                     
                     Swal.fire(

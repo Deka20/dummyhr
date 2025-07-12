@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Pegawai;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 
@@ -149,122 +150,140 @@ class UserController extends Controller
         }
     }
 
-    /**
-     * Create user for specific pegawai
-     */
-    public function createForPegawai(Request $request)
-    {
+   /**
+ * Create user for specific pegawai with detailed debugging
+ */
+public function createForPegawai(Request $request)
+{
+    // Debug: Log request data
+    Log::info('createForPegawai Request Data:', $request->all());
+    
+    try {
+        // Step 1: Basic validation
         $validator = Validator::make($request->all(), [
-            'id_pegawai' => 'required|exists:pegawai,id_pegawai|unique:user,id_pegawai'
+            'id_pegawai' => 'required|integer|exists:pegawai,id_pegawai'
         ]);
 
         if ($validator->fails()) {
+            Log::error('Validation failed:', $validator->errors()->toArray());
             return response()->json([
                 'success' => false,
-                'message' => 'Pegawai sudah memiliki user atau tidak ditemukan.'
+                'message' => 'Validasi gagal: ' . $validator->errors()->first(),
+                'errors' => $validator->errors()
             ], 400);
         }
 
-        try {
-            $pegawai = Pegawai::findOrFail($request->id_pegawai);
-            
-            // Generate username from email (part before @)
-            $username = explode('@', $pegawai->email)[0];
-            
-            // Check if username already exists, if so add number
-            $originalUsername = $username;
-            $counter = 1;
-            while (User::where('username', $username)->exists()) {
-                $username = $originalUsername . $counter;
-                $counter++;
-            }
+        // Step 2: Get pegawai data
+        $pegawai = Pegawai::find($request->id_pegawai);
+        if (!$pegawai) {
+            Log::error('Pegawai not found:', ['id_pegawai' => $request->id_pegawai]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Pegawai tidak ditemukan.'
+            ], 404);
+        }
 
-            // Default password: pegawai123
-            $password = 'pegawai123';
+        Log::info('Pegawai found:', [
+            'id' => $pegawai->id_pegawai,
+            'nama' => $pegawai->nama,
+            'email' => $pegawai->email
+        ]);
 
-            // Default role: pegawai
-            $role = 'pegawai';
-
-            User::create([
-                'username' => $username,
-                'password' => Hash::make($password),
-                'role' => $role,
+        // Step 3: Check if user already exists
+        $existingUser = User::where('id_pegawai', $request->id_pegawai)->first();
+        if ($existingUser) {
+            Log::warning('User already exists:', [
                 'id_pegawai' => $request->id_pegawai,
+                'username' => $existingUser->username
             ]);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'User berhasil dibuat dengan username: ' . $username
-            ]);
-
-        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Terjadi kesalahan saat membuat user.'
-            ], 500);
-        }
-    }
-
-    /**
-     * Create users for multiple pegawai
-     */
-    public function createMultiple(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'id_pegawai' => 'required|array|min:1',
-            'id_pegawai.*' => 'required|exists:pegawai,id_pegawai|unique:user,id_pegawai'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Beberapa pegawai sudah memiliki user atau tidak ditemukan.'
+                'message' => 'Pegawai sudah memiliki user dengan username: ' . $existingUser->username
             ], 400);
         }
 
-        try {
-            $createdCount = 0;
-            $pegawaiList = Pegawai::whereIn('id_pegawai', $request->id_pegawai)->get();
+        // Step 4: Generate username
+        $username = $this->generateUsername($pegawai);
+        Log::info('Generated username:', ['username' => $username]);
 
-            foreach ($pegawaiList as $pegawai) {
-                // Generate username from email (part before @)
-                $username = explode('@', $pegawai->email)[0];
-                
-                // Check if username already exists, if so add number
-                $originalUsername = $username;
-                $counter = 1;
-                while (User::where('username', $username)->exists()) {
-                    $username = $originalUsername . $counter;
-                    $counter++;
-                }
+        // Step 5: Create user
+        $userData = [
+            'username' => $username,
+            'password' => Hash::make('pegawai123'),
+            'role' => 'pegawai',
+            'id_pegawai' => $request->id_pegawai,
+        ];
 
-                // Default password: pegawai123
-                $password = 'pegawai123';
+        Log::info('Creating user with data:', $userData);
 
-                // Default role: pegawai
-                $role = 'pegawai';
+        $user = User::create($userData);
 
-                User::create([
-                    'username' => $username,
-                    'password' => Hash::make($password),
-                    'role' => $role,
-                    'id_pegawai' => $pegawai->id_pegawai,
-                ]);
+        Log::info('User created successfully:', [
+            'user_id' => $user->id_user ?? $user->id,
+            'username' => $user->username
+        ]);
 
-                $createdCount++;
-            }
+        return response()->json([
+            'success' => true,
+            'message' => 'User berhasil dibuat dengan username: ' . $username,
+            'data' => [
+                'username' => $username,
+                'password' => 'pegawai123',
+                'role' => 'pegawai'
+            ]
+        ]);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Berhasil membuat ' . $createdCount . ' user.',
-                'created' => $createdCount
-            ]);
+    } catch (\Exception $e) {
+        Log::error('Error in createForPegawai:', [
+            'message' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'trace' => $e->getTraceAsString()
+        ]);
 
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Terjadi kesalahan saat membuat user.'
-            ], 500);
-        }
+        return response()->json([
+            'success' => false,
+            'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+            'debug' => [
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ]
+        ], 500);
     }
+}
+
+/**
+ * Generate username from pegawai data
+ */
+private function generateUsername($pegawai)
+{
+    $username = null;
+    
+    // Try to generate from email
+    if (!empty($pegawai->email) && strpos($pegawai->email, '@') !== false) {
+        $emailParts = explode('@', $pegawai->email);
+        $username = $emailParts[0];
+    } else {
+        // Fallback to name
+        $username = strtolower(str_replace(' ', '', $pegawai->nama));
+    }
+    
+    // Clean username (only alphanumeric)
+    $username = preg_replace('/[^a-zA-Z0-9]/', '', $username);
+    
+    // Ensure username is not empty
+    if (empty($username)) {
+        $username = 'user' . $pegawai->id_pegawai;
+    }
+    
+    // Make sure username is unique
+    $originalUsername = $username;
+    $counter = 1;
+    while (User::where('username', $username)->exists()) {
+        $username = $originalUsername . $counter;
+        $counter++;
+    }
+    
+    return $username;
+}
 }

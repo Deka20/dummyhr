@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use Carbon\Carbon;
 use App\Models\Cuti;
 use App\Models\JenisCuti;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
 
 class CutiController extends Controller
 {
@@ -44,6 +45,7 @@ class CutiController extends Controller
     public function store(Request $request)
     {
         $user = Auth::user();
+        DB::statement("SET @current_user_id = " . $user->id_user);
 
         $request->validate([
             'id_jenis_cuti' => 'required|exists:jenis_cuti,id_jenis_cuti',
@@ -173,6 +175,7 @@ public function update(Request $request, $id)
 {
     $cuti = Cuti::findOrFail($id);
     $user = Auth::user();
+    DB::statement("SET @current_user_id = " . $user->id_user);
 
     // Check if the leave belongs to the logged-in user
     if ($cuti->id_pegawai !== $user->id_pegawai) {
@@ -246,6 +249,7 @@ public function update(Request $request, $id)
     {
         $cuti = Cuti::findOrFail($id);
         $user = Auth::user();
+        DB::statement("SET @current_user_id = " . $user->id_user);
 
         // Check if the leave belongs to the logged-in user
         if ($cuti->id_pegawai !== $user->id_pegawai) {
