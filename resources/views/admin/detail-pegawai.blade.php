@@ -25,9 +25,9 @@
                     <div class="row">
                         <!-- Foto Pegawai -->
                         <div class="col-md-3 text-center mb-4">
-                            @if($pegawai->foto)
-                                <img src="{{ asset('uploads/pegawai/' . $pegawai->foto) }}" 
-                                     alt="Foto {{ $pegawai->nama }}" 
+                            @if($pegawai2->foto)
+                                <img src="{{ asset('uploads/pegawai/' . $pegawai2->foto) }}" 
+                                     alt="Foto {{ $pegawai2->nama }}" 
                                      class="img-thumbnail" 
                                      style="max-width: 200px; max-height: 250px;">
                             @else

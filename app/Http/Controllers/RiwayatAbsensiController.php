@@ -44,11 +44,7 @@ class RiwayatAbsensiController extends Controller
             $query->where('status_kehadiran', $status);
         }
 
-        // Pagination - 15 data per halaman
-        $absensi = $query->paginate(15);
-        
-        // Append query parameters untuk mempertahankan filter saat pagination
-        $absensi->appends($request->query());
+        $absensi = $query->paginate(10)->withQueryString();
 
         // Data untuk filter dropdown
         $bulanList = [

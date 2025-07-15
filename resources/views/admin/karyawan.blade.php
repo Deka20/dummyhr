@@ -89,73 +89,40 @@
         </div>
 
         <div class="card-body">
-          <!-- Info dan Kontrol -->
-          <div class="row mb-3">
-            <div class="col-md-6">
-              <div class="d-flex align-items-center">
-                <label class="form-label me-2">Tampilkan:</label>
-                <select name="per_page" class="form-select" style="width: auto;" onchange="changePerPage(this.value)">
-                  <option value="10" {{ request('per_page') == '10' ? 'selected' : '' }}>10</option>
-                  <option value="25" {{ request('per_page') == '25' ? 'selected' : '' }}>25</option>
-                  <option value="50" {{ request('per_page') == '50' ? 'selected' : '' }}>50</option>
-                  <option value="100" {{ request('per_page') == '100' ? 'selected' : '' }}>100</option>
-                </select>
-                <span class="ms-2">data per halaman</span>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="d-flex align-items-center justify-content-end">
-                <span class="me-3">
-                  Menampilkan {{ $karyawan->firstItem() ?? 0 }} - {{ $karyawan->lastItem() ?? 0 }} 
-                  dari {{ $karyawan->total() }} data
-                </span>
-              </div>
-            </div>
-          </div>
-
+          <!-- Info Sederhana -->
           <div class="table-responsive">
             <table class="table table-striped table-bordered">
-              <thead>
-                <tr>
-                  <th>
-                    <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'nama', 'sort_order' => request('sort_by') == 'nama' && request('sort_order') == 'asc' ? 'desc' : 'asc']) }}" 
-                       class="text-decoration-none text-dark">
-                      Nama
-                      @if(request('sort_by') == 'nama')
-                        <i class="fas fa-sort-{{ request('sort_order') == 'asc' ? 'up' : 'down' }}"></i>
-                      @else
-                        <i class="fas fa-sort"></i>
-                      @endif
-                    </a>
-                  </th>
-                  <th>Departemen</th>
-                  <th>Jabatan</th>
-                  <th>Tempat Lahir</th>
-                  <th>
-                    <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'jenis_kelamin', 'sort_order' => request('sort_by') == 'jenis_kelamin' && request('sort_order') == 'asc' ? 'desc' : 'asc']) }}" 
-                       class="text-decoration-none text-dark">
-                      Jenis Kelamin
-                      @if(request('sort_by') == 'jenis_kelamin')
-                        <i class="fas fa-sort-{{ request('sort_order') == 'asc' ? 'up' : 'down' }}"></i>
-                      @else
-                        <i class="fas fa-sort"></i>
-                      @endif
-                    </a>
-                  </th>
-                  <th>
-                    <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'tanggal_masuk', 'sort_order' => request('sort_by') == 'tanggal_masuk' && request('sort_order') == 'asc' ? 'desc' : 'asc']) }}" 
-                       class="text-decoration-none text-dark">
-                      Tanggal Masuk
-                      @if(request('sort_by') == 'tanggal_masuk')
-                        <i class="fas fa-sort-{{ request('sort_order') == 'asc' ? 'up' : 'down' }}"></i>
-                      @else
-                        <i class="fas fa-sort"></i>
-                      @endif
-                    </a>
-                  </th>
-                  <th>Aksi</th>
-                </tr>
-              </thead>
+             <thead>
+              <tr>
+                <th>
+                  <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'nama', 'sort_order' => request('sort_by') == 'nama' && request('sort_order') == 'asc' ? 'desc' : 'asc']) }}" 
+                    class="text-decoration-none text-dark">
+                    Nama
+                    @if(request('sort_by') == 'nama')
+                      <i class="fas fa-sort-{{ request('sort_order') == 'asc' ? 'up' : 'down' }}"></i>
+                    @else
+                      <i class="fas fa-sort"></i>
+                    @endif
+                  </a>
+                </th>
+                <th>Departemen</th>
+                <th>Jabatan</th>
+                <th>Tempat Lahir</th>
+                <th>
+                  <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'jenis_kelamin', 'sort_order' => request('sort_by') == 'jenis_kelamin' && request('sort_order') == 'asc' ? 'desc' : 'asc']) }}" 
+                    class="text-decoration-none text-dark">
+                    Jenis Kelamin
+                    @if(request('sort_by') == 'jenis_kelamin')
+                      <i class="fas fa-sort-{{ request('sort_order') == 'asc' ? 'up' : 'down' }}"></i>
+                    @else
+                      <i class="fas fa-sort"></i>
+                    @endif
+                  </a>
+                </th>
+                <th>Tanggal Masuk</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
               <tbody>
                 @forelse($karyawan as $p)
                 <tr>
@@ -180,17 +147,13 @@
                     </a>
 
                     <!-- Delete Button -->
-                    <form action="{{ route('pegawai.destroy', $p->id_pegawai) }}" 
-                          method="POST" 
-                          onsubmit="return confirm('Apakah Anda yakin ingin menghapus pegawai {{ $p->nama }}?')">
-                      @csrf
-                      @method('DELETE')
-                      <button style="background-color:red" type="submit" 
-                              class="btn btn-sm d-flex text-white align-items-center gap-1" 
-                              title="Hapus">
-                        <i class="fas fa-trash-alt"></i> Hapus
-                      </button>
-                    </form>
+                    <button type="button"
+                          class="btn btn-sm d-flex text-white align-items-center gap-1 btn-delete"
+                          data-id="{{ $p->id_pegawai }}"
+                          data-nama="{{ $p->nama }}"
+                          style="background-color:red">
+                      <i class="fas fa-trash-alt"></i> Hapus
+                    </button>
 
                     <!-- View Button -->
                     <a href="{{ route('pegawai.show', $p->id_pegawai) }}" 
@@ -217,18 +180,12 @@
             </table>
           </div>
 
-          <!-- Pagination -->
-          <div class="d-flex justify-content-between align-items-center mt-3">
-            <div>
-              <small class="text-muted">
-                Menampilkan {{ $karyawan->firstItem() ?? 0 }} - {{ $karyawan->lastItem() ?? 0 }} 
-                dari {{ $karyawan->total() }} data
-              </small>
-            </div>
-            <div>
-              {{ $karyawan->links() }}
-            </div>
-          </div>
+<div class="d-flex justify-content-between align-items-center mt-3">
+  <small class="text-muted">
+    Menampilkan {{ $karyawan->firstItem() }}-{{ $karyawan->lastItem() }} dari {{ $karyawan->total() }} data
+  </small>
+  {{ $karyawan->appends(request()->query())->links('pagination::bootstrap-4') }}
+</div>
         </div>
       </div>
     </div>
@@ -350,20 +307,8 @@
 @endsection
 
 @push('scripts')
- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
 <script>
-  
-
-
-  // Function untuk mengubah per_page
-  function changePerPage(value) {
-    const url = new URL(window.location.href);
-    url.searchParams.set('per_page', value);
-    url.searchParams.set('page', 1); // Reset ke halaman 1
-    window.location.href = url.toString();
-  };
-
   // Preview foto saat upload
   document.getElementById('inputFoto').addEventListener('change', function(e) {
     const file = e.target.files[0];
@@ -391,20 +336,70 @@
       modal.show();
     });
   @endif
-
-  
 </script>
+
 <script>
-       @if(session('success'))
-      Swal.fire({
-        icon: 'success',
-        title: 'Berhasil!',
-        text: '{{ session('success') }}',
-        timer: 3000,
-        showConfirmButton: false
-      });
+    @if(session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: '{{ session('success') }}',
+            timer: 3000,
+            showConfirmButton: false
+        });
     @endif
-// </script>
+
+    @if(session('alert'))
+        Swal.fire({
+            icon: '{{ session('alert.type') ?? 'info' }}',
+            title: '{{ session('alert.title') ?? 'Info' }}',
+            html: `{!! session('alert.message') !!}`,
+            @if(session('alert.errors'))
+                footer: '<ul class="text-start list-unstyled mb-0">{!! collect(session('alert.errors'))->map(fn($e)=>"<li>• ".$e."</li>")->implode('') !!}</ul>',
+            @endif
+            showConfirmButton: true
+        });
+    @endif
+
+    @if(session('notifikasi'))
+        Swal.fire({
+            icon: '{{ session('type') ?? 'info' }}',
+            title: 'Pemberitahuan',
+            text: '{{ session('notifikasi') }}',
+            timer: 3000,
+            showConfirmButton: false
+        });
+    @endif
+</script>
+
+<script>
+  $(document).on('click', '.btn-delete', function() {
+    const id = $(this).data('id');
+    const nama = $(this).data('nama');
+
+    Swal.fire({
+        title: 'Yakin hapus?',
+        text: `Data pegawai "${nama}" akan dihapus permanen.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Ya, hapus',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Gunakan route yang benar
+            const form = $('<form>', {
+                action: `{{ url('pegawai') }}/${id}`,
+                method: 'POST'
+            }).append('@csrf')
+              .append('<input type="hidden" name="_method" value="DELETE">');
+
+            $('body').append(form);
+            form.submit();
+        }
+    });
+  });
+</script>
+
 @endpush
 
 @push('styles')

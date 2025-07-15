@@ -169,7 +169,7 @@
                 <div class="mt-2">
                   <small class="text-info">Foto saat ini:</small>
                   <div class="mt-1">
-                    <img src="{{ asset('uploads/pegawai/' . $pegawai->foto) }}" 
+                    <img src="{{ asset('uploads/pegawai/' . $pegawai_dipilih->foto) }}" 
                          alt="Foto {{ $pegawai->nama }}" 
                          class="img-thumbnail" 
                          style="max-width: 150px; max-height: 150px;">

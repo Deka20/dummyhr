@@ -223,6 +223,7 @@
                                     </tbody>
                                 </table>
                             </div>
+
                         </div>
                     </div>
                 </div>
@@ -553,5 +554,37 @@ function cancelLeave(button) {
         button.closest('form').submit();
     }
 }
+
+@if(session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: '{{ session('success') }}',
+            timer: 3000,
+            showConfirmButton: false
+        });
+    @endif
+
+    @if(session('alert'))
+        Swal.fire({
+            icon: '{{ session('alert.type') ?? 'info' }}',
+            title: '{{ session('alert.title') ?? 'Info' }}',
+            html: `{!! session('alert.message') !!}`,
+            @if(session('alert.errors'))
+                footer: '<ul class="text-start list-unstyled mb-0">{!! collect(session('alert.errors'))->map(fn($e)=>"<li>• ".$e."</li>")->implode('') !!}</ul>',
+            @endif
+            showConfirmButton: true
+        });
+    @endif
+
+    @if(session('notifikasi'))
+        Swal.fire({
+            icon: '{{ session('type') ?? 'info' }}',
+            title: 'Pemberitahuan',
+            text: '{{ session('notifikasi') }}',
+            timer: 3000,
+            showConfirmButton: false
+        });
+    @endif
 </script>
 @endpush

@@ -47,10 +47,8 @@ class AbsensiController extends Controller
         }
         
         // Pagination dengan Laravel (15 data per halaman)
-        $absensi = $query->paginate(15);
+        $absensi= $query->paginate(10)->withQueryString();
         
-        // Append query parameters untuk pagination
-        $absensi->appends($request->query());
         
         // Return view berdasarkan role
         if ($user->role === 'pegawai') {

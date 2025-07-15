@@ -22,8 +22,12 @@ class UserController extends Controller
     $pegawai = $currentUser->pegawai;
     $nama_departemen = $pegawai->departemen->nama_departemen ?? 'N/A'; // Perbaikan dari $currentPegawai
 
+
     // Ambil semua user dengan relasi pegawai, departemen, dan jabatan
-    $users = User::with(['pegawai.departemen', 'pegawai.jabatan'])->get();
+    $users = User::with(['pegawai.departemen', 'pegawai.jabatan'])
+    ->orderBy('username')
+    ->paginate(10)
+    ->withQueryString();
 
     // Ambil pegawai yang belum memiliki user
     $pegawaiTanpaUser = Pegawai::whereDoesntHave('user')

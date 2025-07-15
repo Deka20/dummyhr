@@ -164,11 +164,12 @@
           </div>
 
           <!-- Pagination Section -->
-          @if($absensi->hasPages())
-            <div class="d-flex justify-content-center mt-4">
-              {{ $absensi->links() }}
-            </div>
-          @endif
+ <div class="d-flex justify-content-between align-items-center mt-3">
+  <small class="text-muted">
+    Menampilkan {{ $absensi->firstItem() }}-{{ $absensi->lastItem() }} dari {{ $absensi->total() }} data
+  </small>
+  {{ $absensi->appends(request()->query())->links('pagination::bootstrap-4') }}
+</div>
         </div>
       </div>
     </div>

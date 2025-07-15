@@ -24,7 +24,6 @@ class Pegawai extends Model
         'tanggal_masuk',
         'foto',
         'jatahtahunan',
-        'golongan' // Tambahkan field golongan
     ];
 
     protected $casts = [
@@ -32,26 +31,14 @@ class Pegawai extends Model
         'tanggal_masuk' => 'date',
     ];
 
-    // Konstanta untuk golongan
-    const GOLONGAN_A = 'A'; // Direktur/Manager
-    const GOLONGAN_B = 'B'; // Supervisor/Team Lead
-    const GOLONGAN_C = 'C'; // Staff Senior
-    const GOLONGAN_D = 'D'; // Staff Junior
-
-    public static function getGolonganOptions()
-    {
-        return [
-            self::GOLONGAN_A => 'Golongan A (Direktur/Manager)',
-            self::GOLONGAN_B => 'Golongan B (Supervisor/Team Lead)',
-            self::GOLONGAN_C => 'Golongan C (Staff Senior)',
-            self::GOLONGAN_D => 'Golongan D (Staff Junior)',
-        ];
-    }
-
     public function user()
     {
         return $this->hasOne(User::class, 'id_pegawai', 'id_pegawai');
     }
+    public function kehadiran()
+{
+    return $this->hasMany(Absensi::class, 'id_pegawai', 'id_pegawai');
+}
 
     public function departemen()
     {

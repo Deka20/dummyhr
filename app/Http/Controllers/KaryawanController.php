@@ -19,82 +19,71 @@ class KaryawanController extends Controller
     /**
      * Menampilkan daftar semua karyawan dengan filter dan pagination
      */
-    public function index(Request $request)
-    {
-        try {
-            $pegawai = Auth::user()->pegawai;
-            $nama_departemen = $pegawai?->departemen?->nama_departemen ?? '';
+     public function index(Request $request)
+{
+    try {
+        $pegawai = Auth::user()->pegawai;
+        $nama_departemen = $pegawai?->departemen?->nama_departemen ?? '';
 
-            // Query builder untuk pegawai
-            $query = Pegawai::with(['jabatan', 'departemen']);
+        // Query builder untuk pegawai
+        $query = Pegawai::with(['jabatan', 'departemen']);
 
-            // Filter berdasarkan nama
-            if ($request->filled('nama')) {
-                $query->where('nama', 'like', '%' . $request->nama . '%');
-            }
-
-            // Filter berdasarkan departemen
-            if ($request->filled('departemen')) {
-                $query->where('id_departemen', $request->departemen);
-            }
-
-            // Filter berdasarkan jabatan
-            if ($request->filled('jabatan')) {
-                $query->where('id_jabatan', $request->jabatan);
-            }
-
-            // Filter berdasarkan jenis kelamin
-            if ($request->filled('jenis_kelamin')) {
-                $query->where('jenis_kelamin', $request->jenis_kelamin);
-            }
-
-            // Filter berdasarkan tanggal masuk
-            if ($request->filled('tanggal_masuk_dari')) {
-                $query->where('tanggal_masuk', '>=', $request->tanggal_masuk_dari);
-            }
-
-            if ($request->filled('tanggal_masuk_sampai')) {
-                $query->where('tanggal_masuk', '<=', $request->tanggal_masuk_sampai);
-            }
-
-            // Sorting
-            $sortBy = $request->get('sort_by', 'nama');
-            $sortOrder = $request->get('sort_order', 'asc');
-            
-            if (in_array($sortBy, ['nama', 'tanggal_masuk', 'jenis_kelamin'])) {
-                $query->orderBy($sortBy, $sortOrder);
-            } else {
-                $query->orderBy('nama', 'asc');
-            }
-
-            // Pagination
-            $perPage = $request->get('per_page', 10);
-            if (!in_array($perPage, [10, 25, 50, 100])) {
-                $perPage = 10;
-            }
-
-            $karyawan = $query->paginate($perPage)->appends($request->query());
-
-            return view('admin.karyawan', [
-                'karyawan' => $karyawan,
-                'pegawai' => $pegawai,
-                'nama_departemen' => $nama_departemen,
-                'departemen' => Departemen::all(),
-                'jabatan' => Jabatan::all(),
-                'filters' => $request->only(['nama', 'departemen', 'jabatan', 'jenis_kelamin', 'tanggal_masuk_dari', 'tanggal_masuk_sampai']),
-                'currentSort' => ['sort_by' => $sortBy, 'sort_order' => $sortOrder],
-                'perPage' => $perPage,
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Error saat memuat halaman karyawan: ' . $e->getMessage());
-            
-            return back()->with([
-                'notifikasi' => 'Terjadi kesalahan saat memuat data karyawan.',
-                'type' => 'error'
-            ]);
+        // Filter berdasarkan nama
+        if ($request->filled('nama')) {
+            $query->where('nama', 'like', '%' . $request->nama . '%');
         }
-    }
 
+        // Filter berdasarkan departemen
+        if ($request->filled('departemen')) {
+            $query->where('id_departemen', $request->departemen);
+        }
+
+        // Filter berdasarkan jabatan
+        if ($request->filled('jabatan')) {
+            $query->where('id_jabatan', $request->jabatan);
+        }
+
+        // Filter berdasarkan jenis kelamin
+        if ($request->filled('jenis_kelamin')) {
+            $query->where('jenis_kelamin', $request->jenis_kelamin);
+        }
+
+        // Filter berdasarkan tanggal masuk
+        if ($request->filled('tanggal_masuk_dari')) {
+            $query->where('tanggal_masuk', '>=', $request->tanggal_masuk_dari);
+        }
+
+        if ($request->filled('tanggal_masuk_sampai')) {
+            $query->where('tanggal_masuk', '<=', $request->tanggal_masuk_sampai);
+        }
+
+        // Sorting
+        $sortBy = $request->get('sort_by', 'nama');
+        $sortOrder = $request->get('sort_order', 'asc');
+
+        if (in_array($sortBy, ['nama', 'jenis_kelamin', 'tanggal_masuk'])) {
+            $query->orderBy($sortBy, $sortOrder);
+        } else {
+            $query->orderBy('nama', 'asc');
+        }
+
+        $karyawan = $query->paginate(10)->withQueryString();
+        return view('admin.karyawan', [
+            'karyawan' => $karyawan,
+            'pegawai' => $pegawai,
+            'nama_departemen' => $nama_departemen,
+            'departemen' => Departemen::all(),
+            'jabatan' => Jabatan::all(),
+        ]);
+    } catch (\Exception $e) {
+        Log::error('Error saat memuat halaman karyawan: ' . $e->getMessage());
+        
+        return back()->with([
+            'notifikasi' => 'Terjadi kesalahan saat memuat data karyawan.',
+            'type' => 'error'
+        ]);
+    }
+}
     /**
      * Menampilkan form untuk menambah karyawan baru
      */
@@ -140,7 +129,8 @@ class KaryawanController extends Controller
                
             Log::info('Pegawai berhasil dibuat dengan ID: ' . $pegawai->id_pegawai);
 
-            return redirect()->back()->with('success');
+            return redirect()->back()->with('success', 'Data pegawai berhasil ditambahkan.');
+
 
         } catch (ValidationException $e) {
             Log::error('Error validasi: ', $e->errors());
@@ -190,14 +180,16 @@ class KaryawanController extends Controller
     public function show($id)
     {
         try {
-            $pegawai = Pegawai::with(['jabatan', 'departemen'])->findOrFail($id);
+            $pegawai = Auth::user()->pegawai;
+            $pegawai2 = Pegawai::with(['jabatan', 'departemen'])->findOrFail($id);
             
             // Hitung masa kerja dan umur
-            $masaKerja = Carbon::parse($pegawai->tanggal_masuk)->diffForHumans(null, true);
-            $umur = Carbon::parse($pegawai->tanggal_lahir)->age;
+            $masaKerja = Carbon::parse($pegawai2->tanggal_masuk)->diffForHumans(null, true);
+            $umur = Carbon::parse($pegawai2->tanggal_lahir)->age;
             $nama_departemen = $pegawai->departemen->nama_departemen ?? '';
             
             return view('admin.detail-pegawai', [
+                'pegawai2' => $pegawai2,
                 'pegawai' => $pegawai,
                 'masaKerja' => $masaKerja,
                 'umur' => $umur,
@@ -273,13 +265,8 @@ class KaryawanController extends Controller
             // Update data pegawai
             $pegawai->update($validated);
 
-            return redirect()->route('admin.karyawan')->with([
-                'alert' => [
-                    'type' => 'success',
-                    'title' => 'Berhasil!',
-                    'message' => 'Data pegawai berhasil diperbarui.'
-                ]
-            ]);
+            return redirect()->route('admin.karyawan')->with('success', 'Data pegawai berhasil diperbarui.');
+
 
         } catch (ValidationException $e) {
             // Kumpulkan semua pesan error validasi
@@ -330,34 +317,43 @@ class KaryawanController extends Controller
     /**
      * Hapus data karyawan
      */
-    public function destroy($id)
+   public function destroy($id)
 {
     try {
         $user = Auth::user();
         DB::statement("SET @current_user_id = " . $user->id_user);
-        
+
+        // Cari pegawai dengan relasi yang benar
         $pegawai = Pegawai::findOrFail($id);
-        
-        // Mulai transaction untuk memastikan atomicity
+
         DB::beginTransaction();
-        
-        // Hapus user yang terkait dengan pegawai terlebih dahulu
-        if ($pegawai->user) {
-            $pegawai->user->delete();
+
+        // 1. Hapus data kehadiran (pastikan nama relasi benar)
+        // Sesuaikan dengan nama relasi yang ada di Model Pegawai
+        DB::table('kehadiran')->where('id_pegawai', $id)->delete();
+
+        // 2. Hapus data cuti
+        DB::table('cuti')->where('id_pegawai', $id)->delete();
+
+
+        // 4. Hapus user terkait (jika ada kolom id_pegawai di tabel users)
+        $user_terkait = DB::table('user')->where('id_pegawai', $id)->first();
+        if ($user_terkait) {
+            DB::table('user')->where('id_pegawai', $id)->delete();
         }
-        
-        // Hapus foto jika ada dan bukan foto default
+
+        // 5. Hapus foto jika bukan default
         if ($pegawai->foto && $pegawai->foto !== 'avatar-1.jpg') {
             $this->hapusFoto($pegawai->foto);
         }
-        
-        // Hapus pegawai
+
+        // 6. Terakhir, hapus pegawai
         $pegawai->delete();
-        
+
         DB::commit();
-        
-        return redirect()->back()->with('success');
-        
+
+        return redirect()->back()->with('success', 'Data pegawai dan seluruh data terkait berhasil dihapus.');
+
     } catch (ModelNotFoundException $e) {
         DB::rollback();
         return redirect()->route('admin.karyawan')->with([
@@ -367,9 +363,10 @@ class KaryawanController extends Controller
     } catch (\Exception $e) {
         DB::rollback();
         Log::error('Error saat menghapus pegawai: ' . $e->getMessage());
-        
+        Log::error('Stack trace: ' . $e->getTraceAsString());
+
         return redirect()->route('admin.karyawan')->with([
-            'notifikasi' => 'Terjadi kesalahan saat menghapus data pegawai!',
+            'notifikasi' => 'Terjadi kesalahan saat menghapus data pegawai: ' . $e->getMessage(),
             'type' => 'error'
         ]);
     }

@@ -286,10 +286,8 @@
                                                  class="rounded-circle" 
                                                  width="40" height="40">
                                         @else
-                                            <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center" 
-                                                 style="width: 40px; height: 40px;">
-                                                <i class="fas fa-user text-white"></i>
-                                            </div>
+                                         <img src="{{ asset('assets/images/user/avatar-1.jpg') }}" alt="Default Profile"  class="rounded-circle" 
+                                                 width="40" height="40">
                                         @endif
                                     </div>
                                     <div>

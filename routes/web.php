@@ -44,7 +44,7 @@ Route::middleware(['auth', 'check.role:hrd'])->prefix('hrd')->group(function () 
     Route::get('/lokasi-kantor/{id}', [AdminDashboardController::class, 'getLokasiKantor'])->name('admin.lokasi-kantor.get')->where('id', '[0-9]+');
 
     // Karyawan
-    Route::prefix('karyawan')->group(function () {
+    Route::prefix('pegawai')->group(function () {
         Route::get('/', [KaryawanController::class, 'index'])->name('admin.karyawan');
         Route::get('/create', [KaryawanController::class, 'create'])->name('karyawan.create');
         Route::post('/', [KaryawanController::class, 'store'])->name('karyawan.store');

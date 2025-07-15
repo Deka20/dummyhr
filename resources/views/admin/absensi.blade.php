@@ -31,29 +31,67 @@
             </div>
           @endif
 
-          <!-- Filter Section (Simplified) -->
+          <!-- Filter Section -->
           <div class="p-3 border-bottom bg-light">
-            <div class="row g-3">
-              <div class="col-md-4">
-                <label class="form-label small fw-bold">Filter Status</label>
-                <select class="form-select form-select-sm" id="filterStatus">
-                  <option value="">Semua Status</option>
-                  <option value="Hadir">Hadir</option>
-                  <option value="Izin">Izin</option>
-                  <option value="Sakit">Sakit</option>
-                  <option value="Tidak Hadir">Tidak Hadir</option>
-                </select>
+            <form method="GET" action="{{ route('admin.absensi') }}" class="mb-3">
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <label class="form-label small fw-bold">Filter Status</label>
+                  <select class="form-select form-select-sm" name="status" id="filterStatus">
+                    <option value="">Semua Status</option>
+                    <option value="Hadir" {{ request('status') == 'Hadir' ? 'selected' : '' }}>Hadir</option>
+                    <option value="Izin" {{ request('status') == 'Izin' ? 'selected' : '' }}>Izin</option>
+                    <option value="Sakit" {{ request('status') == 'Sakit' ? 'selected' : '' }}>Sakit</option>
+                    <option value="Tidak Hadir" {{ request('status') == 'Tidak Hadir' ? 'selected' : '' }}>Tidak Hadir</option>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label small fw-bold">Dari Tanggal</label>
+                  <input type="date" class="form-control form-control-sm" name="tanggal_mulai" id="filterTanggalMulai" value="{{ request('tanggal_mulai') }}">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label small fw-bold">Sampai Tanggal</label>
+                  <input type="date" class="form-control form-control-sm" name="tanggal_akhir" id="filterTanggalAkhir" value="{{ request('tanggal_akhir') }}">
+                </div>
               </div>
-              <div class="col-md-4">
-                <label class="form-label small fw-bold">Dari Tanggal</label>
-                <input type="date" class="form-control form-control-sm" id="filterTanggalMulai">
+              <div class="row mt-3">
+                <div class="col-md-12">
+                  <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i> Filter
+                  </button>
+                  <a href="{{ route('admin.absensi') }}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Reset
+                  </a>
+                </div>
               </div>
-              <div class="col-md-4">
-                <label class="form-label small fw-bold">Sampai Tanggal</label>
-                <input type="date" class="form-control form-control-sm" id="filterTanggalAkhir">
+            </form>
+          </div>
+
+          {{-- <!-- Info dan Kontrol -->
+          <div class="p-3 border-bottom">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="d-flex align-items-center">
+                  <label class="form-label me-2">Tampilkan:</label>
+                  <select name="per_page" class="form-select" style="width: auto;" onchange="changePerPage(this.value)">
+                    <option value="10" {{ request('per_page') == '10' ? 'selected' : '' }}>10</option>
+                    <option value="25" {{ request('per_page') == '25' ? 'selected' : '' }}>25</option>
+                    <option value="50" {{ request('per_page') == '50' ? 'selected' : '' }}>50</option>
+                    <option value="100" {{ request('per_page') == '100' ? 'selected' : '' }}>100</option>
+                  </select>
+                  <span class="ms-2">data per halaman</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-center justify-content-end">
+                  <span class="me-3">
+                    Menampilkan {{ $absensi->firstItem() ?? 0 }} - {{ $absensi->lastItem() ?? 0 }} 
+                    dari {{ $absensi->total() }} data
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
+          </div> --}}
 
           <!-- Table Section -->
           <div class="table-responsive">
@@ -61,10 +99,40 @@
               <thead class="table-light">
                 <tr>
                   <th class="text-center">No</th>
-                  <th><i class="fas fa-user me-1"></i>Nama Pegawai</th>
+                  <th>
+                    <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'nama', 'sort_order' => request('sort_by') == 'nama' && request('sort_order') == 'asc' ? 'desc' : 'asc']) }}" 
+                       class="text-decoration-none text-dark">
+                      <i class="fas fa-user me-1"></i>Nama Pegawai
+                      @if(request('sort_by') == 'nama')
+                        <i class="fas fa-sort-{{ request('sort_order') == 'asc' ? 'up' : 'down' }}"></i>
+                      @else
+                        <i class="fas fa-sort"></i>
+                      @endif
+                    </a>
+                  </th>
                   <th><i class="fas fa-building me-1"></i>Departemen</th>
-                  <th><i class="fas fa-calendar me-1"></i>Tanggal</th>
-                  <th class="text-center"><i class="fas fa-clipboard-check me-1"></i>Status</th>
+                  <th>
+                    <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'tanggal', 'sort_order' => request('sort_by') == 'tanggal' && request('sort_order') == 'asc' ? 'desc' : 'asc']) }}" 
+                       class="text-decoration-none text-dark">
+                      <i class="fas fa-calendar me-1"></i>Tanggal
+                      @if(request('sort_by') == 'tanggal')
+                        <i class="fas fa-sort-{{ request('sort_order') == 'asc' ? 'up' : 'down' }}"></i>
+                      @else
+                        <i class="fas fa-sort"></i>
+                      @endif
+                    </a>
+                  </th>
+                  <th class="text-center">
+                    <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'status_kehadiran', 'sort_order' => request('sort_by') == 'status_kehadiran' && request('sort_order') == 'asc' ? 'desc' : 'asc']) }}" 
+                       class="text-decoration-none text-dark">
+                      <i class="fas fa-clipboard-check me-1"></i>Status
+                      @if(request('sort_by') == 'status_kehadiran')
+                        <i class="fas fa-sort-{{ request('sort_order') == 'asc' ? 'up' : 'down' }}"></i>
+                      @else
+                        <i class="fas fa-sort"></i>
+                      @endif
+                    </a>
+                  </th>
                   <th class="text-center"><i class="fas fa-clock me-1"></i>Masuk</th>
                   <th class="text-center"><i class="fas fa-clock me-1"></i>Keluar</th>
                   <th class="text-center"><i class="fas fa-cogs me-1"></i>Aksi</th>
@@ -119,26 +187,25 @@
                         <span class="text-muted">-</span>
                       @endif
                     </td>
-<td class="text-center">
-  @if($item->waktu_pulang)
-    <div class="fw-bold text-danger">
-      {{ \Carbon\Carbon::parse($item->waktu_pulang)->format('H:i') }}
-    </div>
-    <small class="text-muted">WIB</small>
-  @else
-    @if(
-      $item->status_kehadiran === 'Hadir' &&
-      \Carbon\Carbon::parse($item->tanggal)->lt(\Carbon\Carbon::today())
-    )
-      <span class="badge bg-secondary">
-        <i class="fas fa-sign-out-alt me-1"></i> Lupa Absen Pulang
-      </span>
-    @else
-      <span class="text-muted">-</span>
-    @endif
-  @endif
-</td>
-
+                    <td class="text-center">
+                      @if($item->waktu_pulang)
+                        <div class="fw-bold text-danger">
+                          {{ \Carbon\Carbon::parse($item->waktu_pulang)->format('H:i') }}
+                        </div>
+                        <small class="text-muted">WIB</small>
+                      @else
+                        @if(
+                          $item->status_kehadiran === 'Hadir' &&
+                          \Carbon\Carbon::parse($item->tanggal)->lt(\Carbon\Carbon::today())
+                        )
+                          <span class="badge bg-secondary">
+                            <i class="fas fa-sign-out-alt me-1"></i> Lupa Absen Pulang
+                          </span>
+                        @else
+                          <span class="text-muted">-</span>
+                        @endif
+                      @endif
+                    </td>
                     <td class="text-center">
                       <div class="d-flex justify-content-center gap-2">
                         <button type="button" 
@@ -170,6 +237,9 @@
                         <i class="fas fa-inbox fa-3x mb-3"></i>
                         <h5>Tidak ada data absensi</h5>
                         <p>Belum ada data absensi yang tersedia.</p>
+                        @if(request()->anyFilled(['status', 'tanggal_mulai', 'tanggal_akhir']))
+                          <a href="{{ route('admin.absensi') }}" class="btn btn-primary">Reset Filter</a>
+                        @endif
                       </div>
                     </td>
                   </tr>
@@ -178,15 +248,12 @@
             </table>
           </div>
 
-          <!-- Laravel Pagination -->
-          <div class="d-flex justify-content-between align-items-center p-3">
-            <div class="text-muted small">
-              <i class="fas fa-info-circle me-1"></i>
-              Menampilkan {{ $absensi->firstItem() ?? 0 }} sampai {{ $absensi->lastItem() ?? 0 }} dari {{ $absensi->total() }} data
-            </div>
-            <div>
-              {{ $absensi->links('pagination::bootstrap-4') }}
-            </div>
+          <!-- Pagination -->
+          <div class="d-flex justify-content-between align-items-center mt-3">
+            <small class="text-muted">
+              Menampilkan {{ $absensi->firstItem() }}-{{ $absensi->lastItem() }} dari {{ $absensi->total() }} data
+            </small>
+            {{ $absensi->appends(request()->query())->links('pagination::bootstrap-4') }}
           </div>
 
           <!-- Status Legend -->
@@ -284,32 +351,13 @@
 
 @push('scripts')
   <script>
-    // Simple filter functions (tanpa DataTables)
-    function filterTable() {
-      const status = document.getElementById('filterStatus').value;
-      const tanggalMulai = document.getElementById('filterTanggalMulai').value;
-      const tanggalAkhir = document.getElementById('filterTanggalAkhir').value;
-      
-      // Simple filtering logic - ini bisa dikembangkan lebih lanjut
-      // Untuk sekarang, filter akan me-reload halaman dengan parameter
-      const params = new URLSearchParams(window.location.search);
-      
-      if (status) params.set('status', status);
-      else params.delete('status');
-      
-      if (tanggalMulai) params.set('tanggal_mulai', tanggalMulai);
-      else params.delete('tanggal_mulai');
-      
-      if (tanggalAkhir) params.set('tanggal_akhir', tanggalAkhir);
-      else params.delete('tanggal_akhir');
-      
-      window.location.search = params.toString();
+    // Function untuk mengubah per_page
+    function changePerPage(value) {
+      const url = new URL(window.location.href);
+      url.searchParams.set('per_page', value);
+      url.searchParams.set('page', 1); // Reset ke halaman 1
+      window.location.href = url.toString();
     }
-
-    // Event listeners for filters
-    document.getElementById('filterStatus').addEventListener('change', filterTable);
-    document.getElementById('filterTanggalMulai').addEventListener('change', filterTable);
-    document.getElementById('filterTanggalAkhir').addEventListener('change', filterTable);
 
     // Export function (simplified)
     function exportTable() {
@@ -347,4 +395,53 @@
       document.body.removeChild(link);
     }
   </script>
+@endpush
+
+@push('styles')
+<style>
+  .table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+  }
+  
+  .table th a {
+    color: #495057;
+  }
+  
+  .table th a:hover {
+    color: #007bff;
+  }
+  
+  .btn-group .btn {
+    border-radius: 0.375rem;
+    margin-right: 0.25rem;
+  }
+  
+  .modal-lg {
+    max-width: 800px;
+  }
+  
+  .form-label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+  }
+  
+  .card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+  }
+  
+  .filter-section {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 0.375rem;
+    margin-bottom: 1rem;
+  }
+  
+  .avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+</style>
 @endpush

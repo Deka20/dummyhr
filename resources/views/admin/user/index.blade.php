@@ -20,7 +20,7 @@
             </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-bordered table-striped" id="userTable">
+                    <table class="table table-bordered table-striped">
                         <thead>
                             <tr>
                                 <th>No</th>
@@ -65,6 +65,12 @@
                         </tbody>
                     </table>
                 </div>
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                <small class="text-muted">
+                    Menampilkan {{ $users->firstItem() }}-{{ $users->lastItem() }} dari {{ $users->total() }} data
+                </small>
+                {{ $users->appends(request()->query())->links('pagination::bootstrap-4') }}
+                </div>
             </div>
         </div>
     </div>
@@ -76,15 +82,15 @@
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">Pegawai Belum Menjadi User</h3>
-                <div class="card-tools">
+                {{-- <div class="card-tools">
                     <button type="button" class="btn btn-success" onclick="createMultipleUsers()">
                         <i class="fas fa-users"></i> Buat User untuk Semua
                     </button>
-                </div>
+                </div> --}}
             </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-bordered table-striped" id="nonUserTable">
+                    <table class="table table-bordered table-striped">
                         <thead>
                             <tr>
                                 <th>
@@ -128,37 +134,8 @@
 @endsection
 
 @push('scripts')
+
 <script>
-$(document).ready(function() {
-    // Initialize DataTables
-    $('#userTable').DataTable({
-        "responsive": true,
-        "autoWidth": false,
-        "language": {
-            "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Indonesian.json"
-        }
-    });
-
-    $('#nonUserTable').DataTable({
-        "responsive": true,
-        "autoWidth": false,
-        "language": {
-            "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Indonesian.json"
-        }
-    });
-
-    // Select all checkbox functionality
-    $('#selectAll').change(function() {
-        $('.pegawai-checkbox').prop('checked', this.checked);
-    });
-
-    $('.pegawai-checkbox').change(function() {
-        if (!this.checked) {
-            $('#selectAll').prop('checked', false);
-        }
-    });
-});
-
 function deleteUser(userId) {
     Swal.fire({
         title: 'Apakah Anda yakin?',
@@ -267,86 +244,39 @@ function createUserForPegawai(idPegawai) {
         }
     });
 }
+</script>
+<script>
+    @if(session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: '{{ session('success') }}',
+            timer: 3000,
+            showConfirmButton: false
+        });
+    @endif
 
-function createMultipleUsers() {
-    let selectedPegawai = [];
-    $('.pegawai-checkbox:checked').each(function() {
-        selectedPegawai.push($(this).val());
-    });
+    @if(session('alert'))
+        Swal.fire({
+            icon: '{{ session('alert.type') ?? 'info' }}',
+            title: '{{ session('alert.title') ?? 'Info' }}',
+            html: `{!! session('alert.message') !!}`,
+            @if(session('alert.errors'))
+                footer: '<ul class="text-start list-unstyled mb-0">{!! collect(session('alert.errors'))->map(fn($e)=>"<li>• ".$e."</li>")->implode('') !!}</ul>',
+            @endif
+            showConfirmButton: true
+        });
+    @endif
 
-    if (selectedPegawai.length === 0) {
-        Swal.fire('Peringatan!', 'Pilih setidaknya satu pegawai.', 'warning');
-        return;
-    }
-
-    Swal.fire({
-        title: 'Buat User untuk ' + selectedPegawai.length + ' Pegawai',
-        text: "User akan dibuat otomatis untuk semua pegawai yang dipilih",
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#28a745',
-        cancelButtonColor: '#6c757d',
-        confirmButtonText: 'Ya, buat semua!',
-        cancelButtonText: 'Batal'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            // Show loading
-            Swal.fire({
-                title: 'Sedang memproses...',
-                text: 'Mohon tunggu sebentar',
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading()
-                }
-            });
-
-            $.ajax({
-                url: "{{ route('admin.user.create-multiple') }}", // Menggunakan route helper
-                type: 'POST',
-                data: {
-                    "_token": "{{ csrf_token() }}",
-                    "id_pegawai": selectedPegawai
-                },
-                success: function(response) {
-                    console.log('Success response:', response);
-                    
-                    Swal.fire(
-                        'Berhasil!',
-                        'User berhasil dibuat untuk ' + response.created + ' pegawai.',
-                        'success'
-                    ).then(() => {
-                        location.reload();
-                    });
-                },
-                error: function(xhr, status, error) {
-                    console.error('Error details:', {
-                        status: status,
-                        error: error,
-                        responseText: xhr.responseText,
-                        responseJSON: xhr.responseJSON,
-                        statusCode: xhr.status
-                    });
-                    
-                    let errorMessage = 'Terjadi kesalahan saat membuat user.';
-                    
-                    if (xhr.responseJSON && xhr.responseJSON.message) {
-                        errorMessage = xhr.responseJSON.message;
-                    } else if (xhr.status === 404) {
-                        errorMessage = 'Route tidak ditemukan. Pastikan route sudah didaftarkan.';
-                    } else if (xhr.status === 419) {
-                        errorMessage = 'CSRF token tidak valid. Silakan refresh halaman.';
-                    }
-                    
-                    Swal.fire(
-                        'Gagal!',
-                        errorMessage,
-                        'error'
-                    );
-                }
-            });
-        }
-    });
-}
+    @if(session('notifikasi'))
+        Swal.fire({
+            icon: '{{ session('type') ?? 'info' }}',
+            title: 'Pemberitahuan',
+            text: '{{ session('notifikasi') }}',
+            timer: 3000,
+            showConfirmButton: false
+        });
+    @endif
 </script>
 
 <style>

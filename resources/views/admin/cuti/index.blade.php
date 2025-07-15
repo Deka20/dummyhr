@@ -32,21 +32,6 @@
 
 @section('content')
 <div class="container-fluid mt-4">
-    <!-- Alert Messages -->
-    @if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show">
-        <i class="ti ti-check-circle me-2"></i>{{ session('success') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-    @endif
-
-    @if(session('error'))
-    <div class="alert alert-danger alert-dismissible fade show">
-        <i class="ti ti-alert-circle me-2"></i>{{ session('error') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-    @endif
-
     <div class="row">
         <div class="col-12">
             <div class="card shadow-sm">
@@ -497,7 +482,7 @@ function showDetail(id) {
     modal.show();
     
     // Fetch detail using AJAX
-    fetch(`{{ url('pegawai/cuti') }}/${id}`)
+    fetch(`{{ url('hrd/cuti') }}/${id}`)
         .then(response => response.json())
         .then(data => {
             let statusBadge = '';
@@ -550,5 +535,38 @@ function cancelLeave(button) {
         button.closest('form').submit();
     }
 }
+</script>
+<script>
+    @if(session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: '{{ session('success') }}',
+            timer: 3000,
+            showConfirmButton: false
+        });
+    @endif
+
+    @if(session('alert'))
+        Swal.fire({
+            icon: '{{ session('alert.type') ?? 'info' }}',
+            title: '{{ session('alert.title') ?? 'Info' }}',
+            html: `{!! session('alert.message') !!}`,
+            @if(session('alert.errors'))
+                footer: '<ul class="text-start list-unstyled mb-0">{!! collect(session('alert.errors'))->map(fn($e)=>"<li>• ".$e."</li>")->implode('') !!}</ul>',
+            @endif
+            showConfirmButton: true
+        });
+    @endif
+
+    @if(session('notifikasi'))
+        Swal.fire({
+            icon: '{{ session('type') ?? 'info' }}',
+            title: 'Pemberitahuan',
+            text: '{{ session('notifikasi') }}',
+            timer: 3000,
+            showConfirmButton: false
+        });
+    @endif
 </script>
 @endpush
