@@ -7,7 +7,7 @@ use App\Http\Controllers\{
     AdminDashboardController, RiwayatAbsensiController, PegawaiDashboardController,
     PeriodeController, PeriodeKuisionerController, PegawaiKuisionerController,
     PegawaiCutiController, KepalaDashboardController, KepalaListPengajuanController,
-    RekapPenilaianSDMController, LogSistemController,UserController
+    RekapPenilaianSDMController, LogSistemController,UserController,DepartemenController
 };
 
 // Redirect root ke login
@@ -40,6 +40,7 @@ Route::middleware(['auth', 'check.role:hrd'])->prefix('hrd')->group(function () 
         'update'  => 'admin.LokasiKantor.update',
         'destroy' => 'admin.LokasiKantor.destroy',
     ]);
+   
 
     Route::get('/lokasi-kantor/{id}', [AdminDashboardController::class, 'getLokasiKantor'])->name('admin.lokasi-kantor.get')->where('id', '[0-9]+');
 

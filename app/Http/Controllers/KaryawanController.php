@@ -219,10 +219,12 @@ class KaryawanController extends Controller
     public function edit($id)
     {
         try {
-            $pegawai = Pegawai::with(['jabatan', 'departemen'])->findOrFail($id);
+            $pegawai = Auth::user()->pegawai;
+            $pegawai2 = Pegawai::with(['jabatan', 'departemen'])->findOrFail($id);
             
             return view('admin.edit-pegawai', [
                 'pegawai' => $pegawai,
+                'pegawai2' => $pegawai2,
                 'jabatan' => Jabatan::all(),
                 'departemen' => Departemen::all(),
                 'nama_departemen' => $pegawai->departemen->nama_departemen ?? '',

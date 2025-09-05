@@ -85,16 +85,16 @@
   </a>
 </li>
 <!-- STRUKTUR ORGANISASI -->
-<li class="pc-item pc-caption">
+{{-- <li class="pc-item pc-caption">
   <label>Struktur Organisasi</label>
   <i class="ti ti-hierarchy"></i>
-</li>
-<li class="pc-item">
+</li> --}}
+{{-- <li class="pc-item">
   <a href="{{ url('/jabatan') }}" class="pc-link">
     <span class="pc-micon"><i class="ti ti-hierarchy"></i></span>
     <span class="pc-mtext">Jabatan & Departemen</span>
   </a>
-</li>
+</li> --}}
 
 <li class="pc-item pc-caption">
   <label>Kinerja</label>
@@ -166,6 +166,9 @@ $currentPeriode = \App\Models\PeriodePenilaian::where('status', 'aktif')->first(
     <span class="pc-mtext">Lokasi Kantor</span>
   </a>
 </li>
+
+
+
 <li class="pc-item">
   <a href="{{ route('admin.log-sistem.index') }}" class="pc-link">
     <span class="pc-micon"><i class="ti ti-file-text"></i></span>
