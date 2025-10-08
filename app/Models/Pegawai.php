@@ -4,11 +4,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\User;
-use App\Models\Absensi;
-use App\Models\Departemen;
-use App\Models\Jabatan;
-use App\Models\Cuti;
 
 // Model untuk tabel 'pegawai'
 
