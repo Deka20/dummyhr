@@ -5,6 +5,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+// Model untuk tabel 'departemen'
+
 class Departemen extends Model
 {
     protected $table = 'departemen';

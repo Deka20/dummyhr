@@ -9,8 +9,8 @@ class Absensi extends Model
 {
     use HasFactory;
 
-    protected $table = 'kehadiran'; // nama tabel
-    protected $primaryKey = 'id_kehadiran'; // primary key yang benar
+    protected $table = 'kehadiran';
+    protected $primaryKey = 'id_kehadiran'; 
     public $incrementing = true;
     protected $keyType = 'int';
 

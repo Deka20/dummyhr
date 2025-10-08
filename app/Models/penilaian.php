@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+// Model untuk tabel 'penilaian'
+
 class Penilaian extends Model
 {
     use HasFactory;
